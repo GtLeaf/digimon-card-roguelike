@@ -1,0 +1,533 @@
+{
+  "version": 1,
+  "sourceRepository": "https://github.com/E-M-B-E-R/digimon-world-ds-dawn-dusk-animated-sprites",
+  "sourceRevision": "4b2273e163f023b9562cc69e4642f97a0684cb87",
+  "rights": "Original game assets; rights remain with original rights holders. No commercial license granted by this collection.",
+  "cellSize": {
+    "width": 256,
+    "height": 256
+  },
+  "anchor": {
+    "x": 128,
+    "y": 224
+  },
+  "animationCoverage": "One four-frame loop per character; no separate attack/hit/death animations supplied.",
+  "characters": [
+    {
+      "id": "guilmon",
+      "name": "基尔兽",
+      "sourceName": "Guilmon",
+      "route": "guilmon",
+      "routeName": "基尔兽路线",
+      "stage": "成长期",
+      "source": "assets/vendor/digimon-ds/original/rookie/Guilmon.gif",
+      "sourceSHA256": "e260afd5dfb28287c30f1e95881fa94daf297967bf6ce358598ef911bb3ee390",
+      "sourceSize": [
+        61,
+        76
+      ],
+      "sourceUnionBounds": [
+        0,
+        0,
+        61,
+        76
+      ],
+      "contentSize": [
+        61,
+        76
+      ],
+      "sheet": "assets/characters/guilmon/idle-sheet.png",
+      "portrait": "assets/characters/guilmon/portrait.png",
+      "gif": "assets/characters/guilmon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/guilmon/frames/00.png",
+        "assets/characters/guilmon/frames/01.png",
+        "assets/characters/guilmon/frames/02.png",
+        "assets/characters/guilmon/frames/03.png"
+      ]
+    },
+    {
+      "id": "growlmon",
+      "name": "古拉兽",
+      "sourceName": "Growlmon",
+      "route": "guilmon",
+      "routeName": "基尔兽路线",
+      "stage": "成熟期",
+      "source": "assets/vendor/digimon-ds/original/champion/Growlmon.gif",
+      "sourceSHA256": "7a552b6cb37767c1cbddb9d7968385d2c9b5936a2011ad338c65c409a542b300",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        34,
+        24,
+        116,
+        124
+      ],
+      "contentSize": [
+        82,
+        100
+      ],
+      "sheet": "assets/characters/growlmon/idle-sheet.png",
+      "portrait": "assets/characters/growlmon/portrait.png",
+      "gif": "assets/characters/growlmon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/growlmon/frames/00.png",
+        "assets/characters/growlmon/frames/01.png",
+        "assets/characters/growlmon/frames/02.png",
+        "assets/characters/growlmon/frames/03.png"
+      ]
+    },
+    {
+      "id": "wargrowlmon",
+      "name": "大古拉兽",
+      "sourceName": "WarGrowlmon",
+      "route": "guilmon",
+      "routeName": "基尔兽路线",
+      "stage": "完全体",
+      "source": "assets/vendor/digimon-ds/original/ultimate/WarGrowlmon.gif",
+      "sourceSHA256": "efb377817f32f5e7f2bc70367677ba9987d518343720d9f01e6fde5d2bf2b317",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        21,
+        16,
+        132,
+        133
+      ],
+      "contentSize": [
+        111,
+        117
+      ],
+      "sheet": "assets/characters/wargrowlmon/idle-sheet.png",
+      "portrait": "assets/characters/wargrowlmon/portrait.png",
+      "gif": "assets/characters/wargrowlmon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/wargrowlmon/frames/00.png",
+        "assets/characters/wargrowlmon/frames/01.png",
+        "assets/characters/wargrowlmon/frames/02.png",
+        "assets/characters/wargrowlmon/frames/03.png"
+      ]
+    },
+    {
+      "id": "dukemon",
+      "name": "红莲骑士兽",
+      "sourceName": "Dukemon",
+      "route": "guilmon",
+      "routeName": "基尔兽路线",
+      "stage": "究极体",
+      "source": "assets/vendor/digimon-ds/original/mega/Dukemon.gif",
+      "sourceSHA256": "0b2b29008d408b967563fac170d539ba306c94233f791f23619b8460ff3c877e",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        2,
+        17,
+        144,
+        131
+      ],
+      "contentSize": [
+        142,
+        114
+      ],
+      "sheet": "assets/characters/dukemon/idle-sheet.png",
+      "portrait": "assets/characters/dukemon/portrait.png",
+      "gif": "assets/characters/dukemon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/dukemon/frames/00.png",
+        "assets/characters/dukemon/frames/01.png",
+        "assets/characters/dukemon/frames/02.png",
+        "assets/characters/dukemon/frames/03.png"
+      ]
+    },
+    {
+      "id": "terriermon",
+      "name": "大耳兽",
+      "sourceName": "Terriermon",
+      "route": "terriermon",
+      "routeName": "大耳兽路线",
+      "stage": "成长期",
+      "source": "assets/vendor/digimon-ds/original/rookie/Terriermon.gif",
+      "sourceSHA256": "a47c101e9d325710f1e67bd50b5714265452a1ce01bf6429893d4ed9c2c39557",
+      "sourceSize": [
+        75,
+        55
+      ],
+      "sourceUnionBounds": [
+        5,
+        2,
+        71,
+        47
+      ],
+      "contentSize": [
+        66,
+        45
+      ],
+      "sheet": "assets/characters/terriermon/idle-sheet.png",
+      "portrait": "assets/characters/terriermon/portrait.png",
+      "gif": "assets/characters/terriermon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        250,
+        250,
+        250,
+        250
+      ],
+      "loopDurationMs": 1000,
+      "frames": [
+        "assets/characters/terriermon/frames/00.png",
+        "assets/characters/terriermon/frames/01.png",
+        "assets/characters/terriermon/frames/02.png",
+        "assets/characters/terriermon/frames/03.png"
+      ]
+    },
+    {
+      "id": "galgomon",
+      "name": "加鲁哥兽",
+      "sourceName": "Galgomon",
+      "route": "terriermon",
+      "routeName": "大耳兽路线",
+      "stage": "成熟期",
+      "source": "assets/vendor/digimon-ds/original/champion/Galgomon.gif",
+      "sourceSHA256": "08f500a1c4ece4b3118a20227124fca6437ff02475a73621144ee3940c6c553a",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        16,
+        28,
+        132,
+        118
+      ],
+      "contentSize": [
+        116,
+        90
+      ],
+      "sheet": "assets/characters/galgomon/idle-sheet.png",
+      "portrait": "assets/characters/galgomon/portrait.png",
+      "gif": "assets/characters/galgomon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/galgomon/frames/00.png",
+        "assets/characters/galgomon/frames/01.png",
+        "assets/characters/galgomon/frames/02.png",
+        "assets/characters/galgomon/frames/03.png"
+      ]
+    },
+    {
+      "id": "rapidmon",
+      "name": "拉比兽",
+      "sourceName": "Rapidmon",
+      "route": "terriermon",
+      "routeName": "大耳兽路线",
+      "stage": "完全体",
+      "source": "assets/vendor/digimon-ds/original/ultimate/Rapidmon.gif",
+      "sourceSHA256": "f7cc69cec52b92ac6bfaf3fc3c283479e91a846a8921b9e6f269fce3372a515a",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        18,
+        2,
+        133,
+        145
+      ],
+      "contentSize": [
+        115,
+        143
+      ],
+      "sheet": "assets/characters/rapidmon/idle-sheet.png",
+      "portrait": "assets/characters/rapidmon/portrait.png",
+      "gif": "assets/characters/rapidmon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/rapidmon/frames/00.png",
+        "assets/characters/rapidmon/frames/01.png",
+        "assets/characters/rapidmon/frames/02.png",
+        "assets/characters/rapidmon/frames/03.png"
+      ]
+    },
+    {
+      "id": "saintgalgomon",
+      "name": "撒多格杜兽",
+      "sourceName": "SaintGalgomon",
+      "route": "terriermon",
+      "routeName": "大耳兽路线",
+      "stage": "究极体",
+      "source": "assets/vendor/digimon-ds/original/mega/SaintGalgomon.gif",
+      "sourceSHA256": "3d77fe6c445a17bc410c9d26d9db51a3f407da6b119556a8634e5f1e239abb50",
+      "sourceSize": [
+        200,
+        200
+      ],
+      "sourceUnionBounds": [
+        36,
+        8,
+        154,
+        191
+      ],
+      "contentSize": [
+        118,
+        183
+      ],
+      "sheet": "assets/characters/saintgalgomon/idle-sheet.png",
+      "portrait": "assets/characters/saintgalgomon/portrait.png",
+      "gif": "assets/characters/saintgalgomon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/saintgalgomon/frames/00.png",
+        "assets/characters/saintgalgomon/frames/01.png",
+        "assets/characters/saintgalgomon/frames/02.png",
+        "assets/characters/saintgalgomon/frames/03.png"
+      ]
+    },
+    {
+      "id": "renamon",
+      "name": "妖狐兽",
+      "sourceName": "Renamon",
+      "route": "renamon",
+      "routeName": "妖狐兽路线",
+      "stage": "成长期",
+      "source": "assets/vendor/digimon-ds/original/rookie/Renamon.gif",
+      "sourceSHA256": "9658e08ed2498450833d24d683b0805abf5244445c95db4f88a31ea1f9f30628",
+      "sourceSize": [
+        100,
+        100
+      ],
+      "sourceUnionBounds": [
+        26,
+        8,
+        78,
+        89
+      ],
+      "contentSize": [
+        52,
+        81
+      ],
+      "sheet": "assets/characters/renamon/idle-sheet.png",
+      "portrait": "assets/characters/renamon/portrait.png",
+      "gif": "assets/characters/renamon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/renamon/frames/00.png",
+        "assets/characters/renamon/frames/01.png",
+        "assets/characters/renamon/frames/02.png",
+        "assets/characters/renamon/frames/03.png"
+      ]
+    },
+    {
+      "id": "kyubimon",
+      "name": "九尾狐兽",
+      "sourceName": "Kyubimon",
+      "route": "renamon",
+      "routeName": "妖狐兽路线",
+      "stage": "成熟期",
+      "source": "assets/vendor/digimon-ds/original/champion/Kyubimon.gif",
+      "sourceSHA256": "aa4cc6f361e368a4fde8dda346cc08a3c8b6e0037880edec80e107b8f8a9e038",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        14,
+        19,
+        135,
+        129
+      ],
+      "contentSize": [
+        121,
+        110
+      ],
+      "sheet": "assets/characters/kyubimon/idle-sheet.png",
+      "portrait": "assets/characters/kyubimon/portrait.png",
+      "gif": "assets/characters/kyubimon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/kyubimon/frames/00.png",
+        "assets/characters/kyubimon/frames/01.png",
+        "assets/characters/kyubimon/frames/02.png",
+        "assets/characters/kyubimon/frames/03.png"
+      ]
+    },
+    {
+      "id": "taomon",
+      "name": "祭师兽",
+      "sourceName": "Taomon",
+      "route": "renamon",
+      "routeName": "妖狐兽路线",
+      "stage": "完全体",
+      "source": "assets/vendor/digimon-ds/original/ultimate/Taomon.gif",
+      "sourceSHA256": "27e8fefba1b0ce77a4be0253c9d102b1d1199ffd311f7ea3e4b172156f3fc81c",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        32,
+        26,
+        116,
+        122
+      ],
+      "contentSize": [
+        84,
+        96
+      ],
+      "sheet": "assets/characters/taomon/idle-sheet.png",
+      "portrait": "assets/characters/taomon/portrait.png",
+      "gif": "assets/characters/taomon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/taomon/frames/00.png",
+        "assets/characters/taomon/frames/01.png",
+        "assets/characters/taomon/frames/02.png",
+        "assets/characters/taomon/frames/03.png"
+      ]
+    },
+    {
+      "id": "sakuyamon",
+      "name": "沙古牙兽",
+      "sourceName": "Sakuyamon",
+      "route": "renamon",
+      "routeName": "妖狐兽路线",
+      "stage": "究极体",
+      "source": "assets/vendor/digimon-ds/original/mega/Sakuyamon.gif",
+      "sourceSHA256": "c2c8c8a52feb5509dbdd49ac6753393e39db1a8ffad4bf8d8f3073749c5bf115",
+      "sourceSize": [
+        150,
+        150
+      ],
+      "sourceUnionBounds": [
+        25,
+        5,
+        125,
+        143
+      ],
+      "contentSize": [
+        100,
+        138
+      ],
+      "sheet": "assets/characters/sakuyamon/idle-sheet.png",
+      "portrait": "assets/characters/sakuyamon/portrait.png",
+      "gif": "assets/characters/sakuyamon/source.gif",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frameDurationMs": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loopDurationMs": 800,
+      "frames": [
+        "assets/characters/sakuyamon/frames/00.png",
+        "assets/characters/sakuyamon/frames/01.png",
+        "assets/characters/sakuyamon/frames/02.png",
+        "assets/characters/sakuyamon/frames/03.png"
+      ]
+    }
+  ]
+}

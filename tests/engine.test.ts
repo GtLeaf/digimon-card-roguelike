@@ -1,0 +1,67 @@
+import { describe,expect,it } from 'vitest';
+import { emptySave, reduceGame, intent, cardCost } from '../src/game/engine';
+import { availableNodes } from '../src/game/map';
+import { evolutionStatus, nextEvolutions } from '../src/game/evolution';
+import { CARDS, BRANCHES } from '../src/game/data';
+import { parseSave } from '../src/game/storage';
+import type { Save, Partner, Branch, Action } from '../src/game/types';
+function start(partner:Partner='guilmon',seed=42){let s=reduceGame(emptySave(),{type:'start',partner,seed});s=reduceGame(s,{type:'bless',id:'guard'});return s;}
+function fight(){let s=start();s=reduceGame(s,{type:'node',id:s.run!.nodes[0][0].id});return s;}
+function hand(s:Save,ids:string[]){s.run!.battle!.hand=ids.map((id,i)=>({uid:`test${i}`,id,upgraded:false}));s.run!.battle!.energy=5;}
+function win(s:Save){hand(s,['strike']);s.run!.battle!.enemies.forEach(e=>e.hp=1);return reduceGame(s,{type:'play',uid:'test0'});}
+describe('battle invariants',()=>{
+ it('seeded maps, rewards and initial hands are reproducible',()=>{expect(fight()).toEqual(fight());});
+ it('does not mutate previous state while paying energy and moving card',()=>{const s=fight();hand(s,['strike']);const copy=structuredClone(s);const next=reduceGame(s,{type:'play',uid:'test0'});expect(s).toEqual(copy);expect(next.run!.battle!.energy).toBe(4);expect(next.run!.battle!.discard.map(c=>c.uid)).toContain('test0');expect(next.run!.battle!.enemies[0].hp).toBe(21);});
+ it('does not allow an unaffordable card or double play',()=>{let s=fight();hand(s,['inferno']);s.run!.battle!.energy=1;expect(reduceGame(s,{type:'play',uid:'test0'})).toEqual(s);s.run!.battle!.energy=3;s=reduceGame(s,{type:'play',uid:'test0'});expect(reduceGame(s,{type:'play',uid:'test0'})).toEqual(s);});
+ it('shield absorbs damage and resets at new player turn',()=>{let s=fight();hand(s,['guard']);s.run!.battle!.turn=2;s=reduceGame(s,{type:'play',uid:'test0'});const hp=s.run!.hp;expect(s.run!.battle!.block).toBe(10);s=reduceGame(s,{type:'endTurn'});expect(s.run!.hp).toBe(hp);expect(s.run!.battle!.block).toBe(0);expect(s.run!.battle!.energy).toBe(3);});
+ it('burn damage ignores block and decays',()=>{let s=fight();s.run!.battle!.enemies[0].burn=5;s=reduceGame(s,{type:'endTurn'});expect(s.run!.battle!.enemies[0].hp).toBe(23);expect(s.run!.battle!.enemies[0].block).toBe(8);expect(s.run!.battle!.enemies[0].burn).toBe(4);});
+ it('detonation consumes burn and mark burst consumes marks',()=>{let s=fight();hand(s,['ignite']);s.run!.battle!.enemies[0].burn=3;s=reduceGame(s,{type:'play',uid:'test0'});expect(s.run!.battle!.enemies[0].hp).toBe(16);expect(s.run!.battle!.enemies[0].burn).toBe(0);s=fight();hand(s,['seal']);s.run!.battle!.enemies[0].mark=2;s=reduceGame(s,{type:'play',uid:'test0'});expect(s.run!.battle!.enemies[0].hp).toBe(13);expect(s.run!.battle!.enemies[0].mark).toBe(0);});
+ it('sync gain caps at three per turn',()=>{let s=fight();hand(s,['guard','guard','guard','guard']);for(let i=0;i<4;i++)s=reduceGame(s,{type:'play',uid:`test${i}`});expect(s.run!.battle!.sync).toBe(3);});
+ it('a lethal self-cost ends the run without healing or dealing damage',()=>{let s=fight();hand(s,['sacrifice']);s.run!.hp=3;s=reduceGame(s,{type:'play',uid:'test0'});expect(s.run!.screen).toBe('result');expect(s.run!.won).toBe(false);expect(s.run!.hp).toBe(0);});
+ it('copy cards cannot recursively copy themselves',()=>{let s=fight();hand(s,['illusion','illusion']);s=reduceGame(s,{type:'play',uid:'test0'});expect(s.run!.battle!.hand).toHaveLength(1);});
+ it('burst is once per battle and does not revert evolution',()=>{let s=fight();s.run!.stage=3;s.run!.branch='duke';s.run!.form='dukemon';s.run!.battle!.sync=6;s=reduceGame(s,{type:'burst'});expect(s.run!.battle!.burst).toBe(3);expect(s.run!.battle!.burstUsed).toBe(true);s.run!.battle!.sync=6;const before=structuredClone(s);expect(reduceGame(s,{type:'burst'})).toEqual(before);for(let i=0;i<3;i++)s=reduceGame(s,{type:'endTurn'});expect(s.run!.form).toBe('dukemon');expect(s.run!.battle!.burst).toBe(0);});
+ it('limits the hand to eight while preserving overflow in discard',()=>{let s=fight();hand(s,Array(8).fill('study'));s=reduceGame(s,{type:'play',uid:'test0'});expect(s.run!.battle!.hand).toHaveLength(8);expect(s.run!.battle!.discard.length).toBeGreaterThan(0);});
+ it('enemy reactive intent updates after card plays',()=>{let s=fight();s.run!.battle!.enemies[0].id='sinduramon';s.run!.battle!.turn=2;hand(s,['guard']);expect(intent(s.run!,s.run!.battle!.enemies[0]).damage).toBe(4);s=reduceGame(s,{type:'play',uid:'test0'});expect(intent(s.run!,s.run!.battle!.enemies[0]).damage).toBe(6);});
+});
+describe('progress, scanning and evolution',()=>{
+ it('records scan once per battle and prevents duplicate reward claims',()=>{let s=win(fight());expect(s.meta.scans.hagurumon).toBe(50);const again=reduceGame(s,{type:'play',uid:'test0'});expect(again.meta.scans.hagurumon).toBe(50);const before=s.run!.gold;s=reduceGame(s,{type:'reward'});expect(s.run!.row).toBe(1);s=reduceGame(s,{type:'reward'});expect(s.run!.gold).toBe(before);});
+ it('two wins unlock support conversion; loss retains collection',()=>{let s=reduceGame(win(fight()),{type:'reward'});s=reduceGame(s,{type:'node',id:s.run!.nodes[1][0].id});s=win(s);expect(s.meta.scans.hagurumon).toBe(100);s=reduceGame(s,{type:'convert',id:'hagurumon'});expect(s.meta.partners).toContain('hagurumon');s=reduceGame(s,{type:'abandon'});expect(s.meta.scans.hagurumon).toBe(100);expect(s.meta.partners).toContain('hagurumon');});
+ it('cannot equip support mid-battle or convert an incomplete scan',()=>{const s=fight();expect(reduceGame(s,{type:'convert',id:'mushmon'}).meta.partners).toEqual([]);s.meta.partners=['mushmon'];expect(reduceGame(s,{type:'equip',id:'mushmon'}).run!.support).toBe('default');});
+ it('prevents jumping map rows',()=>{const s=start();expect(reduceGame(s,{type:'node',id:s.run!.nodes[7][0].id})).toEqual(s);});
+ it.each(['duke','megidra','sakuya','kuzuha'] as Branch[])('evolves %s, swaps two cards without losing upgrades',branch=>{let s=start(BRANCHES[branch].partner);const r=s.run!;r.row=15;r.currentNode=r.nodes[15][0];r.screen='evolution';r.stage=2;r.bosses=2;r.form=r.partner==='guilmon'?'wargrowlmon':'taomon';r.activity.counts={fire:10,detonations:3,skills:18,combos:5};r.deck[0].upgraded=true;const uids=r.deck.slice(0,2).map(c=>c.uid);s=reduceGame(s,{type:'evolve',branch,replace:uids});expect(s.run!.form).toBe(BRANCHES[branch].art);expect(s.run!.deck).toHaveLength(10);expect(s.run!.deck[0].upgraded).toBe(true);expect(s.run!.deck.slice(0,2).map(c=>c.id)).toEqual(BRANCHES[branch].cards);expect(s.run!.screen).toBe('blessing');s=reduceGame(s,{type:'bless',id:'bond'});expect(s.run!.row).toBe(16);});
+ it('rejects wrong-partner evolution and duplicate replacement cards',()=>{const s=start();s.run!.row=15;s.run!.screen='evolution';const uid=s.run!.deck[0].uid;expect(reduceGame(s,{type:'evolve',branch:'sakuya',replace:[uid,s.run!.deck[1].uid]})).toEqual(s);expect(reduceGame(s,{type:'evolve',branch:'duke',replace:[uid,uid]})).toEqual(s);});
+ it('does not sell twice and does not allow buying without gold',()=>{let s=start();s.run!.screen='shop';s.run!.shopStock=['fireball'];s.run!.gold=45;s=reduceGame(s,{type:'buy',id:'fireball'});expect(s.run!.gold).toBe(0);expect(s.run!.deck).toHaveLength(11);expect(reduceGame(s,{type:'buy',id:'fireball'})).toEqual(s);});
+ it('save round-trip preserves RNG and next draw exactly',()=>{let s=fight();s=reduceGame(s,{type:'play',uid:s.run!.battle!.hand[0].uid});const restored=parseSave(JSON.stringify(s));expect(restored).toEqual(s);expect(reduceGame(restored,{type:'endTurn'})).toEqual(reduceGame(s,{type:'endTurn'}));});
+ it('rejects malformed, incompatible, and unknown card saves',()=>{expect(()=>parseSave('{}')).toThrow();const s=fight();s.run!.deck[0].id='bad-card';expect(()=>parseSave(JSON.stringify(s))).toThrow();});
+});
+// 使用真实伤害、生命和规则的固定策略通关回归；不注入血量或跳过战斗。
+export function autoplay(partner:Partner,branch:Branch,seed:number){
+ let s=start(partner,seed),steps=0;
+ while(s.run!.screen!=='result'&&steps++<2000){
+  const r=s.run!;let action:Action;
+  switch(r.screen){
+   case 'map':{const nodes=availableNodes(r);const node=((branch==='megidra'||branch==='kuzuha')?nodes.find(n=>n.kind==='battle'):undefined)??nodes.find(n=>n.kind==='camp')??nodes.find(n=>n.kind==='treasure')??nodes.find(n=>n.kind==='event')??nodes[0];action={type:'node',id:node.id};break;}
+   case 'battle':{
+    const b=r.battle!,target=b.enemies.find(e=>e.hp>0)!;
+    if(r.potions>0&&r.hp<=r.maxHp-18){action={type:'potion'};break;}
+    if(!b.supportUsed){action={type:'support',target:target.uid};break;}
+    if(r.branch&&b.sync>=6&&!b.burstUsed){action={type:'burst'};break;}
+    const incoming=b.enemies.filter(e=>e.hp>0).reduce((n,e)=>{const i=intent(r,e);return n+i.damage*i.hits;},0);
+    const candidates=b.hand.filter(c=>cardCost(c)<=b.energy);
+    const score=(c:typeof candidates[number])=>{const d=CARDS[c.id];let score=(d.damage??0)*(d.hits??1)+(d.burn??0)*2+(d.mark??0)+(d.heal??0)*2+(d.draw??0)*2+(d.strength??0)*7+(d.energy??0)*10;if(d.shield)score+=Math.min(d.shield+ (c.upgraded?3:0),Math.max(0,incoming-b.block))*1.7;if(d.special==='detonate')score+=target.burn*3;if(d.special==='markburst')score+=target.mark*5;if(d.special==='copy')score=1;if(branch==='megidra'&&d.burn)score+=6;if(branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power'))score+=4;if(d.all)score*=b.enemies.filter(e=>e.hp>0).length;if(d.special==='sacrifice')score-=8;return score;};
+    candidates.sort((a,b)=>score(b)-score(a));const c=candidates[0];action=c?{type:'play',uid:c.uid,target:target.uid}:{type:'endTurn'};break;
+   }
+   case 'reward':{const pool=r.reward!.cards;const fav=partner==='guilmon'?(branch==='megidra'?['ignite','fireball','heatwave','flare','roar','brace','mend']:['roar','fireball','brace','fortify','doublecut','inferno','mend']):(branch==='kuzuha'?['barrier','brace','talisman','ritual','mend','insight','leaf']:['leaf','seal','barrier','brace','ritual','fortify','mend']);const pick=fav.find(id=>pool.includes(id));action={type:'reward',card:r.deck.length<18?pick:undefined};break;}
+   case 'camp':if(r.stage===2&&evolutionStatus(r,s.meta,BRANCHES[branch].art).ready){action={type:'campEvolution'};break;}action=r.hp<r.maxHp*.78?{type:'camp',mode:'heal'}:{type:'camp',mode:'upgrade',uid:r.deck.find(c=>!c.upgraded&&CARDS[c.id].family===partner)?.uid??r.deck.find(c=>!c.upgraded)?.uid};if(action.type==='camp'&&!action.uid&&action.mode==='upgrade')action={type:'camp',mode:'heal'};break;
+   case 'event':action={type:'event',choice:'safe'};break;
+   case 'treasure':case 'shop':action={type:'continue'};break;
+   case 'evolution':{const candidates=nextEvolutions(r);const goal=r.stage===2?BRANCHES[branch].art:candidates[0]?.id;const d=candidates.find(d=>d.id===goal&&evolutionStatus(r,s.meta,d.id).ready);const uids=r.deck.filter(c=>c.id==='strike').slice(0,2).map(c=>c.uid);action=d?{type:'evolve',form:d.id,replace:uids.length===2?uids:r.deck.slice(0,2).map(c=>c.uid),training:'defense',inherit:partner==='guilmon'?'ward':'seal'}:{type:'deferEvolution'};break;}
+   case 'blessing':action={type:'bless',id:'guard'};break;
+   default:throw Error(`Unhandled ${r.screen}`);
+  }
+  s=reduceGame(s,action);
+  if(s.run!.screen==='reward'&&(s.meta.scans.hagurumon??0)>=100&&!s.meta.partners.includes('hagurumon')){s=reduceGame(s,{type:'convert',id:'hagurumon'});s=reduceGame(s,{type:'equip',id:'hagurumon'});}
+ }
+ return {save:s,steps};
+}
+describe('full journey',()=>{it.each(['duke','megidra','sakuya','kuzuha'] as Branch[])('finishes all three chapters with %s',branch=>{const {save,steps}=autoplay(BRANCHES[branch].partner,branch,42);expect(steps,JSON.stringify({row:save.run!.row,screen:save.run!.screen,form:save.run!.form,counts:save.run!.activity})).toBeLessThan(2000);expect(save.run!.screen).toBe('result');expect(save.run!.won,`Stopped at row ${save.run!.row}, hp ${save.run!.hp}`).toBe(true);expect(save.run!.stage,JSON.stringify(save.run!.activity)).toBe(3);expect(save.run!.branch).toBe(branch);expect(save.meta.wins).toBe(1);});});

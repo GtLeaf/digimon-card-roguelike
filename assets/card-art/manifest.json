@@ -1,0 +1,120 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-09-27",
+  "style": "简洁卡通插画、浅色背景、粗线条、低饱和配色",
+  "basePrompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. ",
+  "items": [
+    {
+      "id": "strike",
+      "name": "攻击指令",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A short broad steel sword sweeping diagonally with one muted terracotta curved slash mark. No hand.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-c7f7fbd1-6c0d-44a8-adb4-e79f9fbf7301.png",
+      "original": "assets/card-art/original/strike.png",
+      "runtime": "public/card-art/strike.jpg"
+    },
+    {
+      "id": "guard",
+      "name": "防御插件",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A sturdy sage-green shield with a simple inset diamond plate, front three-quarter view, two tiny impact ticks.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-1cb5a7f1-c1b7-460f-8b73-e9dec65fd217.png",
+      "original": "assets/card-art/original/guard.png",
+      "runtime": "public/card-art/guard.jpg"
+    },
+    {
+      "id": "haste",
+      "name": "高速插件",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A small wing-shaped mechanical speed module, tilted forward with just three short motion strokes.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-690088d8-3cb5-4eca-9d8e-b6c1407a488f.png",
+      "original": "assets/card-art/original/haste.png",
+      "runtime": "public/card-art/haste.jpg"
+    },
+    {
+      "id": "fortify",
+      "name": "防护屏障",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: Three overlapping translucent-looking solid sage shield panels forming a low protective barrier, with strong simple outlines.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-de796088-41ae-4695-8b95-6431930556df.png",
+      "original": "assets/card-art/original/fortify.png",
+      "runtime": "public/card-art/fortify.jpg"
+    },
+    {
+      "id": "mend",
+      "name": "数据修复",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A cracked square circuit tile being rejoined by two small green square patches, with a simple plus-shaped repair mark.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-9e53bc0b-fe28-4eb6-a9c9-81dd5694ed11.png",
+      "original": "assets/card-art/original/mend.png",
+      "runtime": "public/card-art/mend.jpg"
+    },
+    {
+      "id": "battery",
+      "name": "能量装填",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: One chunky portable battery cartridge with a yellow-ochre lightning bolt emblem and a short cable connector.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-05f2c3b9-8b71-40af-a2f9-eecaf5beaaa2.png",
+      "original": "assets/card-art/original/battery.png",
+      "runtime": "public/card-art/battery.jpg"
+    },
+    {
+      "id": "study",
+      "name": "紧急分析",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A round magnifying glass above two simple overlapping data cards, one card has three abstract rectangular data blocks, no writing.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-4d5f77ad-094e-43f9-93d4-7df39e6d7050.png",
+      "original": "assets/card-art/original/study.png",
+      "runtime": "public/card-art/study.jpg"
+    },
+    {
+      "id": "purge",
+      "name": "净化程序",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A small sage cleanup brush sweeping away three dark broken pixel squares from one pale circuit tile.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-6fb9c1d7-1afa-4e38-b16d-fb4229dc93f5.png",
+      "original": "assets/card-art/original/purge.png",
+      "runtime": "public/card-art/purge.jpg"
+    },
+    {
+      "id": "brace",
+      "name": "战术整备",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A compact open toolkit with a small shield plate and two neatly arranged data cards, simple balanced shapes.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-e8b25ea2-a6d0-491a-a797-6164abe22ece.png",
+      "original": "assets/card-art/original/brace.png",
+      "runtime": "public/card-art/brace.jpg"
+    },
+    {
+      "id": "shieldbash",
+      "name": "盾击",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A thick steel shield tilted into a forward bash, with a single muted terracotta impact wedge in front and two short motion strokes.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-e91ab338-52b9-4804-9808-cb1a650baad0.png",
+      "original": "assets/card-art/original/shieldbash.png",
+      "runtime": "public/card-art/shieldbash.jpg"
+    },
+    {
+      "id": "charge",
+      "name": "蓄能指令",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A simple upright coil wrapped around a small power core, with three stacked ochre energy bars beside it. No glow.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-e533aaa7-f5ea-4d77-b4a6-6192b9878d5f.png",
+      "original": "assets/card-art/original/charge.png",
+      "runtime": "public/card-art/charge.jpg"
+    },
+    {
+      "id": "cannon",
+      "name": "脉冲炮",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A short unmanned tabletop pulse cannon with one broad barrel, firing one small ochre capsule-shaped pulse. No explosion.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-cd9e1625-1f83-4823-b56a-dfb0ef69614d.png",
+      "original": "assets/card-art/original/cannon.png",
+      "runtime": "public/card-art/cannon.jpg"
+    },
+    {
+      "id": "drain",
+      "name": "生命汲取",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: A small terracotta heart-shaped energy token connected by a curved mint transfer arrow to a larger sage heart token. A simple symbolic energy-transfer diagram with no labels.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-86531082-163c-41ea-9213-ef2a911ddfe4.png",
+      "original": "assets/card-art/original/drain.png",
+      "runtime": "public/card-art/drain.jpg"
+    },
+    {
+      "id": "fault",
+      "name": "数据故障",
+      "prompt": "Use case: stylized-concept. Asset: a simple illustration for a small mobile card-game art window. Create a single landscape 3:2 image. Flat hand-drawn cartoon with bold dark-teal outlines, slightly rounded angular shapes, two or three muted colors, very minimal cel shading. Warm pale parchment background, dark teal, muted sage green and small muted terracotta accents. ONE large central subject, generous clean negative space, simple silhouette readable at 100px. Keep the entire subject within the central 70% of the image. No dramatic lighting, glow, particle effects, glitter, detailed scene, gradients, elaborate textures, text, letters, numbers, card frame or watermark. No people, creatures, faces, Digimon, mascots or characters. Subject: One broken dark circuit chip split into three offset pieces, with a few jagged terracotta glitch lines. Simple and quiet, no screen or writing.",
+      "generatedSource": "/Users/gtleaf/.codex/generated_images/01a0e18b-8b00-73c0-afa5-dc142718e002/exec-6c49b8e0-b0d0-4274-b687-0a984d84686c.png",
+      "original": "assets/card-art/original/fault.png",
+      "runtime": "public/card-art/fault.jpg"
+    }
+  ]
+}

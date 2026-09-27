@@ -1,0 +1,2516 @@
+[
+  {
+    "path": "champion/Airdramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Akatorimon.gif",
+    "width": 69,
+    "height": 95,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Angemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Ankylomon.gif",
+    "width": 128,
+    "height": 120,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Apemon.gif",
+    "width": 89,
+    "height": 81,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Aquilamon.gif",
+    "width": 150,
+    "height": 110,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Bakemon.gif",
+    "width": 77,
+    "height": 75,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Birdramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/BomberNanimon.gif",
+    "width": 56,
+    "height": 72,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Centarumon.gif",
+    "width": 80,
+    "height": 118,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Chrysalimon.gif",
+    "width": 87,
+    "height": 84,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Clockmon.gif",
+    "width": 120,
+    "height": 109,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Coelamon.gif",
+    "width": 89,
+    "height": 76,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/DarkLizardmon.gif",
+    "width": 85,
+    "height": 93,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/DarkTyrannomon.gif",
+    "width": 126,
+    "height": 118,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Deputymon.gif",
+    "width": 99,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Devidramon.gif",
+    "width": 99,
+    "height": 108,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Devimon.gif",
+    "width": 81,
+    "height": 131,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Diatrymon.gif",
+    "width": 148,
+    "height": 143,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Dinohumon.gif",
+    "width": 89,
+    "height": 119,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Dokugumon.gif",
+    "width": 99,
+    "height": 67,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Dolphmon.gif",
+    "width": 55,
+    "height": 78,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Dorugamon.gif",
+    "width": 89,
+    "height": 119,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Drimogemon.gif",
+    "width": 123,
+    "height": 80,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Ebidramon.gif",
+    "width": 126,
+    "height": 145,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Evilmon.gif",
+    "width": 78,
+    "height": 77,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Firamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/FlareLizardmon.gif",
+    "width": 85,
+    "height": 93,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Flymon.gif",
+    "width": 109,
+    "height": 120,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Frigimon.gif",
+    "width": 53,
+    "height": 77,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Fugamon.gif",
+    "width": 100,
+    "height": 89,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Galgomon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Gaogamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Garurumon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Gekomon.gif",
+    "width": 59,
+    "height": 84,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/GeoGreymon.gif",
+    "width": 130,
+    "height": 140,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Geremon.gif",
+    "width": 56,
+    "height": 73,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Gesomon.gif",
+    "width": 120,
+    "height": 102,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Golemon.gif",
+    "width": 98,
+    "height": 111,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Greymon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Grizzmon.gif",
+    "width": 106,
+    "height": 103,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Growlmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Guadromon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Gwappamon.gif",
+    "width": 74,
+    "height": 106,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Hookmon.gif",
+    "width": 120,
+    "height": 120,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Hyogamon.gif",
+    "width": 98,
+    "height": 89,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/IceDevimon.gif",
+    "width": 81,
+    "height": 131,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Icemon.gif",
+    "width": 37,
+    "height": 61,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Igamon.gif",
+    "width": 100,
+    "height": 93,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Ikkakumon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/J-Mojyamon.gif",
+    "width": 80,
+    "height": 89,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Kabuterimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/KaratsukiNumemon.gif",
+    "width": 68,
+    "height": 63,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Kiwimon.gif",
+    "width": 67,
+    "height": 72,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/KnightChessmonBlack.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/KnightChessmonWhite.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Kokatorimon.gif",
+    "width": 69,
+    "height": 95,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Kougamon.gif",
+    "width": 133,
+    "height": 89,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Kuwagamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Kyubimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Lekismon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Leomon.gif",
+    "width": 81,
+    "height": 108,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Leppamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Mechanorimon.gif",
+    "width": 117,
+    "height": 116,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Minotarumon.gif",
+    "width": 109,
+    "height": 135,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Mojyamon.gif",
+    "width": 80,
+    "height": 89,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Monochromon.gif",
+    "width": 113,
+    "height": 113,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/MoriShellmon.gif",
+    "width": 113,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/MudFrigimon.gif",
+    "width": 53,
+    "height": 77,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Musyamon.gif",
+    "width": 99,
+    "height": 111,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Nanimon.gif",
+    "width": 56,
+    "height": 57,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/NiseDrimogemon.gif",
+    "width": 123,
+    "height": 80,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Numemon.gif",
+    "width": 56,
+    "height": 73,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Octomon.gif",
+    "width": 97,
+    "height": 84,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Ogremon.gif",
+    "width": 100,
+    "height": 99,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Omekamon.gif",
+    "width": 125,
+    "height": 101,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Peckmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/PlatinumSukamon.gif",
+    "width": 104,
+    "height": 99,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Raptordramon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Raremon.gif",
+    "width": 120,
+    "height": 107,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/RedVeggiemon.gif",
+    "width": 87,
+    "height": 69,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Roachmon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Saberdramon.gif",
+    "width": 120,
+    "height": 131,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/SandYanmamon.gif",
+    "width": 107,
+    "height": 86,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Sangloupmon.gif",
+    "width": 140,
+    "height": 152,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Seadramon.gif",
+    "width": 78,
+    "height": 79,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Seasarmon.gif",
+    "width": 86,
+    "height": 84,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Shellmon.gif",
+    "width": 113,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Snimon.gif",
+    "width": 125,
+    "height": 96,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Sorcerymon.gif",
+    "width": 97,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Starmon.gif",
+    "width": 69,
+    "height": 82,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Stingmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Sukamon.gif",
+    "width": 104,
+    "height": 99,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Sunflowmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Tailmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Tankmon.gif",
+    "width": 104,
+    "height": 88,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Thundermon.gif",
+    "width": 54,
+    "height": 49,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Togemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Tortomon.gif",
+    "width": 115,
+    "height": 76,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Unimon.gif",
+    "width": 89,
+    "height": 119,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/V-Dramon.gif",
+    "width": 98,
+    "height": 114,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Veggiemon.gif",
+    "width": 86,
+    "height": 69,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Weedmon.gif",
+    "width": 86,
+    "height": 69,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Wendimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Wizarmon.gif",
+    "width": 106,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Woodmon.gif",
+    "width": 95,
+    "height": 84,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/XV-mon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/Yanmamon.gif",
+    "width": 107,
+    "height": 86,
+    "frameCount": 4
+  },
+  {
+    "path": "champion/tyranomon.gif",
+    "width": 125,
+    "height": 125,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Botamon.gif",
+    "width": 37,
+    "height": 34,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Budmon.gif",
+    "width": 53,
+    "height": 39,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Calumon.gif",
+    "width": 70,
+    "height": 55,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Chibomon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Chicchimon.gif",
+    "width": 70,
+    "height": 70,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Chocomon.gif",
+    "width": 34,
+    "height": 44,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Dorimon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Gigimon.gif",
+    "width": 60,
+    "height": 50,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Gumymon.gif",
+    "width": 34,
+    "height": 43,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Kapurimon.gif",
+    "width": 53,
+    "height": 49,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Koromon.gif",
+    "width": 40,
+    "height": 31,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Kuramon.gif",
+    "width": 39,
+    "height": 39,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Minomon.gif",
+    "width": 33,
+    "height": 62,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Moonmon.gif",
+    "width": 27,
+    "height": 54,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Pagumon.gif",
+    "width": 54,
+    "height": 29,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Poyomon.gif",
+    "width": 35,
+    "height": 35,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Puttimon.gif",
+    "width": 43,
+    "height": 35,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Sunmon.gif",
+    "width": 37,
+    "height": 59,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Tanemon.gif",
+    "width": 43,
+    "height": 42,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Tokomon.gif",
+    "width": 45,
+    "height": 43,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Tsumemon.gif",
+    "width": 71,
+    "height": 67,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Tsunomon.gif",
+    "width": 31,
+    "height": 51,
+    "frameCount": 4
+  },
+  {
+    "path": "in-training/Wanyamon.gif",
+    "width": 80,
+    "height": 80,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Alphamon.gif",
+    "width": 120,
+    "height": 155,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Anubismon.gif",
+    "width": 117,
+    "height": 118,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Apocalymon.gif",
+    "width": 136,
+    "height": 142,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Apollomon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ArgomonUltimate.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Armageddemon.gif",
+    "width": 200,
+    "height": 200,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Babamon.gif",
+    "width": 69,
+    "height": 97,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/BantyoLeomon.gif",
+    "width": 114,
+    "height": 164,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Beelzebumon.gif",
+    "width": 90,
+    "height": 170,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/BeelzebumonBlaster.gif",
+    "width": 140,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/BelialVamdemon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/BlackSaintGalgomon.gif",
+    "width": 103,
+    "height": 160,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/BlackWarGreymon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Boltmon.gif",
+    "width": 87,
+    "height": 125,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Cannondramon.gif",
+    "width": 160,
+    "height": 131,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ChaosDukemon.gif",
+    "width": 141,
+    "height": 114,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Chaosmon.gif",
+    "width": 118,
+    "height": 157,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Cherubimon.gif",
+    "width": 155,
+    "height": 190,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/CherubimonVirus.gif",
+    "width": 144,
+    "height": 177,
+    "frameCount": 5
+  },
+  {
+    "path": "mega/Chronomon.gif",
+    "width": 133,
+    "height": 156,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Creepymon.gif",
+    "width": 115,
+    "height": 149,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/DMGaogamon.gif",
+    "width": 56,
+    "height": 58,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/DSGreymon.gif",
+    "width": 56,
+    "height": 58,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Darkdramon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Deathmon.gif",
+    "width": 155,
+    "height": 126,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/DeathmonBlack.gif",
+    "width": 153,
+    "height": 126,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Devitamon.gif",
+    "width": 140,
+    "height": 141,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Diaboromon.gif",
+    "width": 190,
+    "height": 127,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Dianamon.gif",
+    "width": 110,
+    "height": 155,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Dorugoramon.gif",
+    "width": 200,
+    "height": 200,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Duftmon-1.gif",
+    "width": 102,
+    "height": 140,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Dukemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/DukemonCM.gif",
+    "width": 154,
+    "height": 148,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Eaglemon.gif",
+    "width": 107,
+    "height": 99,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Ebemon.gif",
+    "width": 81,
+    "height": 96,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Galfmon.gif",
+    "width": 117,
+    "height": 156,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/GigaSeadramon.gif",
+    "width": 144,
+    "height": 124,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Goldramon.gif",
+    "width": 120,
+    "height": 165,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/GranKuwagamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Gryphonmon.gif",
+    "width": 107,
+    "height": 116,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/HerculesKabuterimon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/HiAndromon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Imperialdramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ImperialdramonDMBlack.gif",
+    "width": 118,
+    "height": 134,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ImperialdramonFighter.gif",
+    "width": 170,
+    "height": 170,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ImperialdramonPaladin.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Jijimon.gif",
+    "width": 95,
+    "height": 92,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/JumboGamemon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Justimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/KingChessmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Kuzuhamon.gif",
+    "width": 110,
+    "height": 147,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Lampmon.gif",
+    "width": 110,
+    "height": 128,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Lilithmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Lotusmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Machinedramon.gif",
+    "width": 119,
+    "height": 142,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Magnadramon.gif",
+    "width": 150,
+    "height": 200,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/MarineAngemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Megidramon.gif",
+    "width": 143,
+    "height": 166,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/MetalEtemon.gif",
+    "width": 84,
+    "height": 108,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/MetalGarurumon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/MetalSeadramon.gif",
+    "width": 113,
+    "height": 164,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Milleniummon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Minervamon.gif",
+    "width": 80,
+    "height": 120,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/MirageGaogamon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/MirageGaogamonBurst.gif",
+    "width": 180,
+    "height": 200,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/MoonMilleniummon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Neptunmon.gif",
+    "width": 143,
+    "height": 164,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Omegamon.gif",
+    "width": 180,
+    "height": 220,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Ophanimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Parasimon.gif",
+    "width": 166,
+    "height": 131,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Pharaohmon.gif",
+    "width": 86,
+    "height": 137,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Phoenixmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Piedmon.gif",
+    "width": 85,
+    "height": 142,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Plesiomon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/PrinceMamemon.gif",
+    "width": 85,
+    "height": 77,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Pukumon.gif",
+    "width": 119,
+    "height": 115,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Puppetmon.gif",
+    "width": 112,
+    "height": 109,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/QueenChessmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Ravemon.gif",
+    "width": 134,
+    "height": 116,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/RavemonBurst.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Rosemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/RosemonBurst.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/SaberLeomon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/SaintGalgomon.gif",
+    "width": 200,
+    "height": 200,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Sakuyamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Seraphimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ShineGreymon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ShineGreymonBurst.gif",
+    "width": 150,
+    "height": 190,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ShineGreymonRuin.gif",
+    "width": 160,
+    "height": 160,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/SkullMammon.gif",
+    "width": 125,
+    "height": 148,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/SlashAngemon.gif",
+    "width": 116,
+    "height": 128,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Sleipmon.gif",
+    "width": 200,
+    "height": 200,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Susanoomon.gif",
+    "width": 100,
+    "height": 170,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Valkyrimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Varodurumon.gif",
+    "width": 119,
+    "height": 147,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/VenomMyotismon.gif",
+    "width": 118,
+    "height": 160,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Vikemon.gif",
+    "width": 200,
+    "height": 200,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/WarGreymon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/Zanbamon.gif",
+    "width": 110,
+    "height": 112,
+    "frameCount": 4
+  },
+  {
+    "path": "mega/ZeedMillenniummon.gif",
+    "width": 109,
+    "height": 134,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Agumon.gif",
+    "width": 60,
+    "height": 75,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Alraumon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Armademon.gif",
+    "width": 80,
+    "height": 65,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Bakumon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Bearmon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Betamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Biyomon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/BlackAgumon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Candmon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Coronamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 2
+  },
+  {
+    "path": "rookie/Dokunemon.gif",
+    "width": 55,
+    "height": 68,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Dorumon.gif",
+    "width": 56,
+    "height": 82,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/DotAgumon.gif",
+    "width": 30,
+    "height": 32,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/DotFalcomon.gif",
+    "width": 50,
+    "height": 50,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Dracmon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Falcomon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Floramon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Gabumon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Ganimon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Gaomon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Gizamon.gif",
+    "width": 62,
+    "height": 71,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Goblimon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Gomamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 2
+  },
+  {
+    "path": "rookie/Gotsumon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Guilmon.gif",
+    "width": 61,
+    "height": 76,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Hagurumon.gif",
+    "width": 72,
+    "height": 47,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Hawkmon.gif",
+    "width": 90,
+    "height": 80,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Impmon.gif",
+    "width": 60,
+    "height": 70,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Kamemon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Keramon.gif",
+    "width": 130,
+    "height": 130,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Kokuwamon.gif",
+    "width": 82,
+    "height": 79,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Kotemon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Kudamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Kunemon.gif",
+    "width": 55,
+    "height": 68,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Lopmon.gif",
+    "width": 75,
+    "height": 55,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Lunamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Monodramon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Muchomon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Mushmon.gif",
+    "width": 63,
+    "height": 60,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Otamamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Palmon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Patamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/PawnChessmonBlack.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/PawnChessmonWhite.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Penmon.gif",
+    "width": 63,
+    "height": 57,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/PicoDevimon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Plotmon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Raramon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Renamon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Shakomon.gif",
+    "width": 45,
+    "height": 53,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Shamamon.gif",
+    "width": 69,
+    "height": 85,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/SnowGoblimon.gif",
+    "width": 69,
+    "height": 85,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Solarmon.gif",
+    "width": 75,
+    "height": 51,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Tentomon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Terriermon.gif",
+    "width": 75,
+    "height": 55,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/ToyAgumon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/ToyAgumonBlack.gif",
+    "width": 51,
+    "height": 56,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Tsukaimon.gif",
+    "width": 64,
+    "height": 51,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/V-mon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/Wormmon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "rookie/YukiAgumon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/AeroVeedramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Allomon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/AlturKabuterimonRed.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Andromon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Angewomon.gif",
+    "width": 100,
+    "height": 120,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Antiramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Arachnemon.gif",
+    "width": 117,
+    "height": 110,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/ArgomonPerfect.gif",
+    "width": 163,
+    "height": 177,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/BigMamemon.gif",
+    "width": 150,
+    "height": 124,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/BishopChessmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/BlackRapidmon.gif",
+    "width": 115,
+    "height": 143,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/BlackWarGrowlmon.gif",
+    "width": 111,
+    "height": 117,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Blossomon.gif",
+    "width": 130,
+    "height": 97,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Brachiomon.gif",
+    "width": 107,
+    "height": 209,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Cherrymon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 3
+  },
+  {
+    "path": "ultimate/Chimeramon.gif",
+    "width": 196,
+    "height": 138,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Crescemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Cyberdramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Deramon.gif",
+    "width": 64,
+    "height": 76,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Digitamamon.gif",
+    "width": 53,
+    "height": 71,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/DinoBeemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Divermon.gif",
+    "width": 61,
+    "height": 80,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Dorugreymon.gif",
+    "width": 139,
+    "height": 140,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Dragomon.gif",
+    "width": 84,
+    "height": 114,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Etemon.gif",
+    "width": 67,
+    "height": 99,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Flamedramon.gif",
+    "width": 57,
+    "height": 95,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Flaremon.gif",
+    "width": 120,
+    "height": 155,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Garbagemon.gif",
+    "width": 100,
+    "height": 100,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Garudamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Gigadramon.gif",
+    "width": 134,
+    "height": 130,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Giromon.gif",
+    "width": 55,
+    "height": 59,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/GrappLeomon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/HolyAngemon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Infermon.gif",
+    "width": 112,
+    "height": 93,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Kabukimon.gif",
+    "width": 80,
+    "height": 96,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Karatenmon.gif",
+    "width": 121,
+    "height": 142,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Kenkimon.gif",
+    "width": 128,
+    "height": 107,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Knightmon.gif",
+    "width": 82,
+    "height": 129,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Kongoumon.gif",
+    "width": 102,
+    "height": 111,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Kyukimon.gif",
+    "width": 99,
+    "height": 120,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/LadyDevimon.gif",
+    "width": 80,
+    "height": 126,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Lilamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Lilymon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/LucemonFDM.gif",
+    "width": 126,
+    "height": 170,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Lynxmon.gif",
+    "width": 99,
+    "height": 106,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/MachGaogamon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Magnamon.gif",
+    "width": 88,
+    "height": 103,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/MameTyramon.gif",
+    "width": 75,
+    "height": 68,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Mamemon.gif",
+    "width": 52,
+    "height": 40,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Mammothmon.gif",
+    "width": 126,
+    "height": 125,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Marinedevimon.gif",
+    "width": 92,
+    "height": 126,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Matadormon.gif",
+    "width": 128,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/MegaKabuterimonBlue.gif",
+    "width": 121,
+    "height": 124,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/MegaSeadramon.gif",
+    "width": 117,
+    "height": 101,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Megadramon.gif",
+    "width": 132,
+    "height": 142,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/MetalGreymon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/MetalMamemon.gif",
+    "width": 75,
+    "height": 46,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/MetalTyrannomon.gif",
+    "width": 119,
+    "height": 126,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Meteormon.gif",
+    "width": 63,
+    "height": 73,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Monzaemon.gif",
+    "width": 123,
+    "height": 156,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Mummymon.gif",
+    "width": 64,
+    "height": 110,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Nanomon.gif",
+    "width": 94,
+    "height": 46,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Okuwamon.gif",
+    "width": 119,
+    "height": 112,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Owlmon.gif",
+    "width": 64,
+    "height": 85,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Paildramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Pandamon.gif",
+    "width": 88,
+    "height": 103,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Parrotmon.gif",
+    "width": 109,
+    "height": 109,
+    "frameCount": 3
+  },
+  {
+    "path": "ultimate/Phantomon.gif",
+    "width": 60,
+    "height": 77,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Pipismon.gif",
+    "width": 110,
+    "height": 87,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Piximon.gif",
+    "width": 96,
+    "height": 89,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Ponchomon.gif",
+    "width": 99,
+    "height": 113,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Prariemon.gif",
+    "width": 59,
+    "height": 85,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Qilinmon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Rapidmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/RizeGreymon.gif",
+    "width": 139,
+    "height": 182,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/RookChessmon.gif",
+    "width": 180,
+    "height": 180,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Scorpiomon.gif",
+    "width": 117,
+    "height": 99,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Seahomon.gif",
+    "width": 99,
+    "height": 113,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Shadramon.gif",
+    "width": 80,
+    "height": 111,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Shakkoumon.gif",
+    "width": 170,
+    "height": 170,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Shaujingmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/ShogunGekomon.gif",
+    "width": 150,
+    "height": 154,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Shurimon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Silphymon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Sinduramon.gif",
+    "width": 120,
+    "height": 111,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/SkullGreymon.gif",
+    "width": 152,
+    "height": 113,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/SuperStarmon.gif",
+    "width": 66,
+    "height": 86,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Taomon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Tekkamon.gif",
+    "width": 53,
+    "height": 43,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Toucanmon.gif",
+    "width": 69,
+    "height": 58,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Triceramon.gif",
+    "width": 91,
+    "height": 102,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Tylomon.gif",
+    "width": 120,
+    "height": 130,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Vademon.gif",
+    "width": 54,
+    "height": 81,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Vajramon.gif",
+    "width": 109,
+    "height": 159,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Vamdemon.gif",
+    "width": 86,
+    "height": 132,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Vermilimon.gif",
+    "width": 113,
+    "height": 113,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Volcamon.gif",
+    "width": 89,
+    "height": 131,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/WarGrowlmon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/WereGarurumon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/WereGarurumonBlack.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Whamon.gif",
+    "width": 120,
+    "height": 142,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/XTyrannomon.gif",
+    "width": 72,
+    "height": 78,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Yatagaramon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/YatagaramonOriginal.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 4
+  },
+  {
+    "path": "ultimate/Zudomon.gif",
+    "width": 150,
+    "height": 150,
+    "frameCount": 2
+  },
+  {
+    "path": "unobtainable/Baihumon.gif",
+    "width": 230,
+    "height": 230,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Barbamon.gif",
+    "width": 250,
+    "height": 220,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Belphemon.gif",
+    "width": 220,
+    "height": 230,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/ChaosDukemonCore.gif",
+    "width": 196,
+    "height": 221,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/ChaosGrimmon.gif",
+    "width": 160,
+    "height": 156,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/ChronomonDM.gif",
+    "width": 300,
+    "height": 300,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Daemon.gif",
+    "width": 250,
+    "height": 220,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/ExoGrimmon.gif",
+    "width": 160,
+    "height": 153,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Gaiomon.gif",
+    "width": 136,
+    "height": 160,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/GranDracmon.gif",
+    "width": 141,
+    "height": 160,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/GranLocomon.gif",
+    "width": 220,
+    "height": 166,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Grimmon.gif",
+    "width": 170,
+    "height": 159,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Leviamon.gif",
+    "width": 344,
+    "height": 170,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Merukimon.gif",
+    "width": 134,
+    "height": 172,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/OphanimonCore.gif",
+    "width": 114,
+    "height": 160,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/QuingLongmon.gif",
+    "width": 280,
+    "height": 280,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/SkullBarukimon.gif",
+    "width": 141,
+    "height": 146,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Spinomon.gif",
+    "width": 129,
+    "height": 160,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/WaruSeadramon.gif",
+    "width": 156,
+    "height": 158,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Xuanwumon.gif",
+    "width": 230,
+    "height": 230,
+    "frameCount": 4
+  },
+  {
+    "path": "unobtainable/Zhuqiaomon.gif",
+    "width": 300,
+    "height": 300,
+    "frameCount": 4
+  }
+]

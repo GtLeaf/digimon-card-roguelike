@@ -1,0 +1,167 @@
+{
+  "blackwargrowlmon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/ultimate/BlackWarGrowlmon.gif"
+  },
+  "chaosdukemon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/mega/ChaosDukemon.gif"
+  },
+  "guilmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/Guilmon.gif"
+  },
+  "growlmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/champion/Growlmon.gif"
+  },
+  "wargrowlmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/WarGrowlmon.gif"
+  },
+  "dukemon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/mega/Dukemon.gif"
+  },
+  "megidramon": {
+    "frames": 4,
+    "duration": 880,
+    "source": "assets/vendor/digimon-ds/original/mega/Megidramon.gif"
+  },
+  "renamon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/Renamon.gif"
+  },
+  "kyubimon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/champion/Kyubimon.gif"
+  },
+  "taomon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Taomon.gif"
+  },
+  "sakuyamon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/mega/Sakuyamon.gif"
+  },
+  "kuzuhamon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/mega/Kuzuhamon.gif"
+  },
+  "goblimon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/Goblimon.gif"
+  },
+  "mushmon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/rookie/Mushmon.gif"
+  },
+  "hagurumon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/rookie/Hagurumon.gif"
+  },
+  "picodevimon": {
+    "frames": 4,
+    "duration": 880,
+    "source": "assets/vendor/digimon-ds/original/rookie/PicoDevimon.gif"
+  },
+  "bakemon": {
+    "frames": 4,
+    "duration": 880,
+    "source": "assets/vendor/digimon-ds/original/champion/Bakemon.gif"
+  },
+  "impmon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/rookie/Impmon.gif"
+  },
+  "devidramon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Devidramon.gif"
+  },
+  "dokugumon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Dokugumon.gif"
+  },
+  "sinduramon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Sinduramon.gif"
+  },
+  "ogremon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Ogremon.gif"
+  },
+  "leomon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Leomon.gif"
+  },
+  "andromon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Andromon.gif"
+  },
+  "icedevimon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/IceDevimon.gif"
+  },
+  "vajramon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Vajramon.gif"
+  },
+  "beelzebumon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/mega/Beelzebumon.gif"
+  },
+  "scout": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "original-procedural-art"
+  },
+  "replica": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "original-procedural-art"
+  },
+  "corrupt": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "original-procedural-art"
+  },
+  "sentinel": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "original-procedural-art"
+  },
+  "devourer": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "original-procedural-art"
+  },
+  "core": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "original-procedural-art"
+  }
+}

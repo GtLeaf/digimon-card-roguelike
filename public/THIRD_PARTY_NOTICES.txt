@@ -1,0 +1,27 @@
+数码旅途 0.2 — 素材来源记录
+
+角色精灵档案：
+https://github.com/E-M-B-E-R/digimon-world-ds-dawn-dusk-animated-sprites
+固定版本：4b2273e163f023b9562cc69e4642f97a0684cb87
+
+原始档案含 419 个 GIF；本版选用其中 27 个角色并整理为透明立绘与横向动画帧。原始文件保存在 assets/vendor/digimon-ds/original/。
+
+来源仓库原始声明：
+Credits to AngelOfHope (https://withthewill.net/threads/digimon-sprite-animation-thread-read-first-post-fully-working.10472/).
+Sprites added here to be used for fan related projects and for preservation. No fan made sprites are to be added. Game official sprites only.
+Sprites are property of Digimon and Bandai Namco Entertainment Inc/Namco Bandai Games and not legally owned by the contributors (myself and the others listed above).
+
+本记录不是商业授权或官方合作声明。
+
+六种程序敌人（scout、replica、corrupt、sentinel、devourer、core）的抽象像素造型由本项目 tools/build_game_assets.py 绘制；战场背景由 CSS 绘制。
+界面图标使用 Lucide（ISC）；依赖的许可证保留于对应 npm 包。
+
+新增静态立绘（2026-09-27）：
+黑古拉兽 / BlackGrowmon：https://digimon.net/cimages/digimon/blackgrowmon.jpg
+妖狐兽（蓝） / Youkomon：https://digimon.net/cimages/digimon/youkomon.jpg
+道士兽 / Doumon：https://digimon.net/cimages/digimon/doumon.jpg
+来源：Digimon Web 官方图鉴，对应目录 blackgrowmon、youkomon、doumon。
+图鉴入口：https://digimon.net/reference/
+原图未修改，保存在 public/portraits/。上述角色和图像属于原权利人，此记录不授予商业使用权。
+
+通用卡插画（2026-09-27）：public/card-art/ 下14张图片由本项目使用内置 image_gen 生成，包括13张通用卡和1张故障卡；不使用官方角色形象。原始图片与生成提示词保存于 assets/card-art/。

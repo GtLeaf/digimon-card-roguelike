@@ -1,5 +1,5 @@
 import { describe,expect,it } from 'vitest';
-import { emptySave, reduceGame, intent, cardCost } from '../src/game/engine';
+import { emptySave, makeRun, reduceGame, intent, cardCost } from '../src/game/engine';
 import { availableNodes } from '../src/game/map';
 import { evolutionStatus, nextEvolutions } from '../src/game/evolution';
 import { CARDS, BRANCHES } from '../src/game/data';
@@ -72,7 +72,7 @@ export function autoplay(partner:Partner,branch:Branch,seed:number){
  while(s.run!.screen!=='result'&&steps++<2000){
   const r=s.run!;let action:Action;
   switch(r.screen){
-   case 'map':{const nodes=availableNodes(r);const node=((branch==='megidra'||branch==='kuzuha')?nodes.find(n=>n.kind==='battle'):undefined)??nodes.find(n=>n.kind==='camp')??nodes.find(n=>n.kind==='treasure')??nodes.find(n=>n.kind==='event')??nodes[0];action={type:'node',id:node.id};break;}
+   case 'map':{const nodes=availableNodes(r);const node=(branch==='chaos'?nodes.find(n=>n.eventId==='research'):undefined)??((branch==='megidra'||branch==='kuzuha'||branch==='chaos')?nodes.find(n=>n.kind==='battle'):undefined)??nodes.find(n=>n.kind==='camp')??nodes.find(n=>n.kind==='treasure')??nodes.find(n=>n.kind==='event')??nodes[0];action={type:'node',id:node.id};break;}
    case 'battle':{
     const b=r.battle!,target=b.enemies.find(e=>e.hp>0)!;
     if(r.potions>0&&r.hp<=r.maxHp-18){action={type:'potion'};break;}
@@ -80,14 +80,14 @@ export function autoplay(partner:Partner,branch:Branch,seed:number){
     if(r.branch&&b.sync>=6&&!b.burstUsed){action={type:'burst'};break;}
     const incoming=b.enemies.filter(e=>e.hp>0).reduce((n,e)=>{const i=intent(r,e);return n+i.damage*i.hits;},0);
     const candidates=b.hand.filter(c=>cardCost(c)<=b.energy);
-    const score=(c:typeof candidates[number])=>{const d=CARDS[c.id];let score=(d.damage??0)*(d.hits??1)+(d.burn??0)*2+(d.mark??0)+(d.heal??0)*2+(d.draw??0)*2+(d.strength??0)*7+(d.energy??0)*10;if(d.shield)score+=Math.min(d.shield+ (c.upgraded?3:0),Math.max(0,incoming-b.block))*1.7;if(d.special==='detonate')score+=target.burn*3;if(d.special==='markburst')score+=target.mark*5;if(d.special==='copy')score=1;if(branch==='megidra'&&d.burn)score+=6;if(branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power'))score+=4;if(d.all)score*=b.enemies.filter(e=>e.hp>0).length;if(d.special==='sacrifice')score-=8;return score;};
+    const score=(c:typeof candidates[number])=>{const d=CARDS[c.id];let score=(d.damage??0)*(d.hits??1)+(d.burn??0)*2+(d.mark??0)+(d.heal??0)*2+(d.draw??0)*2+(d.strength??0)*7+(d.energy??0)*10;if(d.shield)score+=Math.min(d.shield+ (c.upgraded?3:0),Math.max(0,incoming-b.block))*1.7;if(d.special==='detonate')score+=target.burn*3;if(d.special==='markburst')score+=target.mark*5;if(d.special==='copy')score=1;if(branch==='megidra'&&d.burn)score+=6;if(branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power'))score+=4;if(d.all)score*=b.enemies.filter(e=>e.hp>0).length;if(d.special==='sacrifice')score-=8;if(branch==='chaos'){if(r.stage===0&&d.burn)score+=10;if(d.special==='sacrifice'&&r.hp>15)score+=15;if(d.heal&&r.hp<r.maxHp)score+=15;}return score;};
     candidates.sort((a,b)=>score(b)-score(a));const c=candidates[0];action=c?{type:'play',uid:c.uid,target:target.uid}:{type:'endTurn'};break;
    }
-   case 'reward':{const pool=r.reward!.cards;const fav=partner==='guilmon'?(branch==='megidra'?['ignite','fireball','heatwave','flare','roar','brace','mend']:['roar','fireball','brace','fortify','doublecut','inferno','mend']):(branch==='kuzuha'?['barrier','brace','talisman','ritual','mend','insight','leaf']:['leaf','seal','barrier','brace','ritual','fortify','mend']);const pick=fav.find(id=>pool.includes(id));action={type:'reward',card:r.deck.length<18?pick:undefined};break;}
+   case 'reward':{const pool=r.reward!.cards;const fav=partner==='guilmon'?(branch==='chaos'?['mend','bloodedge','sacrifice','brace','roar','fireball'] :branch==='megidra'?['ignite','fireball','heatwave','flare','roar','brace','mend']:['roar','fireball','brace','fortify','doublecut','inferno','mend']):(branch==='kuzuha'?['barrier','brace','talisman','ritual','mend','insight','leaf']:['leaf','seal','barrier','brace','ritual','fortify','mend']);const pick=fav.find(id=>pool.includes(id));action={type:'reward',card:r.deck.length<18?pick:undefined};break;}
    case 'camp':if(r.stage===2&&evolutionStatus(r,s.meta,BRANCHES[branch].art).ready){action={type:'campEvolution'};break;}action=r.hp<r.maxHp*.78?{type:'camp',mode:'heal'}:{type:'camp',mode:'upgrade',uid:r.deck.find(c=>!c.upgraded&&CARDS[c.id].family===partner)?.uid??r.deck.find(c=>!c.upgraded)?.uid};if(action.type==='camp'&&!action.uid&&action.mode==='upgrade')action={type:'camp',mode:'heal'};break;
-   case 'event':action={type:'event',choice:'safe'};break;
+   case 'event':action={type:'event',choice:branch==='chaos'&&r.currentNode?.eventId==='research'?'risk':'safe'};break;
    case 'treasure':case 'shop':action={type:'continue'};break;
-   case 'evolution':{const candidates=nextEvolutions(r);const goal=r.stage===2?BRANCHES[branch].art:candidates[0]?.id;const d=candidates.find(d=>d.id===goal&&evolutionStatus(r,s.meta,d.id).ready);const uids=r.deck.filter(c=>c.id==='strike').slice(0,2).map(c=>c.uid);action=d?{type:'evolve',form:d.id,replace:uids.length===2?uids:r.deck.slice(0,2).map(c=>c.uid),training:'defense',inherit:partner==='guilmon'?'ward':'seal'}:{type:'deferEvolution'};break;}
+   case 'evolution':{const candidates=nextEvolutions(r);const goal=branch==='chaos'?['blackgrowmon','blackwargrowlmon','chaosdukemon'][r.stage]:r.stage===2?BRANCHES[branch].art:candidates[0]?.id;const d=candidates.find(d=>d.id===goal&&evolutionStatus(r,s.meta,d.id).ready);const uids=r.deck.filter(c=>c.id==='strike').slice(0,2).map(c=>c.uid);action=d?{type:'evolve',form:d.id,replace:uids.length===2?uids:r.deck.slice(0,2).map(c=>c.uid),training:'defense',inherit:partner==='guilmon'?'ward':'seal'}:{type:'deferEvolution'};break;}
    case 'blessing':action={type:'bless',id:'guard'};break;
    default:throw Error(`Unhandled ${r.screen}`);
   }
@@ -96,4 +96,15 @@ export function autoplay(partner:Partner,branch:Branch,seed:number){
  }
  return {save:s,steps};
 }
-describe('full journey',()=>{it.each(['duke','megidra','sakuya','kuzuha'] as Branch[])('finishes all three chapters with %s',branch=>{const {save,steps}=autoplay(BRANCHES[branch].partner,branch,42);expect(steps,JSON.stringify({row:save.run!.row,screen:save.run!.screen,form:save.run!.form,counts:save.run!.activity})).toBeLessThan(2000);expect(save.run!.screen).toBe('result');expect(save.run!.won,`Stopped at row ${save.run!.row}, hp ${save.run!.hp}`).toBe(true);expect(save.run!.stage,JSON.stringify(save.run!.activity)).toBe(3);expect(save.run!.branch).toBe(branch);expect(save.meta.wins).toBe(1);});});
+describe('full journey',()=>{it.each(['duke','megidra','sakuya','kuzuha','chaos'] as Branch[])('finishes all three chapters with %s',branch=>{const {save,steps}=autoplay(BRANCHES[branch].partner,branch,42);expect(steps,JSON.stringify({row:save.run!.row,screen:save.run!.screen,form:save.run!.form,counts:save.run!.activity})).toBeLessThan(2000);expect(save.run!.screen).toBe('result');expect(save.run!.won,`Stopped at row ${save.run!.row}, hp ${save.run!.hp}`).toBe(true);expect(save.run!.stage,JSON.stringify(save.run!.activity)).toBe(3);expect(save.run!.branch).toBe(branch);if(branch==='chaos'){expect(save.run!.formHistory).toEqual(['guilmon','blackgrowmon','blackwargrowlmon','chaosdukemon']);expect(save.meta.unlockedRoutes).toContain('chaos');}expect(save.meta.wins).toBe(1);});});
+
+it('completes a different seed with the alternate second-chapter boss',()=>{
+ const baselineBoss=makeRun('guilmon',42).nodes[15][0].enemies[0];
+ const seed=Array.from({length:100},(_,i)=>i).find(seed=>makeRun('guilmon',seed).nodes[15][0].enemies[0]!==baselineBoss)!;
+ expect(seed).toBeDefined();
+ const {save,steps}=autoplay('guilmon','duke',seed);
+ expect(steps).toBeLessThan(2000);
+ expect(save.run!.won,JSON.stringify({seed,row:save.run!.row,hp:save.run!.hp})).toBe(true);
+ expect(save.run!.nodes[15][0].enemies[0]).not.toBe(baselineBoss);
+ expect(save.run!.branch).toBe('duke');
+});

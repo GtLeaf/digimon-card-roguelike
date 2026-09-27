@@ -5,7 +5,7 @@ export const emptyActivity = (): Activity => ({ counts: {}, cards: {} });
 export const METRIC_NAMES: Record<Metric, string> = { attacks:'攻击出牌',defenses:'主动防御',skills:'技能出牌',fire:'火焰出牌',marks:'施加符印',detonations:'引爆灼烧',markBursts:'消耗符印',selfCosts:'主动自损',heals:'有效治疗',copies:'使用复制牌',weakens:'施加虚弱',combos:'双技能回合',burnKills:'灼烧击杀',charges:'主动蓄能',cannonShots:'蓄能炮击' };
 export const ROUTE_DATA: Record<string,{name:string;source:string}> = {
  mechanical:{name:'机械研究',source:'齿轮兽或安杜路兽扫描达到 100%，或在第二章事件中完成机械研究'},
- chaos:{name:'混沌资料',source:'邪龙兽扫描达到 100%（击败两次，跨局累计）'},
+ chaos:{name:'混沌资料',source:'邪龙兽扫描达到 100%，或在失控机械档案中读取混沌记忆'},
  purification:{name:'净化资料',source:'狮子兽扫描达到 100%，或在第二章事件中完成安全净化'},
 };
 export function syncRouteData(meta: Meta): string[] {

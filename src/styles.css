@@ -54,3 +54,22 @@
 .battle-stage .enemy.taking-hit,.battle-stage .player-unit.taking-hit{animation:battle-shake .3s ease-in-out}
 @keyframes battle-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
 @media(max-width:480px){.battle-actions{flex-wrap:wrap}.turn-buttons{width:100%;margin-left:0}.turn-buttons>button{flex:1;min-width:0}}
+
+.partner-pick.renamon>.sprite-wrap{scale:1.85;transform-origin:center 85%}
+.partner-pick.terriermon>.sprite-wrap{scale:1.5;transform-origin:center 85%}
+@media(max-width:480px){.partner-pick.renamon>.sprite-wrap{translate:-20px 0}.partner-pick.terriermon>.sprite-wrap{translate:-30px -12px}}
+
+.battle-number{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-50%);font:900 30px "Courier New",monospace;letter-spacing:1px;text-shadow:0 2px 0 #122829,0 4px 12px #0b1c20;white-space:nowrap;animation:number-rise .38s ease-out both}
+.battle-number.damage{color:#ff7667}.battle-number.heal{color:#a5e7a1}.battle-number.blocked{color:#d5dfd1}
+@keyframes number-rise{from{opacity:0;transform:translate(-50%,-15%) scale(.8)}25%{opacity:1;transform:translate(-50%,-60%) scale(1.2)}to{opacity:1;transform:translate(-50%,-85%) scale(1)}}
+.reduce-motion .battle-number{animation:none}
+@media(prefers-reduced-motion:reduce){.battle-number{animation:none}}
+
+.enemy>.sprite-wrap{margin-bottom:0}
+.player-caption{margin-left:12px}
+@media(max-width:480px){.battle-stage{height:410px}.enemy>.sprite-wrap{height:175px!important;margin-bottom:0}.player-unit>.sprite-wrap{margin-right:0}.player-caption{margin-left:6px}}
+@media(max-width:360px){.player-caption{width:90px;min-width:90px;max-width:90px}.player-caption .health{width:78px}}
+
+/* 内容扩充沿用深青 #101d23、米白 #f1ead9、橙 #ef9958 与现有中文字体。 */
+.chapter-boss-preview{margin:0 18px 14px;padding:12px 14px;border:1px solid var(--line);border-left:3px solid var(--orange);background:var(--panel);display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px}.chapter-boss-preview strong{color:var(--paper)}.chapter-boss-preview small{color:var(--muted);font-size:10px}.enemy-mechanic{padding:10px 16px;background:#14272e;border-bottom:1px solid var(--line);font-size:11px;line-height:1.7;display:flex;gap:8px;flex-wrap:wrap}.enemy-mechanic strong{color:var(--mint);font-weight:500}.enemy-mechanic span{color:var(--paper)}.event-context{font-size:12px!important;color:var(--mint)!important}.event-card-choice{width:100%;max-width:460px;display:flex;flex-direction:column;gap:18px;text-align:left;padding:18px;border:1px solid var(--line);border-radius:7px}.event-card-choice p{font-size:13px;line-height:1.8;color:var(--muted)}.event-card-choice label{font-size:13px}.event-card-choice select{display:block;width:100%;min-height:44px;margin-top:10px;padding:10px;background:var(--bg);color:var(--paper);border:1px solid var(--line);border-radius:4px}.event-screen .option small svg{display:inline-block;vertical-align:middle;margin-right:4px}
+@media(max-width:700px){.chapter-boss-preview{margin:0 12px 12px;padding:10px}.enemy-mechanic{padding:8px 12px;font-size:11px}.event-card-choice{padding:14px}.event-screen .story-text{font-size:14px;line-height:1.9}}

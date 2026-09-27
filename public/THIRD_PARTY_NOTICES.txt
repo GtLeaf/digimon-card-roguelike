@@ -4,7 +4,7 @@
 https://github.com/E-M-B-E-R/digimon-world-ds-dawn-dusk-animated-sprites
 固定版本：4b2273e163f023b9562cc69e4642f97a0684cb87
 
-原始档案含 419 个 GIF；本版选用其中 33 个角色并整理为透明立绘与横向动画帧。原始文件保存在 assets/vendor/digimon-ds/original/。
+原始档案含 419 个 GIF；本版选用其中 42 个角色并整理为透明立绘与横向动画帧。原始文件保存在 assets/vendor/digimon-ds/original/。
 
 来源仓库原始声明：
 Credits to AngelOfHope (https://withthewill.net/threads/digimon-sprite-animation-thread-read-first-post-fully-working.10472/).
@@ -30,3 +30,5 @@ Sprites are property of Digimon and Bandai Namco Entertainment Inc/Namco Bandai 
 黑加鲁哥兽 / BlackGalgomon 静态立绘：https://digimon.net/cimages/digimon/blackgalgomon.jpg
 核对图鉴：https://digimon.net/reference/detail.php?directory_name=blackgalgomon
 原图未修改，保存在 public/portraits/blackgalgomon.jpg；权利说明同上。
+
+内容包 A（2026-09-27）：从同一固定版本的原始档案新增使用 Gotsumon、Betamon、Monodramon、Clockmon、Seadramon、Gekomon、Devimon、SkullGreymon、Machinedramon 九种精灵；来源及权利说明同上。

@@ -1,4 +1,49 @@
 {
+  "gotsumon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/Gotsumon.gif"
+  },
+  "betamon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/Betamon.gif"
+  },
+  "monodramon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/Monodramon.gif"
+  },
+  "clockmon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Clockmon.gif"
+  },
+  "seadramon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Seadramon.gif"
+  },
+  "gekomon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Gekomon.gif"
+  },
+  "devimon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Devimon.gif"
+  },
+  "skullgreymon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/ultimate/SkullGreymon.gif"
+  },
+  "machinedramon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/mega/Machinedramon.gif"
+  },
   "terriermon": {
     "frames": 4,
     "duration": 1000,

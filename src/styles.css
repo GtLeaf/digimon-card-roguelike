@@ -39,3 +39,18 @@
 
 /* 技能归属与继承标识，沿用纸卡字体和配色。 */
 .card-origin{font-size:8px;line-height:1.4;color:#66725b;margin:0 0 3px}.deck-viewer .card-origin{font-size:10px}.deck-detail .skill-description{color:var(--mint);font-size:13px}
+
+/* 御三家延续现有终端风格，手机保持纵向大触控区。 */
+.hero-terriermon{position:absolute;left:34%;bottom:20px;z-index:4;transform:rotate(5deg);pointer-events:none}
+.partner-pick.terriermon{background:linear-gradient(120deg,#344537,#1d2f2c)}
+.partner-codex{margin-bottom:22px;border-bottom:1px solid var(--line);padding-bottom:18px}.partner-codex>summary{cursor:pointer;min-height:44px;padding:12px 0;color:var(--mint);font-size:14px}.partner-codex>.secondary{margin-top:14px}.partner-tabs{flex-wrap:wrap}.tree-toolbar{flex-wrap:wrap}
+@media(min-width:701px){.partner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.partner-pick{flex-direction:column;align-items:flex-start;padding:18px 20px}.partner-pick>.sprite-wrap{align-self:center;margin:0;transform:none}.partner-description{min-width:0}.partner-description h3{font-size:25px}.route-mini{flex-wrap:wrap}}
+@media(max-width:700px){.hero-terriermon{left:36%;bottom:20px;transform:scale(.82);transform-origin:bottom center}.partner-tabs{gap:5px}.partner-tabs button{padding:8px 9px}}
+@media(max-width:480px){.hero-terriermon{left:27%;bottom:14px;transform:scale(.7)}}
+
+.turn-buttons{display:flex;gap:8px;margin-left:auto;align-items:center}.turn-buttons .end-turn{margin-left:0}.use-card{min-width:100px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px}
+.battle-stage .enemy,.battle-stage .player-unit{transition:transform .17s ease-out}
+.battle-stage .player-unit.acting{transform:translateX(34px)}.battle-stage .enemy.acting{transform:translate(-26px,20px)}
+.battle-stage .enemy.taking-hit,.battle-stage .player-unit.taking-hit{animation:battle-shake .3s ease-in-out}
+@keyframes battle-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+@media(max-width:480px){.battle-actions{flex-wrap:wrap}.turn-buttons{width:100%;margin-left:0}.turn-buttons>button{flex:1;min-width:0}}

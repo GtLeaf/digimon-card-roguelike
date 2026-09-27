@@ -4,7 +4,7 @@
 https://github.com/E-M-B-E-R/digimon-world-ds-dawn-dusk-animated-sprites
 固定版本：4b2273e163f023b9562cc69e4642f97a0684cb87
 
-原始档案含 419 个 GIF；本版选用其中 27 个角色并整理为透明立绘与横向动画帧。原始文件保存在 assets/vendor/digimon-ds/original/。
+原始档案含 419 个 GIF；本版选用其中 33 个角色并整理为透明立绘与横向动画帧。原始文件保存在 assets/vendor/digimon-ds/original/。
 
 来源仓库原始声明：
 Credits to AngelOfHope (https://withthewill.net/threads/digimon-sprite-animation-thread-read-first-post-fully-working.10472/).
@@ -25,3 +25,8 @@ Sprites are property of Digimon and Bandai Namco Entertainment Inc/Namco Bandai 
 原图未修改，保存在 public/portraits/。上述角色和图像属于原权利人，此记录不授予商业使用权。
 
 通用卡插画（2026-09-27）：public/card-art/ 下14张图片由本项目使用内置 image_gen 生成，包括13张通用卡和1张故障卡；不使用官方角色形象。原始图片与生成提示词保存于 assets/card-art/。
+
+大耳兽路线扩展（2026-09-27）：新增六种原仓库精灵：Terriermon、Galgomon、Rapidmon、BlackRapidmon、SaintGalgomon、BlackSaintGalgomon。
+黑加鲁哥兽 / BlackGalgomon 静态立绘：https://digimon.net/cimages/digimon/blackgalgomon.jpg
+核对图鉴：https://digimon.net/reference/detail.php?directory_name=blackgalgomon
+原图未修改，保存在 public/portraits/blackgalgomon.jpg；权利说明同上。

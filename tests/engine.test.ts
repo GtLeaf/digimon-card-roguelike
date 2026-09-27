@@ -14,6 +14,38 @@ describe('battle invariants',()=>{
  it('does not mutate previous state while paying energy and moving card',()=>{const s=fight();hand(s,['strike']);const copy=structuredClone(s);const next=reduceGame(s,{type:'play',uid:'test0'});expect(s).toEqual(copy);expect(next.run!.battle!.energy).toBe(4);expect(next.run!.battle!.discard.map(c=>c.uid)).toContain('test0');expect(next.run!.battle!.enemies[0].hp).toBe(21);});
  it('does not allow an unaffordable card or double play',()=>{let s=fight();hand(s,['inferno']);s.run!.battle!.energy=1;expect(reduceGame(s,{type:'play',uid:'test0'})).toEqual(s);s.run!.battle!.energy=3;s=reduceGame(s,{type:'play',uid:'test0'});expect(reduceGame(s,{type:'play',uid:'test0'})).toEqual(s);});
  it('shield absorbs damage and resets at new player turn',()=>{let s=fight();hand(s,['guard']);s.run!.battle!.turn=2;s=reduceGame(s,{type:'play',uid:'test0'});const hp=s.run!.hp;expect(s.run!.battle!.block).toBe(10);s=reduceGame(s,{type:'endTurn'});expect(s.run!.hp).toBe(hp);expect(s.run!.battle!.block).toBe(0);expect(s.run!.battle!.energy).toBe(3);});
+ it('resolves queued enemies one at a time and resumes after reload',()=>{
+  const s=fight(),battle=s.run!.battle!;battle.enemies.push({...battle.enemies[0],uid:'second-enemy',id:'goblimon',hp:30,maxHp:30});
+  const atomic=reduceGame(s,{type:'endTurn'});
+  let queued=reduceGame(s,{type:'beginEnemyTurn'});
+  expect(queued.run!.battle!.enemyTurnIndex).toBe(0);
+  expect(queued.run!.battle!.hand).toHaveLength(0);
+  expect(queued.run!.hp).toBe(s.run!.hp);
+  expect(reduceGame(queued,{type:'finishEnemyTurn'})).toEqual(queued);
+  expect(reduceGame(queued,{type:'play',uid:battle.hand[0].uid})).toEqual(queued);
+  queued=parseSave(JSON.stringify(queued));
+  queued=reduceGame(queued,{type:'enemyStep'});
+  expect(queued.run!.battle!.enemyTurnIndex).toBe(1);
+  expect(queued.run!.hp).toBe(s.run!.hp);
+  queued=reduceGame(queued,{type:'enemyStep'});
+  expect(queued.run!.hp).toBeLessThan(s.run!.hp);
+  queued=reduceGame(queued,{type:'finishEnemyTurn'});
+  expect(queued).toEqual(atomic);
+ });
+ it('defaults older battle saves to the player turn',()=>{
+  const original=fight();
+  const legacy=structuredClone(original);
+  delete (legacy.run!.battle! as {enemyTurnIndex?:number|null}).enemyTurnIndex;
+  expect(parseSave(JSON.stringify(legacy)).run!.battle!.enemyTurnIndex).toBeNull();
+ });
+ it('stops a queued enemy turn on lethal damage',()=>{
+  let s=fight();s.run!.hp=1;s.run!.battle!.enemies[0].id='goblimon';
+  s=reduceGame(s,{type:'beginEnemyTurn'});
+  s=reduceGame(s,{type:'enemyStep'});
+  expect(s.run!.screen).toBe('result');
+  expect(s.run!.hp).toBe(0);
+  expect(reduceGame(s,{type:'finishEnemyTurn'})).toEqual(s);
+ });
  it('burn damage ignores block and decays',()=>{let s=fight();s.run!.battle!.enemies[0].burn=5;s=reduceGame(s,{type:'endTurn'});expect(s.run!.battle!.enemies[0].hp).toBe(23);expect(s.run!.battle!.enemies[0].block).toBe(8);expect(s.run!.battle!.enemies[0].burn).toBe(4);});
  it('detonation consumes burn and mark burst consumes marks',()=>{let s=fight();hand(s,['ignite']);s.run!.battle!.enemies[0].burn=3;s=reduceGame(s,{type:'play',uid:'test0'});expect(s.run!.battle!.enemies[0].hp).toBe(16);expect(s.run!.battle!.enemies[0].burn).toBe(0);s=fight();hand(s,['seal']);s.run!.battle!.enemies[0].mark=2;s=reduceGame(s,{type:'play',uid:'test0'});expect(s.run!.battle!.enemies[0].hp).toBe(13);expect(s.run!.battle!.enemies[0].mark).toBe(0);});
  it('sync gain caps at three per turn',()=>{let s=fight();hand(s,['guard','guard','guard','guard']);for(let i=0;i<4;i++)s=reduceGame(s,{type:'play',uid:`test${i}`});expect(s.run!.battle!.sync).toBe(3);});

@@ -1,4 +1,34 @@
 {
+  "terriermon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/rookie/Terriermon.gif"
+  },
+  "galgomon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/champion/Galgomon.gif"
+  },
+  "rapidmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Rapidmon.gif"
+  },
+  "blackrapidmon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/ultimate/BlackRapidmon.gif"
+  },
+  "saintgalgomon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/mega/SaintGalgomon.gif"
+  },
+  "blacksaintgalgomon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/mega/BlackSaintGalgomon.gif"
+  },
   "blackwargrowlmon": {
     "frames": 4,
     "duration": 1000,

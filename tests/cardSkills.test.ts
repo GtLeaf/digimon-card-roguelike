@@ -31,7 +31,7 @@ describe('form skill unlocks',()=>{
   expect(cardPool(r)).toContain('shadowseal');expect(cardPool(r)).not.toContain('ritual');
  });
  it('all starting cards are legal and every exclusive image matches its owner',()=>{
-  for(const partner of ['guilmon','renamon'] as const){const r=makeRun(partner,42);for(const c of r.deck)expect(skillUnlocked(r,CARDS[c.id]),c.id).toBe(true);}
+  for(const partner of ['guilmon','renamon','terriermon'] as const){const r=makeRun(partner,42);for(const c of r.deck)expect(skillUnlocked(r,CARDS[c.id]),c.id).toBe(true);}
   for(const c of Object.values(CARDS))if(c.family!=='common'&&c.family!=='status'){expect(c.unlockForm,c.id).toBe(c.art);expect(EVOLUTIONS[c.unlockForm!],c.id).toBeDefined();}
  });
  it('evolution gifts never require a future or unvisited side-branch form',()=>{

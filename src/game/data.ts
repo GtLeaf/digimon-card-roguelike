@@ -46,20 +46,37 @@ export const CARDS:Record<string,CardDef> = Object.fromEntries([
  card('drain','生命汲取',1,'attack','common','造成 8 伤害；若造成生命伤害，回复 3 生命。','chaosdukemon',{damage:8,drain:3}),
  card('chaoslance','混沌枪击',2,'attack','chaos','失去 3 生命，造成 23 伤害；若造成生命伤害，回复 5 生命。','chaosdukemon',{damage:23,special:'sacrifice',drain:5}),
  card('chaosward','暗黑圣盾',1,'skill','chaos','失去 3 生命，获得 18 护盾，抽 1 张牌。','chaosdukemon',{shield:18,draw:1,special:'sacrifice'}),
+ card('tinyTwister','小型龙卷风',1,'attack','terriermon','对所有敌人造成 4 伤害。','terriermon',{damage:4,all:true}),
+ card('blazingShot','炽热气弹',1,'attack','terriermon','造成 8 伤害；若有蓄能，额外造成 2 伤害，不消耗蓄能。','terriermon',{damage:8,chargedDamage:2}),
+ card('gatling','加特林机枪',1,'attack','terriermon','造成 3×3 段伤害。','galgomon',{damage:3,hits:3,upgradeDamage:1}),
+ card('dumUpper','达姆达姆勾拳',1,'attack','terriermon','造成 9 伤害，获得 4 护盾。','galgomon',{damage:9,shield:4}),
+ card('blackGatling','黑加特林机枪',1,'attack','terriermon','造成 4×2 段伤害，获得 3 护盾。','blackgalgomon',{damage:4,hits:2,shield:3,upgradeDamage:1}),
+ card('ambushUpper','伏击勾拳',1,'attack','terriermon','造成 10 伤害，施加 2 虚弱。','blackgalgomon',{damage:10,weak:2}),
+ card('rapidFire','疾速射击',1,'attack','terriermon','造成 3×3 段伤害，抽 1 张牌。','rapidmon',{damage:3,hits:3,draw:1,upgradeDamage:1}),
+ card('goldTriangle','黄金三角',2,'attack','terriermon','对所有敌人造成 13 伤害。','rapidmon',{damage:13,all:true}),
+ card('blackReload','战术·装甲装填',1,'skill','terriermon','获得 8 护盾，获得 2 蓄能。','blackrapidmon',{shield:8,charge:2}),
+ card('blackMissile','战术·定点轰击',2,'attack','terriermon','造成 15 伤害，消耗全部蓄能，每层额外 4 伤害。','blackrapidmon',{damage:15,special:'cannon'}),
+ card('giantMissile','巨型导弹',2,'attack','saint','造成 8×3 段伤害。','saintgalgomon',{damage:8,hits:3,upgradeDamage:1}),
+ card('burstShot','爆裂射击',1,'attack','saint','对所有敌人造成 4×2 段伤害。','saintgalgomon',{damage:4,hits:2,all:true,upgradeDamage:1}),
+ card('heavySalvo','战术·重装齐射',2,'attack','blacksaint','造成 12 伤害，消耗全部蓄能，每层额外 5 伤害。耗竭。','blacksaintgalgomon',{damage:12,special:'cannon',chargeMultiplier:5,exhaust:true}),
+ card('fortressLoad','战术·要塞整备',1,'skill','blacksaint','获得 12 护盾，获得 2 蓄能。','blacksaintgalgomon',{shield:12,charge:2}),
  card('fault','数据故障',1,'status','status','不能产生效果。支付 1 行动力清除，本场耗竭。','core',{exhaust:true}),
 ].map(c=>[c.id,c]));
 export const PARTNERS:Record<Partner,{name:string;tag:string;description:string;forms:string[];branches:Branch[]}>={
  guilmon:{name:'基尔兽',tag:'火焰 · 勇气',description:'用烈焰突破防线，或以圣盾守护羁绊。',forms:['guilmon','growlmon','wargrowlmon'],branches:['duke','megidra','chaos']},
- renamon:{name:'妖狐兽',tag:'符印 · 灵巧',description:'编织符印与术式，让每一次出牌彼此呼应。',forms:['renamon','kyubimon','taomon'],branches:['sakuya','kuzuha']}
+ renamon:{name:'妖狐兽',tag:'符印 · 灵巧',description:'编织符印与术式，让每一次出牌彼此呼应。',forms:['renamon','kyubimon','taomon'],branches:['sakuya','kuzuha']},
+ terriermon:{name:'大耳兽',tag:'连射 · 蓄能',description:'用连射掌握节奏，或蓄能化身重装炮台。',forms:['terriermon','galgomon','rapidmon'],branches:['saint','blacksaint']}
 };
 export const BRANCHES:Record<Branch,{name:string;art:string;tag:string;passive:string;cards:string[];partner:Partner}>={
+ saint:{name:'撒多格杜兽',art:'saintgalgomon',tag:'连射压制',passive:'每回合第二张攻击牌结算后，获得 1 蓄能并抽 1 张牌。',cards:['giantMissile','burstShot'],partner:'terriermon'},
+ blacksaint:{name:'黑撒多格杜兽',art:'blacksaintgalgomon',tag:'重装炮击',passive:'每回合首次防御出牌额外获得 1 蓄能；首次成功消耗蓄能后，获得 6 护盾。',cards:['heavySalvo','fortressLoad'],partner:'terriermon'},
  chaos:{name:'混沌红莲骑士兽',art:'chaosdukemon',tag:'血契循环',passive:'每回合首次主动自损后获得 6 护盾。',cards:['chaoslance','chaosward'],partner:'guilmon'},
  duke:{name:'红莲骑士兽',art:'dukemon',tag:'圣盾反击',passive:'每回合首张防御技能额外获得 3 护盾。',cards:['royal','aegis'],partner:'guilmon'},
  megidra:{name:'灭世魔龙兽',art:'megidramon',tag:'灼烧爆发',passive:'每回合首次施加灼烧，额外增加 2 层。',cards:['megido','apocalypse'],partner:'guilmon'},
  sakuya:{name:'沙古牙兽',art:'sakuyamon',tag:'术式循环',passive:'每回合首次消耗符印，抽 1 张牌。',cards:['sacred','mirrors'],partner:'renamon'},
  kuzuha:{name:'葛叶兽',art:'kuzuhamon',tag:'结界式神',passive:'每回合第二张技能牌触发式神，攻击一名敌人造成 4 伤害。',cards:['foxguardian','mandala'],partner:'renamon'}
 };
-export const FORM_NAMES:Record<string,string>={blackgrowmon:'黑古拉兽',blackwargrowlmon:'黑大古拉兽',chaosdukemon:'混沌红莲骑士兽',youkomon:'妖狐兽（蓝）',doumon:'道士兽',guilmon:'基尔兽',growlmon:'古拉兽',wargrowlmon:'大古拉兽',renamon:'妖狐兽',kyubimon:'九尾狐兽',taomon:'祭师兽',dukemon:'红莲骑士兽',megidramon:'灭世魔龙兽',sakuyamon:'沙古牙兽',kuzuhamon:'葛叶兽'};
+export const FORM_NAMES:Record<string,string>={terriermon:'大耳兽',galgomon:'加鲁哥兽',blackgalgomon:'黑加鲁哥兽',rapidmon:'拉比兽',blackrapidmon:'黑拉比兽',saintgalgomon:'撒多格杜兽',blacksaintgalgomon:'黑撒多格杜兽',blackgrowmon:'黑古拉兽',blackwargrowlmon:'黑大古拉兽',chaosdukemon:'混沌红莲骑士兽',youkomon:'妖狐兽（蓝）',doumon:'道士兽',guilmon:'基尔兽',growlmon:'古拉兽',wargrowlmon:'大古拉兽',renamon:'妖狐兽',kyubimon:'九尾狐兽',taomon:'祭师兽',dukemon:'红莲骑士兽',megidramon:'灭世魔龙兽',sakuyamon:'沙古牙兽',kuzuhamon:'葛叶兽'};
 const enemy=(id:string,name:string,hp:number,style:EnemyDef['style'],support?:string):EnemyDef=>({id,name,hp,style,art:id,scan:true,support});
 export const ENEMIES:Record<string,EnemyDef>=Object.fromEntries([
  enemy('goblimon','哥布林兽',29,'charge'),enemy('mushmon','蘑菇兽',25,'jam','蘑菇孢子：目标下次攻击每段伤害－2。'),enemy('hagurumon','齿轮兽',28,'shield','防御充能：获得 10 护盾。'),enemy('picodevimon','小恶魔兽',24,'buff','恶作剧：对目标造成 8 伤害。'),enemy('bakemon','猛鬼兽',30,'evade'),enemy('impmon','小妖兽',28,'rapid'),enemy('devidramon','邪龙兽',65,'charge'),enemy('dokugumon','毒蜘蛛兽',58,'spider'),enemy('sinduramon','铁鸡兽',110,'chicken'),enemy('ogremon','奥加兽',49,'charge'),enemy('leomon','狮子兽',52,'sword'),enemy('andromon','安杜路兽',54,'shield'),enemy('icedevimon','冰恶魔兽',82,'jam'),enemy('vajramon','蛮牛兽',92,'sword'),enemy('beelzebumon','别西卜兽',148,'rapid'),
@@ -68,13 +85,16 @@ export const ENEMIES:Record<string,EnemyDef>=Object.fromEntries([
 export const RELICS:Record<string,{name:string;text:string}>={reader:{name:'备用读卡器',text:'每场首回合多抽 1 张牌。'},cooler:{name:'散热芯片',text:'每回合前三次攻击伤害段＋1。'},firewall:{name:'防火模块',text:'每回合首次施加灼烧，获得 3 护盾。'},memory:{name:'记忆晶片',text:'战斗胜利后回复 3 生命。'},battery:{name:'应急电池',text:'每场首回合额外获得 1 行动力。'},armor:{name:'合金装甲',text:'每回合开始时获得 3 护盾。'}};
 export const BLESSINGS:Record<string,{name:string;text:string}>={bond:{name:'羁绊共鸣',text:'每场战斗开始时获得 2 同步值。'},guard:{name:'守护之心',text:'每回合第一张防御技能额外获得 3 护盾。'},growth:{name:'生命之光',text:'最大生命＋10，并回复 10 生命。'}};
 export const CHAPTERS=[{name:'现实的裂隙',subtitle:'新宿 · 黄昏边界',theme:'city'},{name:'迷失的数据原野',subtitle:'数码世界 · 记忆森林',theme:'forest'},{name:'最后的信号',subtitle:'侵蚀区域 · 帝厉魔核心',theme:'void'}];
-export const PORTRAIT_FORMS=['blackgrowmon','youkomon','doumon'];
+export const PORTRAIT_FORMS=['blackgrowmon','youkomon','doumon','blackgalgomon'];
 export const asset=(id:string)=>`${import.meta.env.BASE_URL}${PORTRAIT_FORMS.includes(id)?'portraits/'+id+'.jpg':'sprites/'+id+'.png'}`;
 export const cardText=(c:{id:string;upgraded:boolean})=>{
  const d=CARDS[c.id];if(!c.upgraded)return d.text;
- let text=d.text;if(d.damage)text=text.replace(/造成 \d+/,`造成 ${d.damage+3}`);
+ let text=d.text;if(d.damage)text=text.replace(/造成 \d+/,`造成 ${d.damage+(d.upgradeDamage??3)}`);
  if(d.shield)text=text.replace(/获得 \d+ (?:点)?护盾/,`获得 ${d.shield+3} 护盾`);
  if(!d.damage&&!d.shield)text+=` 强化：费用 ${d.cost}→${Math.max(0,d.cost-1)}。`;
  return text;
 };
 export const needsTarget=(d:CardDef)=>!d.all&&!!(d.damage||d.mark||d.burn||d.special==='markburst'||d.special==='detonate');
+
+export const PARTNER_IDS=Object.keys(PARTNERS) as Partner[];
+export const inheritanceOptions=(partner:Partner)=>partner==='guilmon'?['ember','ward']:partner==='renamon'?['seal','flow']:['ward','flow'];

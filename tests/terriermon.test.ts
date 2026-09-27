@@ -1,0 +1,87 @@
+import { describe, expect, it } from 'vitest';
+import { readFileSync, existsSync } from 'node:fs';
+import { CARDS, cardText } from '../src/game/data';
+import { cardPool, skillUnlocked } from '../src/game/cardSkills';
+import { emptySave, makeRun, reduceGame, cardCost, intent } from '../src/game/engine';
+import { EVOLUTIONS, evolutionStatus, syncRouteData } from '../src/game/evolution';
+import { availableNodes } from '../src/game/map';
+import { parseSave } from '../src/game/storage';
+import type { Save, Action, Branch } from '../src/game/types';
+
+function start(){return reduceGame(reduceGame(emptySave(),{type:'start',partner:'terriermon',seed:42}),{type:'bless',id:'guard'});}
+function fight(form='terriermon'){
+ let s=start();s.run!.form=form;s.run!.stage=EVOLUTIONS[form].stage;s.run!.branch=EVOLUTIONS[form].branch??null;
+ s=reduceGame(s,{type:'node',id:s.run!.nodes[0][0].id});s.run!.battle!.enemies[0].hp=999;s.run!.battle!.enemies[0].maxHp=999;return s;
+}
+function hand(s:Save,ids:string[]){s.run!.battle!.energy=100;s.run!.battle!.hand=ids.map((id,i)=>({id,uid:`t${i}`,upgraded:false}));}
+function play(s:Save,i:number){return reduceGame(s,{type:'play',uid:`t${i}`});}
+function ready(parent:string){const s=start(),r=s.run!;r.form=parent;r.stage=EVOLUTIONS[parent].stage;r.formHistory=['terriermon',parent];r.row=15;r.bosses=2;r.victories=10;r.screen='evolution';return s;}
+
+describe('Terriermon starter and assets',()=>{
+ it('starts with ten legal cards and guaranteed charge / cannon access',()=>{const r=makeRun('terriermon',42);expect(r.deck).toHaveLength(10);expect(r.deck.map(c=>c.id)).toEqual(expect.arrayContaining(['charge','cannon','tinyTwister','blazingShot']));expect(r.deck.every(c=>skillUnlocked(r,CARDS[c.id]))).toBe(true);expect(cardPool(r)).not.toContain('gatling');expect(cardPool(r)).not.toContain('blackReload');expect(r.inherit).toBe('ward');});
+ it('every form has its own usable image and all animated sheets exist',()=>{const sprites=JSON.parse(readFileSync('src/game/sprites.json','utf8')) as Record<string,{frames:number}>;for(const form of Object.values(EVOLUTIONS).filter(d=>d.partner==='terriermon')){if(form.id==='blackgalgomon'){expect(existsSync(`public/portraits/${form.id}.jpg`)).toBe(true);}else{expect(sprites[form.id].frames).toBeGreaterThan(0);expect(existsSync(`public/sprites/${form.id}.png`)).toBe(true);expect(existsSync(`public/sprites/${form.id}-sheet.png`)).toBe(true);}}});
+ it('cross-route inheritance retains visited skills without unlocking the other side',()=>{const r=makeRun('terriermon',42);r.form='rapidmon';r.formHistory=['terriermon','blackgalgomon','rapidmon'];expect(cardPool(r)).toContain('blackGatling');expect(cardPool(r)).toContain('rapidFire');expect(cardPool(r)).not.toContain('gatling');expect(cardPool(r)).not.toContain('blackReload');});
+});
+
+describe('charge and multihit combat rules',()=>{
+ it('counts paid charge and nonempty cannon use, once per card',()=>{let s=fight();hand(s,['cannon','charge','blazingShot','cannon']);s=play(s,0);expect(s.run!.activity.counts.cannonShots??0).toBe(0);s=play(s,1);expect(s.run!.activity.counts.charges).toBe(1);const hp=s.run!.battle!.enemies[0].hp;s=play(s,2);expect(hp-s.run!.battle!.enemies[0].hp).toBe(10);expect(s.run!.battle!.charge).toBe(2);s=play(s,3);expect(s.run!.activity.counts.cannonShots).toBe(1);expect(s.run!.battle!.charge).toBe(0);});
+ it('caps both new metrics per battle and keeps copy progress separate from series',()=>{let s=fight();hand(s,Array.from({length:12},()=>['charge','cannon']).flat());s.run!.battle!.hand[0].copied=true;for(let i=0;i<24;i++)s=play(s,i);expect(s.run!.activity.counts.charges).toBe(10);expect(s.run!.activity.counts.cannonShots).toBe(10);expect(s.run!.activity.cards.charge).toBe(3);});
+ it.each(['galgomon','rapidmon','saintgalgomon'])('%s triggers once on the second attack card, not the second hit',form=>{let s=fight(form);hand(s,['gatling','gatling','gatling']);const draw=s.run!.battle!.draw.length;s=play(s,0);expect(s.run!.battle!.charge).toBe(0);expect(s.run!.battle!.draw.length).toBe(draw);s=play(s,1);const charges=form==='rapidmon'?0:1;expect(s.run!.battle!.charge).toBe(charges);expect(s.run!.activity.counts.charges??0).toBe(0);if(form!=='galgomon')expect(s.run!.battle!.draw.length).toBe(draw-1);s=play(s,2);expect(s.run!.battle!.charge).toBe(charges);expect(s.run!.activity.counts.attacks).toBe(3);});
+ it('tactical bonus is two damage total and does not apply to the shield attack itself',()=>{let s=fight('blackgalgomon');hand(s,['blackGatling','gatling']);s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(989);expect(s.run!.battle!.nextAttackBonus).toBe(2);s=play(s,1);expect(s.run!.battle!.enemies[0].hp).toBe(975);expect(s.run!.battle!.nextAttackBonus).toBe(0);});
+ it('armor passives do not count as active charge and cannon guard triggers once per turn',()=>{let s=fight('blacksaintgalgomon');hand(s,['guard','charge','cannon','charge','cannon']);s=play(s,0);expect(s.run!.battle!.charge).toBe(1);expect(s.run!.activity.counts.charges??0).toBe(0);s=play(s,1);const block=s.run!.battle!.block;s=play(s,2);expect(s.run!.battle!.block).toBe(block+6);s=play(s,3);s=play(s,4);expect(s.run!.battle!.block).toBe(block+10);expect(s.run!.activity.counts.cannonShots).toBe(2);s=reduceGame(s,{type:'endTurn'});expect(s.run!.battle!.cannonGuardUsed).toBe(false);expect(s.run!.battle!.attackPlays).toBe(0);});
+ it('heavy cannon uses its multiplier and exhausts; upgraded multihit text agrees with damage',()=>{let s=fight();hand(s,['heavySalvo']);s.run!.battle!.charge=3;s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(972);expect(s.run!.battle!.exhaust[0].id).toBe('heavySalvo');s=fight();hand(s,['gatling']);s.run!.battle!.hand[0].upgraded=true;s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(987);expect(cardText({id:'gatling',upgraded:true})).toContain('4×3');});
+ it('charge persists across turns and resets in the next battle',()=>{let s=fight();hand(s,['charge']);s=play(s,0);s=reduceGame(s,{type:'endTurn'});expect(s.run!.battle!.charge).toBe(2);s.run!.battle!.enemies[0].hp=1;s.run!.battle!.enemies[0].block=0;hand(s,['strike']);s=play(s,0);expect(s.run!.screen).toBe('reward');s=reduceGame(s,{type:'reward'});s=reduceGame(s,{type:'node',id:s.run!.nodes[1][0].id});expect(s.run!.battle!.charge).toBe(0);});
+});
+
+describe('branch gates, research and saves',()=>{
+ it.each(['blackgalgomon','blackrapidmon','blacksaintgalgomon'])('%s enforces every behavior gate',form=>{const d=EVOLUTIONS[form];const s=ready(d.parents[0]);expect(evolutionStatus(s.run,s.meta,form).ready).toBe(false);for(const group of d.groups){const term=group[0];s.run!.activity.counts[term.metric!]=term.goal;}expect(evolutionStatus(s.run,s.meta,form).ready).toBe(true);});
+ it('requires permanent research only for Galgomon to BlackRapidmon',()=>{const s=ready('galgomon');s.run!.activity.counts={defenses:10,charges:4};const action:Action={type:'evolve',form:'blackrapidmon',replace:s.run!.deck.slice(0,2).map(c=>c.uid)};expect(reduceGame(s,action)).toEqual(s);s.meta.scans.andromon=100;expect(syncRouteData(s.meta)).toEqual(['mechanical']);expect(reduceGame(s,action).run!.form).toBe('blackrapidmon');s.meta.unlockedRoutes=[];s.run!.form='blackgalgomon';expect(reduceGame(s,action).run!.form).toBe('blackrapidmon');});
+ it('always leaves a stage-appropriate standard exit',()=>{for(const [parent,child] of [['blackgalgomon','rapidmon'],['blackrapidmon','saintgalgomon']]){const s=ready(parent);expect(evolutionStatus(s.run,s.meta,child).ready).toBe(true);}});
+ it('chapter two safe event unlocks research permanently; restarting clears behavior',()=>{let s=start();s.run!.screen='event';s.run!.row=9;s.run!.currentNode=s.run!.nodes[9][1];s=reduceGame(s,{type:'event',choice:'safe'});expect(s.meta.unlockedRoutes).toContain('mechanical');s.run!.activity.counts.charges=5;s=reduceGame(s,{type:'abandon'});s=reduceGame(s,{type:'start',partner:'terriermon',seed:42});expect(s.meta.unlockedRoutes).toContain('mechanical');expect(s.run!.activity.counts).toEqual({});});
+ it('new battle state round trips and old saves default only the new fields',()=>{let s=fight('blacksaintgalgomon');hand(s,['charge','cannon']);s=play(s,0);s=play(s,1);expect(parseSave(JSON.stringify(s))).toEqual(s);const old=reduceGame(reduceGame(emptySave(),{type:'start',partner:'guilmon',seed:42}),{type:'bless',id:'guard'});const battle=reduceGame(old,{type:'node',id:old.run!.nodes[0][0].id});const raw=JSON.parse(JSON.stringify(battle)) as {run:{battle:Record<string,unknown>}};delete raw.run.battle.attackPlays;delete raw.run.battle.nextAttackBonus;delete raw.run.battle.cannonGuardUsed;const loaded=parseSave(JSON.stringify(raw));expect(loaded).toEqual(battle);expect(loaded.run!.partner).toBe('guilmon');});
+});
+
+// 完整路线只通过真实游戏操作推进，不修改牌堆、生命、进度或行为计数。
+function journey(branch:Branch){
+ let s=start(),steps=0;const dark=branch==='blacksaint';
+ const forms=dark?['blackgalgomon','blackrapidmon','blacksaintgalgomon']:['galgomon','rapidmon','saintgalgomon'];
+ while(s.run!.screen!=='result'&&steps++<2000){
+  const r=s.run!;let action:Action;
+  switch(r.screen){
+   case 'map':{const options=availableNodes(r);const node=options.find(n=>n.kind==='battle')??options.find(n=>n.kind==='camp')??options.find(n=>n.kind==='treasure')??options[0];action={type:'node',id:node.id};break;}
+   case 'battle':{
+    const b=r.battle!,target=b.enemies.find(e=>e.hp>0)!;
+    if(r.potions&&r.hp<=r.maxHp-18){action={type:'potion'};break;}
+    if(!b.supportUsed){action={type:'support'};break;}
+    if(r.branch&&b.sync>=6&&!b.burstUsed){action={type:'burst'};break;}
+    const incoming=b.enemies.filter(e=>e.hp>0).reduce((n,e)=>{const i=intent(r,e);return n+i.damage*i.hits;},0);
+    const score=(id:string,upgraded:boolean)=>{const d=CARDS[id],up=upgraded?3:0;
+     let damage=(d.damage?(d.damage+(upgraded?(d.upgradeDamage??3):0))*(d.hits??1):0)+(d.special==='cannon'?b.charge*(d.chargeMultiplier??4):0);
+     if(d.all)damage*=b.enemies.filter(e=>e.hp>0).length;
+     let score=damage+(d.draw??0)*3+(d.energy??0)*12+(d.heal??0)*2+(d.weak??0)*3;
+     if(d.shield)score+=Math.min(d.shield+up,Math.max(0,incoming-b.block))*2;
+     if(d.charge)score+=d.charge*4;
+     if(dark&&(r.activity.counts.defenses??0)<(r.stage===0?4:18)&&d.shield)score+=8;
+     if(dark&&(r.activity.counts.charges??0)<4&&d.charge)score+=10;
+     if(dark&&r.stage===0&&(r.activity.counts.attacks??0)<6&&d.special==='cannon')score-=25;
+     return score/Math.max(.5,cardCost({id,upgraded,uid:''}));
+    };
+    const c=b.hand.filter(c=>cardCost(c)<=b.energy).sort((a,b)=>score(b.id,b.upgraded)-score(a.id,a.upgraded))[0];action=c?{type:'play',uid:c.uid,target:target.uid}:{type:'endTurn'};break;
+   }
+   case 'reward':{const order=dark?['blackReload','fortressLoad','blackMissile','charge','brace','mend','ambushUpper']:['rapidFire','gatling','dumUpper','brace','mend','battery','blazingShot'];action={type:'reward',card:r.deck.length<16?order.find(id=>r.reward!.cards.includes(id)):undefined};break;}
+   case 'camp':if(evolutionStatus(r,s.meta,forms[r.stage]??r.form).ready){action={type:'campEvolution'};break;}action=r.hp<r.maxHp*.85?{type:'camp',mode:'heal'}:{type:'camp',mode:'upgrade',uid:r.deck.find(c=>!c.upgraded&&CARDS[c.id].family==='terriermon')?.uid??r.deck.find(c=>!c.upgraded)?.uid};if(action.type==='camp'&&action.mode==='upgrade'&&!action.uid)action={type:'camp',mode:'heal'};break;
+   case 'evolution':{const form=forms[r.stage];const uids=[...r.deck].sort((a,b)=>{const priority=(id:string)=>id==='strike'?0:CARDS[id].family==='terriermon'?1:id==='guard'?2:3;return priority(a.id)-priority(b.id);}).slice(0,2).map(c=>c.uid);action=evolutionStatus(r,s.meta,form).ready?{type:'evolve',form,replace:uids,training:'defense',inherit:'ward'}:{type:'deferEvolution'};break;}
+   case 'event':action={type:'event',choice:'safe'};break;
+   case 'shop':case 'treasure':action={type:'continue'};break;
+   case 'blessing':action={type:'bless',id:'guard'};break;
+   default:throw Error(`Unexpected screen: ${r.screen}`);
+  }
+  s=reduceGame(s,action);
+  if(s.run!.screen==='reward'&&(s.meta.scans.hagurumon??0)>=100&&!s.meta.partners.includes('hagurumon')){s=reduceGame(s,{type:'convert',id:'hagurumon'});s=reduceGame(s,{type:'equip',id:'hagurumon'});}
+  if(steps%13===0)s=parseSave(JSON.stringify(s));
+ }
+ return {s,steps};
+}
+describe('Terriermon full journeys',()=>{
+ it.each(['saint','blacksaint'] as Branch[])('finishes all chapters on the %s route with real actions',branch=>{const {s,steps}=journey(branch);const context=JSON.stringify({row:s.run!.row,form:s.run!.form,hp:s.run!.hp,counts:s.run!.activity.counts,screen:s.run!.screen});expect(steps,context).toBeLessThan(2000);expect(s.run!.won,context).toBe(true);expect(s.run!.branch,context).toBe(branch);expect(s.run!.formHistory).toEqual(branch==='saint'?['terriermon','galgomon','rapidmon','saintgalgomon']:['terriermon','blackgalgomon','blackrapidmon','blacksaintgalgomon']);});
+});

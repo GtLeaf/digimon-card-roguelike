@@ -2,14 +2,15 @@ import { BRANCHES, FORM_NAMES } from './data';
 import type { Activity, Branch, Meta, Metric, Partner, Run } from './types';
 
 export const emptyActivity = (): Activity => ({ counts: {}, cards: {} });
-export const METRIC_NAMES: Record<Metric, string> = { attacks:'攻击出牌',defenses:'主动防御',skills:'技能出牌',fire:'火焰出牌',marks:'施加符印',detonations:'引爆灼烧',markBursts:'消耗符印',selfCosts:'主动自损',heals:'有效治疗',copies:'使用复制牌',weakens:'施加虚弱',combos:'双技能回合',burnKills:'灼烧击杀' };
+export const METRIC_NAMES: Record<Metric, string> = { attacks:'攻击出牌',defenses:'主动防御',skills:'技能出牌',fire:'火焰出牌',marks:'施加符印',detonations:'引爆灼烧',markBursts:'消耗符印',selfCosts:'主动自损',heals:'有效治疗',copies:'使用复制牌',weakens:'施加虚弱',combos:'双技能回合',burnKills:'灼烧击杀',charges:'主动蓄能',cannonShots:'蓄能炮击' };
 export const ROUTE_DATA: Record<string,{name:string;source:string}> = {
+ mechanical:{name:'机械研究',source:'齿轮兽或安杜路兽扫描达到 100%，或在第二章事件中完成机械研究'},
  chaos:{name:'混沌资料',source:'邪龙兽扫描达到 100%（击败两次，跨局累计）'},
  purification:{name:'净化资料',source:'狮子兽扫描达到 100%，或在第二章事件中完成安全净化'},
 };
 export function syncRouteData(meta: Meta): string[] {
  const gained:string[]=[];
- for(const [id,enemy] of [['chaos','devidramon'],['purification','leomon']]){
+ for(const [id,enemy] of [['chaos','devidramon'],['purification','leomon'],['mechanical','hagurumon'],['mechanical','andromon']]){
   if((meta.scans[enemy]??0)>=100&&!meta.unlockedRoutes.includes(id)){meta.unlockedRoutes.push(id);gained.push(id);}
  }
  return gained;
@@ -35,6 +36,13 @@ export const EVOLUTIONS: Record<string,EvolutionDef> = Object.fromEntries(([
  {id:'doumon',partner:'renamon',stage:2,parents:['youkomon'],tag:'咒术控制',passive:'每回合第二张技能，对一名敌人施加 1 符印。',cards:['shadowseal','illusion'],groups:[[{metric:'marks',goal:8}],[{metric:'copies',goal:3},{metric:'weakens',goal:4}]],slot:2},
  {id:'sakuyamon',partner:'renamon',stage:3,parents:['taomon','doumon'],tag:'术式循环',passive:BRANCHES.sakuya.passive+' 消耗符印满6次，进化时额外获得术式继承：首回合多抽1张。',cards:BRANCHES.sakuya.cards,branch:'sakuya',groups:[],slot:0},
  {id:'kuzuhamon',partner:'renamon',stage:3,parents:['taomon','doumon'],tag:'结界式神',passive:BRANCHES.kuzuha.passive,cards:BRANCHES.kuzuha.cards,branch:'kuzuha',groups:[[{metric:'skills',goal:18}],[{metric:'combos',goal:5}]],slot:2},
+ {id:'terriermon',partner:'terriermon',stage:0,parents:[],tag:'旅途起点',passive:'连射与蓄能：选择机动火力或防守炮击。',cards:['tinyTwister','blazingShot'],groups:[],slot:1},
+ {id:'galgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'连射之路',passive:'每回合第二张攻击牌结算后，获得 1 蓄能。',cards:['gatling','dumUpper'],groups:[],slot:0},
+ {id:'blackgalgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'战术之路',passive:'每回合首次防御出牌后，本回合下一张造成直接伤害的攻击牌额外造成 2 总伤害。',cards:['blackGatling','ambushUpper'],groups:[[{metric:'attacks',goal:6}],[{metric:'defenses',goal:4}]],slot:2},
+ {id:'rapidmon',partner:'terriermon',stage:2,parents:['galgomon','blackgalgomon'],tag:'高速机动',passive:'每回合第二张攻击牌结算后，抽 1 张牌。',cards:['rapidFire','goldTriangle'],groups:[],slot:0},
+ {id:'blackrapidmon',partner:'terriermon',stage:2,parents:['blackgalgomon','galgomon'],tag:'装甲蓄能',passive:'每回合首次防御出牌额外获得 1 蓄能。',cards:['blackReload','blackMissile'],groups:[[{metric:'defenses',goal:10}],[{metric:'charges',goal:4}]],slot:2},
+ {id:'saintgalgomon',partner:'terriermon',stage:3,parents:['rapidmon','blackrapidmon'],tag:'连射压制',passive:BRANCHES.saint.passive,cards:BRANCHES.saint.cards,branch:'saint',groups:[],slot:0},
+ {id:'blacksaintgalgomon',partner:'terriermon',stage:3,parents:['blackrapidmon'],tag:'重装炮击',passive:BRANCHES.blacksaint.passive,cards:BRANCHES.blacksaint.cards,branch:'blacksaint',groups:[[{metric:'defenses',goal:18}],[{metric:'cannonShots',goal:3}]],slot:2},
 ] satisfies EvolutionDef[]).map(d=>[d.id,d]));
 export interface Requirement { label:string; current:number; goal:number; met:boolean }
 export interface EvolutionStatus { groups:Requirement[][]; data:Requirement[]; parent:boolean; stage:boolean; ready:boolean; achieved:boolean }
@@ -43,6 +51,7 @@ export function evolutionStatus(r:Run|null,meta:Meta,id:string):EvolutionStatus 
  const d=EVOLUTIONS[id];
  const groups=d.groups.map(group=>group.map(t=>{const current=r?(t.card?r.activity.cards[t.card]??0:r.activity.counts[t.metric!]??0):0;return {label:t.label??METRIC_NAMES[t.metric!],current,goal:t.goal,met:current>=t.goal};}));
  const data:Requirement[]=[];
+ if(id==='blackrapidmon'&&r?.form==='galgomon')data.push({label:'机械研究（跨局）',current:meta.unlockedRoutes.includes('mechanical')?1:0,goal:1,met:meta.unlockedRoutes.includes('mechanical')});
  if(id==='chaosdukemon')data.push({label:'混沌资料（跨局）',current:meta.unlockedRoutes.includes('chaos')?1:0,goal:1,met:meta.unlockedRoutes.includes('chaos')});
  if(id==='sakuyamon'&&r?.form==='doumon'){
   data.push({label:'净化资料（跨局）',current:meta.unlockedRoutes.includes('purification')?1:0,goal:1,met:meta.unlockedRoutes.includes('purification')});

@@ -1,5 +1,5 @@
 import { cardPool, skillUnlocked } from './cardSkills';
-import { BLESSINGS, BRANCHES, CARDS, ENEMIES, PARTNERS, RELICS, needsTarget } from './data';
+import { BLESSINGS, BRANCHES, CARDS, ENEMIES, PARTNERS, RELICS, inheritanceOptions, needsTarget } from './data';
 import { emptyActivity, EVOLUTIONS, evolutionStatus, stageLimit, syncRouteData, activityGains } from './evolution';
 import { connectMap, availableNodes } from './map';
 import type { Metric, Action, Battle, Card, Enemy, Intent, MapNode, Meta, Partner, Run, Save } from './types';
@@ -9,8 +9,9 @@ const choose=<T,>(r:Run,items:T[]):T=>items[Math.floor(rand(r)*items.length)];
 const shuffle=<T,>(r:Run,items:T[])=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(rand(r)*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const makeCard=(r:Run,id:string,upgraded=false,temporary=false):Card=>({uid:`c${++r.seq}`,id,upgraded,temporary});
 export function makeRun(partner:Partner,seed:number):Run{
- const r:Run={activity:emptyActivity(),victories:0,bosses:0,formHistory:[partner],evolutionTarget:null,evolutionReturn:'node',legacyEvolution:false,bonuses:[],partner,form:partner,stage:0,branch:null,training:'attack',inherit:partner==='guilmon'?'ember':'seal',hp:partner==='guilmon'?90:82,maxHp:partner==='guilmon'?90:82,gold:65,deck:[],relics:[],blessing:'',support:'default',potions:1,rng:seed>>>0,seq:0,row:0,nodes:[],path:[],screen:'blessing',currentNode:null,battle:null,reward:null,shopStock:[],shopBought:[],shopRemoved:false,evolved:0,won:false,kills:0,damageDealt:0,message:'选择旅途祝福'};
- r.deck=[...Array.from({length:4},()=>makeCard(r,'strike')),...Array.from({length:4},()=>makeCard(r,'guard')),makeCard(r,partner==='guilmon'?'fireball':'leaf'),makeCard(r,partner==='guilmon'?'rock':'talisman')];
+ const r:Run={activity:emptyActivity(),victories:0,bosses:0,formHistory:[partner],evolutionTarget:null,evolutionReturn:'node',legacyEvolution:false,bonuses:[],partner,form:partner,stage:0,branch:null,training:'attack',inherit:partner==='guilmon'?'ember':partner==='renamon'?'seal':'ward',hp:partner==='guilmon'?90:partner==='renamon'?82:86,maxHp:partner==='guilmon'?90:partner==='renamon'?82:86,gold:65,deck:[],relics:[],blessing:'',support:'default',potions:1,rng:seed>>>0,seq:0,row:0,nodes:[],path:[],screen:'blessing',currentNode:null,battle:null,reward:null,shopStock:[],shopBought:[],shopRemoved:false,evolved:0,won:false,kills:0,damageDealt:0,message:'选择旅途祝福'};
+ if(partner==='terriermon')r.deck=['strike','strike','strike','guard','guard','guard','charge','cannon','tinyTwister','blazingShot'].map(id=>makeCard(r,id));
+ else r.deck=[...Array.from({length:4},()=>makeCard(r,'strike')),...Array.from({length:4},()=>makeCard(r,'guard')),makeCard(r,partner==='guilmon'?'fireball':'leaf'),makeCard(r,partner==='guilmon'?'rock':'talisman')];
  for(let row=0;row<24;row++){
   const chapter=Math.floor(row/8),local=row%8;
   const pool=chapter===0?['goblimon','mushmon','hagurumon','picodevimon','bakemon','impmon']:chapter===1?['ogremon','leomon','andromon','mushmon','picodevimon']:['scout','replica','corrupt'];
@@ -48,7 +49,7 @@ export function intent(r:Run,e:Enemy):Intent{
 const log=(b:Battle,s:string)=>{b.log=[s,...b.log].slice(0,12);};
 function draw(r:Run,n:number){const b=r.battle;if(!b)return;for(let i=0;i<n;i++){if(!b.draw.length){b.draw=shuffle(r,b.discard);b.discard=[];}const c=b.draw.pop();if(!c)break;if(b.hand.length<8)b.hand.push(c);else b.discard.push(c);}}
 function beginBattle(r:Run,node:MapNode){
- r.battle={activity:emptyActivity(),startActivity:structuredClone(r.activity),selfCostThisTurn:false,countedKills:[],enemies:node.enemies.map((id,index)=>({uid:`${node.id}-e${index}`,id,hp:ENEMIES[id].hp,maxHp:ENEMIES[id].hp,block:0,burn:0,mark:0,strength:0,weakened:0,opening:true,stagger:0})),hand:[],draw:shuffle(r,r.deck),discard:[],exhaust:[],turn:1,energy:3+(r.relics.includes('battery')?1:0),block:r.relics.includes('armor')?3:0,sync:r.blessing==='bond'?2:0,syncThisTurn:0,burst:0,burstUsed:false,supportUsed:false,strength:0,charge:r.form==='wargrowlmon'?1:0,played:0,skillsPlayed:0,attacks:0,burned:false,marked:false,defended:false,log:['连接建立。先观察敌人的行动意图。']};
+ r.battle={activity:emptyActivity(),startActivity:structuredClone(r.activity),selfCostThisTurn:false,countedKills:[],enemies:node.enemies.map((id,index)=>({uid:`${node.id}-e${index}`,id,hp:ENEMIES[id].hp,maxHp:ENEMIES[id].hp,block:0,burn:0,mark:0,strength:0,weakened:0,opening:true,stagger:0})),hand:[],draw:shuffle(r,r.deck),discard:[],exhaust:[],turn:1,enemyTurnIndex:null,energy:3+(r.relics.includes('battery')?1:0),block:r.relics.includes('armor')?3:0,sync:r.blessing==='bond'?2:0,syncThisTurn:0,burst:0,burstUsed:false,supportUsed:false,strength:0,charge:r.form==='wargrowlmon'?1:0,played:0,skillsPlayed:0,attacks:0,attackPlays:0,nextAttackBonus:0,cannonGuardUsed:false,burned:false,marked:false,defended:false,log:['连接建立。先观察敌人的行动意图。']};
  if(r.training==='defense'&&r.stage>0)r.battle.block+=3;
  if(r.bonuses.includes('holyward'))r.battle.block+=2;
  draw(r,5+(r.relics.includes('reader')?1:0)+(r.bonuses.includes('ritual')?1:0));r.screen='battle';
@@ -88,20 +89,23 @@ function playCard(r:Run,meta:Meta,uid:string,target?:string){
  const chosen=b.enemies.find(e=>e.uid===target&&e.hp>0)??b.enemies.find(e=>e.hp>0);
  if(needsTarget(d)&&!chosen)return;
  b.energy-=cost;b.hand.splice(index,1);
- if(d.kind==='attack')count(r,'attacks');if(d.kind==='skill'||d.kind==='power')count(r,'skills');if(d.burn||d.special==='detonate')count(r,'fire');if(c.copied)count(r,'copies');
+ if(d.kind==='attack'){count(r,'attacks');b.attackPlays++;}if(d.kind==='skill'||d.kind==='power')count(r,'skills');if(d.burn||d.special==='detonate')count(r,'fire');if(c.copied)count(r,'copies');
  if(!c.copied){const series=d.series??d.id;const used=b.activity.cards[series]??0;if(used<3){b.activity.cards[series]=used+1;r.activity.cards[series]=(r.activity.cards[series]??0)+1;}}
  b.played++;if(d.kind==='skill'||d.kind==='power')b.skillsPlayed++;
  if((d.kind==='skill'||d.kind==='power')&&b.skillsPlayed===2)count(r,'combos');
  if(b.syncThisTurn<3){b.sync=Math.min(6,b.sync+1);b.syncThisTurn++;}
  log(b,`${d.name}${c.upgraded?'＋':''}`);
- const up=c.upgraded?3:0;
+ const up=c.upgraded?3:0,damageUp=c.upgraded?(d.upgradeDamage??3):0;
+ const firstDefense=!!d.shield&&!b.defended;
+ let tacticalBonus=d.kind==='attack'&&d.damage?b.nextAttackBonus:0;
+ if(tacticalBonus)b.nextAttackBonus=0;
  if(d.special==='sacrifice'){r.hp=Math.max(0,r.hp-3);count(r,'selfCosts');if(!b.selfCostThisTurn){if(r.form==='blackwargrowlmon')b.energy++;if(r.branch==='chaos')b.block+=6;b.selfCostThisTurn=true;}if(!r.hp){b.exhaust.push(c);resolve(r,meta);return;}}
- if(d.shield){count(r,'defenses');let shield=d.shield+up;if(!b.defended){if(r.blessing==='guard')shield+=3;if(r.branch==='duke')shield+=3;if(r.inherit==='ward'&&r.stage>0)shield+=2;b.defended=true;}b.block+=shield;}
+ if(d.shield){count(r,'defenses');let shield=d.shield+up;if(!b.defended){if(r.blessing==='guard')shield+=3;if(r.branch==='duke')shield+=3;if(r.inherit==='ward'&&r.stage>0)shield+=2;if(['blackrapidmon','blacksaintgalgomon'].includes(r.form))b.charge++;b.defended=true;}b.block+=shield;}
  if(d.heal&&r.hp<r.maxHp){r.hp=Math.min(r.maxHp,r.hp+d.heal);count(r,'heals');}
- if(d.energy)b.energy+=d.energy;if(d.strength)b.strength+=d.strength;if(d.charge)b.charge+=d.charge;
+ if(d.energy)b.energy+=d.energy;if(d.strength)b.strength+=d.strength;if(d.charge){b.charge+=d.charge;count(r,'charges');}
  if(d.special==='copy'){const original=b.hand.find(x=>!x.copied&&CARDS[x.id].kind!=='status'&&CARDS[x.id].special!=='copy');if(original&&b.hand.length<8)b.hand.push({...makeCard(r,original.id,original.upgraded,true),copied:true});}
  if(d.special==='purge'){const faults=b.hand.filter(x=>CARDS[x.id].kind==='status');b.hand=b.hand.filter(x=>CARDS[x.id].kind!=='status');b.exhaust.push(...faults);}
- let bonus=0;if(d.special==='shieldhit')bonus=Math.floor(b.block/2);if(d.special==='cannon'){bonus=b.charge*4;b.charge=0;}
+ let bonus=b.charge>0?(d.chargedDamage??0):0;if(d.special==='shieldhit')bonus+=Math.floor(b.block/2);if(d.special==='cannon'){if(b.charge>0){count(r,'cannonShots');if(r.form==='blacksaintgalgomon'&&!b.cannonGuardUsed){b.block+=6;b.cannonGuardUsed=true;}}bonus+=b.charge*(d.chargeMultiplier??4);b.charge=0;}
  const targets=d.all?b.enemies.filter(e=>e.hp>0):chosen?[chosen]:[];
  const beforeDamage=r.damageDealt;let appliedMark=false,appliedWeak=false,detonated=false,consumedMark=false;
  const burnBonus=!b.burned&&d.burn?((r.branch==='megidra'?2:r.form==='blackgrowmon'?1:0)+(r.inherit==='ember'&&r.stage>0?1:0)):0;
@@ -109,7 +113,7 @@ function playCard(r:Run,meta:Meta,uid:string,target?:string){
   let extra=bonus;
   if(d.special==='detonate'){extra+=e.burn*3;if(e.burn>0)detonated=true;e.burn=0;}
   if(d.special==='markburst'){extra+=e.mark*5;if(e.mark>0)consumedMark=true;if(e.mark>0&&!b.marked){if(r.branch==='sakuya')draw(r,1);b.marked=true;}e.mark=0;}
-  if(d.damage)for(let h=0;h<(d.hits??1);h++)hit(r,e,d.damage+up+extra);
+  if(d.damage)for(let h=0;h<(d.hits??1)&&e.hp>0;h++){hit(r,e,d.damage+damageUp+extra+tacticalBonus);tacticalBonus=0;}
   if(e.hp>0){if(d.burn)e.burn+=d.burn+burnBonus;if(d.mark){appliedMark=true;e.mark+=d.mark+(r.inherit==='seal'&&r.stage>0&&b.played===1?1:0)+(r.form==='youkomon'&&!b.marked?1:0);}if(d.weak){e.weakened+=d.weak;appliedWeak=true;}}
  }
  if(appliedMark){count(r,'marks');if(r.form==='youkomon')b.marked=true;}if(appliedWeak)count(r,'weakens');if(detonated)count(r,'detonations');if(consumedMark)count(r,'markBursts');
@@ -118,24 +122,39 @@ function playCard(r:Run,meta:Meta,uid:string,target?:string){
  if(r.form==='doumon'&&(d.kind==='skill'||d.kind==='power')&&b.skillsPlayed===2){const e=b.enemies.find(x=>x.hp>0);if(e)e.mark++;}
  if(d.burn&&!b.burned){if(r.relics.includes('firewall'))b.block+=3;b.burned=true;}
  if(r.branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power')&&b.skillsPlayed===2){const e=b.enemies.find(x=>x.hp>0);if(e)hit(r,e,4,false);log(b,'管狐追击 · 4 伤害');}
+ if(firstDefense&&r.form==='blackgalgomon')b.nextAttackBonus=2;
+ if(d.kind==='attack'&&b.attackPlays===2){if(['galgomon','saintgalgomon'].includes(r.form))b.charge++;if(['rapidmon','saintgalgomon'].includes(r.form))draw(r,1);}
  if(d.draw)draw(r,d.draw);
  if(r.inherit==='flow'&&r.stage>0&&b.played===1&&d.kind==='skill')b.block+=2;
  if(d.exhaust||c.copied||c.temporary)b.exhaust.push(c);else b.discard.push(c);
  resolve(r,meta);
 }
-function endTurn(r:Run,meta:Meta){
- const b=r.battle;if(!b)return;
+function beginEnemyTurn(r:Run){
+ const b=r.battle;if(!b||b.enemyTurnIndex!==null)return;
  b.discard.push(...b.hand.filter(c=>!c.temporary));b.exhaust.push(...b.hand.filter(c=>c.temporary));b.hand=[];
- for(const e of b.enemies){if(e.hp<=0)continue;const i=intent(r,e);e.block=0;
+ b.enemyTurnIndex=0;
+}
+function enemyStep(r:Run,meta:Meta){
+ const b=r.battle;if(!b||b.enemyTurnIndex===null||b.enemyTurnIndex>=b.enemies.length)return;
+ const e=b.enemies[b.enemyTurnIndex++];if(e.hp<=0)return;const i=intent(r,e);e.block=0;
   if(i.type==='attack'){for(let h=0;h<i.hits;h++){const absorbed=Math.min(b.block,i.damage);b.block-=absorbed;r.hp=Math.max(0,r.hp-i.damage+absorbed);}e.weakened=0;log(b,`${ENEMIES[e.id].name} · ${i.name} ${i.damage}${i.hits>1?`×${i.hits}`:''}`);}
   if(i.shield)e.block=i.shield;
   if(i.type==='buff'&&ENEMIES[e.id].style==='buff')b.enemies.filter(x=>x.hp>0).forEach(x=>x.strength+=2);
   if(i.type==='debuff'){const n=['spider','core'].includes(ENEMIES[e.id].style)?2:1;for(let j=0;j<n;j++)b.discard.push(makeCard(r,'fault',false,true));if(e.id==='core')e.block+=8;}
-  if(r.hp<=0){resolve(r,meta);return;}
- }
+ if(r.hp<=0)resolve(r,meta);
+}
+function finishEnemyTurn(r:Run,meta:Meta){
+ const b=r.battle;if(!b||b.enemyTurnIndex===null||b.enemyTurnIndex<b.enemies.length)return;
+ b.enemyTurnIndex=null;
  for(const e of b.enemies){if(e.hp<=0||!e.burn)continue;const damage=Math.min(e.hp,e.burn);e.hp-=damage;r.damageDealt+=damage;burnKill(r,e);e.burn=Math.max(0,e.burn-1);}
  resolve(r,meta);if(r.screen!=='battle')return;
- b.turn++;b.energy=3;b.block=(r.relics.includes('armor')?3:0)+(r.training==='defense'&&r.stage>0?3:0)+(r.bonuses.includes('holyward')?2:0);b.selfCostThisTurn=false;b.syncThisTurn=0;b.played=0;b.skillsPlayed=0;b.attacks=0;b.burned=false;b.marked=false;b.defended=false;b.burst=Math.max(0,b.burst-1);for(const e of b.enemies){e.opening=true;e.stagger=0;}draw(r,5);log(b,`第 ${b.turn} 回合 · 行动力已恢复`);
+ b.turn++;b.energy=3;b.block=(r.relics.includes('armor')?3:0)+(r.training==='defense'&&r.stage>0?3:0)+(r.bonuses.includes('holyward')?2:0);b.selfCostThisTurn=false;b.syncThisTurn=0;b.played=0;b.skillsPlayed=0;b.attacks=0;b.attackPlays=0;b.nextAttackBonus=0;b.cannonGuardUsed=false;b.burned=false;b.marked=false;b.defended=false;b.burst=Math.max(0,b.burst-1);for(const e of b.enemies){e.opening=true;e.stagger=0;}draw(r,5);log(b,`第 ${b.turn} 回合 · 行动力已恢复`);
+}
+function endTurn(r:Run,meta:Meta){
+ const b=r.battle;if(!b||b.enemyTurnIndex!==null)return;
+ beginEnemyTurn(r);
+ while(r.screen==='battle'&&b.enemyTurnIndex!==null&&b.enemyTurnIndex<b.enemies.length)enemyStep(r,meta);
+ if(r.screen==='battle')finishEnemyTurn(r,meta);
 }
 export function reduceGame(state:Save,action:Action):Save{
  const s=structuredClone(state);const meta=s.meta;
@@ -154,11 +173,14 @@ export function reduceGame(state:Save,action:Action):Save{
   else{r.screen=n.kind as Run['screen'];if(n.kind==='evolution')r.evolutionReturn='node';if(n.kind==='shop'){r.shopStock=shuffle(r,cardPool(r)).slice(0,3);r.shopBought=[];r.shopRemoved=false;}if(n.kind==='treasure'){const id=awardRelic(r);r.message=id?`获得 ${RELICS[id].name}`:'获得 35 金币';}}
   return s;
  }
- if(action.type==='play'&&r.screen==='battle')playCard(r,meta,action.uid,action.target);
+ if(action.type==='play'&&r.screen==='battle'&&r.battle?.enemyTurnIndex===null)playCard(r,meta,action.uid,action.target);
  if(action.type==='endTurn'&&r.screen==='battle')endTurn(r,meta);
- if(action.type==='potion'&&r.screen==='battle'&&r.potions>0&&r.hp<r.maxHp){r.potions--;r.hp=Math.min(r.maxHp,r.hp+18);count(r,'heals');if(r.battle)log(r.battle,'恢复磁盘 · 回复 18 生命');}
- if(action.type==='support'&&r.screen==='battle'&&r.battle&&!r.battle.supportUsed){const b=r.battle;const target=b.enemies.find(e=>e.uid===action.target&&e.hp>0)??b.enemies.find(e=>e.hp>0);b.supportUsed=true;if(r.support==='mushmon'&&target){target.weakened+=2;count(r,'weakens');}else if(r.support==='picodevimon'&&target)hit(r,target,8,false);else b.block+=r.support==='hagurumon'?10:8;log(b,`${ENEMIES[r.support]?.name??'应急防御程序'} · 支援已抵达`);resolve(r,meta);}
- if(action.type==='burst'&&r.screen==='battle'&&r.battle&&r.branch){const b=r.battle;if(b.sync>=6&&!b.burstUsed){b.sync-=6;b.burstUsed=true;b.burst=3;const signature=makeCard(r,BRANCHES[r.branch].cards[0],true,true);if(b.hand.length<8)b.hand.push(signature);else b.draw.push(signature);log(b,'同步爆发！本回合起三回合攻击每段＋2，获得强化必杀牌。');}}
+ if(action.type==='beginEnemyTurn'&&r.screen==='battle')beginEnemyTurn(r);
+ if(action.type==='enemyStep'&&r.screen==='battle')enemyStep(r,meta);
+ if(action.type==='finishEnemyTurn'&&r.screen==='battle')finishEnemyTurn(r,meta);
+ if(action.type==='potion'&&r.screen==='battle'&&r.battle?.enemyTurnIndex===null&&r.potions>0&&r.hp<r.maxHp){r.potions--;r.hp=Math.min(r.maxHp,r.hp+18);count(r,'heals');if(r.battle)log(r.battle,'恢复磁盘 · 回复 18 生命');}
+ if(action.type==='support'&&r.screen==='battle'&&r.battle&&r.battle.enemyTurnIndex===null&&!r.battle.supportUsed){const b=r.battle;const target=b.enemies.find(e=>e.uid===action.target&&e.hp>0)??b.enemies.find(e=>e.hp>0);b.supportUsed=true;if(r.support==='mushmon'&&target){target.weakened+=2;count(r,'weakens');}else if(r.support==='picodevimon'&&target)hit(r,target,8,false);else b.block+=r.support==='hagurumon'?10:8;log(b,`${ENEMIES[r.support]?.name??'应急防御程序'} · 支援已抵达`);resolve(r,meta);}
+ if(action.type==='burst'&&r.screen==='battle'&&r.battle&&r.battle.enemyTurnIndex===null&&r.branch){const b=r.battle;if(b.sync>=6&&!b.burstUsed){b.sync-=6;b.burstUsed=true;b.burst=3;const signature=makeCard(r,BRANCHES[r.branch].cards[0],true,true);if(b.hand.length<8)b.hand.push(signature);else b.draw.push(signature);log(b,'同步爆发！本回合起三回合攻击每段＋2，获得强化必杀牌。');}}
  if(action.type==='reward'&&r.screen==='reward'&&r.reward){if(action.card&&(!r.reward.cards.includes(action.card)||!CARDS[action.card]||!skillUnlocked(r,CARDS[action.card])))return state;if(action.card)r.deck.push(makeCard(r,action.card));afterReward(r,meta);}
  if(action.type==='continue'&&['treasure','shop'].includes(r.screen))finishNode(r);
  if(action.type==='camp'&&r.screen==='camp'){if(action.mode==='heal'){r.hp=Math.min(r.maxHp,r.hp+Math.ceil(r.maxHp*.3));finishNode(r);}else{const c=r.deck.find(x=>x.uid===action.uid&&!x.upgraded);if(c){c.upgraded=true;finishNode(r);}}}
@@ -168,7 +190,7 @@ export function reduceGame(state:Save,action:Action):Save{
   else if(action.id==='relic'&&r.gold>=80){r.gold-=80;awardRelic(r);r.shopBought.push(action.id);}
  }
  if(action.type==='remove'&&r.screen==='shop'&&!r.shopRemoved&&r.gold>=45&&r.deck.length>5){const i=r.deck.findIndex(c=>c.uid===action.uid);if(i>=0){r.deck.splice(i,1);r.gold-=45;r.shopRemoved=true;}}
- if(action.type==='event'&&r.screen==='event'){if(action.choice==='safe'){r.hp=Math.min(r.maxHp,r.hp+10);if(Math.floor(r.row/8)===1&&!meta.unlockedRoutes.includes('purification')){meta.unlockedRoutes.push('purification');r.message='净化资料已永久解锁';}}else{r.hp=Math.max(1,r.hp-8);r.gold+=35;const c=r.deck.find(x=>!x.upgraded&&x.id!=='guard');if(c)c.upgraded=true;}finishNode(r);}
+ if(action.type==='event'&&r.screen==='event'){if(action.choice==='safe'){r.hp=Math.min(r.maxHp,r.hp+10);if(Math.floor(r.row/8)===1&&!meta.unlockedRoutes.includes('purification')){meta.unlockedRoutes.push('purification');r.message='净化资料已永久解锁';}if(Math.floor(r.row/8)===1&&!meta.unlockedRoutes.includes('mechanical')){meta.unlockedRoutes.push('mechanical');r.message=[r.message,'机械研究已永久解锁'].filter(Boolean).join(' · ');}}else{r.hp=Math.max(1,r.hp-8);r.gold+=35;const c=r.deck.find(x=>!x.upgraded&&x.id!=='guard');if(c)c.upgraded=true;}finishNode(r);}
  if(action.type==='bless'&&r.screen==='blessing'&&BLESSINGS[action.id]){r.message='';if(action.id==='growth'){r.maxHp+=10;r.hp=Math.min(r.maxHp,r.hp+10);}r.blessing=action.id;if(r.currentNode)finishNode(r);else r.screen='map';}
  if(action.type==='evolve'&&r.screen==='evolution'){
   const form=action.form??(action.branch?BRANCHES[action.branch].art:PARTNERS[r.partner].forms[r.stage+1]);
@@ -179,7 +201,7 @@ export function reduceGame(state:Save,action:Action):Save{
   if(ids.length!==2||ids.some(uid=>!r.deck.some(c=>c.uid===uid)))return state;
   ids.forEach((uid,i)=>{const c=r.deck.find(x=>x.uid===uid);if(c){c.id=d.cards[i];if(d.stage<3)c.upgraded=true;}});
   r.form=form;r.stage=d.stage;r.evolved=d.stage;r.branch=d.branch??null;r.training=action.training??r.training;
-  if(action.inherit&&(r.partner==='guilmon'?['ember','ward']:['seal','flow']).includes(action.inherit))r.inherit=action.inherit;
+  if(action.inherit&&inheritanceOptions(r.partner).includes(action.inherit))r.inherit=action.inherit;
   if(form==='dukemon'&&(r.activity.counts.defenses??0)>=12&&!r.bonuses.includes('holyward'))r.bonuses.push('holyward');
   if(form==='sakuyamon'&&(r.activity.counts.markBursts??0)>=6&&!r.bonuses.includes('ritual'))r.bonuses.push('ritual');
   r.formHistory.push(form);if(!meta.discovered.includes(form))meta.discovered.push(form);

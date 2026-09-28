@@ -14,7 +14,7 @@ const makeCard=(r:Run,id:string,upgraded=false,temporary=false):Card=>({uid:`c${
 export function makeRun(partner:Partner,seed:number,tutorial=true):Run{
  const r:Run={activity:emptyActivity(),victories:0,bosses:0,formHistory:[partner],evolutionTarget:null,evolutionReturn:'node',legacyEvolution:false,bonuses:[],partner,form:partner,stage:0,branch:null,training:'attack',inherit:partner==='guilmon'?'ember':partner==='renamon'?'seal':'ward',hp:partner==='guilmon'?90:partner==='renamon'?82:partner==='impmon'?84:86,maxHp:partner==='guilmon'?90:partner==='renamon'?82:partner==='impmon'?84:86,gold:65,deck:[],relics:[],blessing:'',support:'default',potions:1,rng:seed>>>0,seq:0,row:0,chapterRows:10,nodes:[],path:[],screen:'blessing',currentNode:null,battle:null,reward:null,shopStock:[],shopBought:[],shopRemoved:false,supportSpent:false,evolved:0,won:false,kills:0,damageDealt:0,message:'选择旅途祝福'};
  if(partner==='terriermon')r.deck=['strike','strike','strike','guard','guard','guard','charge','cannon','tinyTwister','blazingShot'].map(id=>makeCard(r,id));
- else if(partner==='impmon')r.deck=['strike','strike','guard','guard','guard','nightfire','nightfire','taunt','prank','devourTrick'].map(id=>makeCard(r,id));
+ else if(partner==='impmon')r.deck=['strike','strike','strike','guard','guard','guard','nightfire','nightfire','prank','devourTrick'].map(id=>makeCard(r,id));
  else r.deck=[...Array.from({length:4},()=>makeCard(r,'strike')),...Array.from({length:4},()=>makeCard(r,'guard')),makeCard(r,partner==='guilmon'?'fireball':partner==='renamon'?'seal':'leaf'),makeCard(r,partner==='guilmon'?'rock':'talisman')];
  r.nodes=generateWorld(()=>rand(r),tutorial);
  return r;

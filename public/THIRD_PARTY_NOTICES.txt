@@ -32,3 +32,5 @@ Sprites are property of Digimon and Bandai Namco Entertainment Inc/Namco Bandai 
 原图未修改，保存在 public/portraits/blackgalgomon.jpg；权利说明同上。
 
 内容包 A（2026-09-27）：从同一固定版本的原始档案新增使用 Gotsumon、Betamon、Monodramon、Clockmon、Seadramon、Gekomon、Devimon、SkullGreymon、Machinedramon 九种精灵；来源及权利说明同上。
+
+章节扩展（2026-09-29）：从同一固定版本的原始档案新增使用 Knightmon、Phantomon、Kuramon、Diaboromon 四种精灵（public/sprites/knightmon、phantomon、kuramon、diaboromon 的立绘与横排动画）；来源及权利说明同上。

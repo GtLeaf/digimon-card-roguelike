@@ -83,12 +83,16 @@ const enemy=(id:string,name:string,hp:number,style:EnemyDef['style'],support?:st
 export const ENEMIES:Record<string,EnemyDef>=Object.fromEntries([
  enemy('gotsumon','矿石兽',30,'expanded','矿石核心：获得 2 蓄能。'),enemy('betamon','比多兽',26,'expanded','数据汲取：抽 2 张牌。'),enemy('monodramon','独角龙兽',32,'expanded'),enemy('clockmon','时钟兽',34,'expanded'),enemy('seadramon','海龙兽',46,'expanded'),enemy('gekomon','怪蛙兽',30,'expanded'),enemy('devimon','恶魔兽',68,'expanded'),enemy('skullgreymon','丧尸暴龙兽',82,'expanded'),enemy('machinedramon','无限龙兽',148,'expanded'),
  enemy('goblimon','哥布林兽',29,'charge'),enemy('mushmon','蘑菇兽',25,'jam','蘑菇孢子：目标下次攻击每段伤害－2。'),enemy('hagurumon','齿轮兽',28,'shield','防御充能：获得 10 护盾。'),enemy('picodevimon','小恶魔兽',24,'buff','恶作剧：对目标造成 8 伤害。'),enemy('bakemon','猛鬼兽',30,'evade'),enemy('impmon','小妖兽',28,'rapid','恶作剧·双响：造成 8 伤害；目标生命低于一半时改为 14。'),enemy('devidramon','邪龙兽',65,'charge'),enemy('dokugumon','毒蜘蛛兽',58,'spider'),enemy('sinduramon','铁鸡兽',110,'chicken'),enemy('ogremon','奥加兽',49,'charge'),enemy('leomon','狮子兽',52,'sword','兽王咆哮：所有敌人虚弱 2，下次攻击每段伤害－2。'),enemy('andromon','安杜路兽',54,'shield','防御矩阵：获得 12 护盾。'),enemy('icedevimon','冰恶魔兽',82,'jam'),enemy('vajramon','蛮牛兽',92,'sword'),enemy('beelzebumon','别西卜兽',148,'rapid'),
+ {id:'knightmon',name:'骑士兽',art:'knightmon',hp:44,style:'expanded' as const,scan:true,guard:true},
+ {id:'phantomon',name:'幻影兽',art:'phantomon',hp:46,style:'expanded' as const,scan:true},
+ {id:'kuramon',name:'库拉蒙',art:'kuramon',hp:18,style:'expanded' as const,scan:true,onDeath:'explode' as const},
+ {id:'diaboromon',name:'超恶魔兽',art:'diaboromon',hp:168,style:'expanded' as const,scan:false},
  {id:'lopmon',name:'黑大耳兽',art:'lopmon',hp:1,style:'rapid' as const,scan:false,support:'安慰之光：清除手牌中 1 张故障牌；没有故障牌时回复 6 生命。'},
  ...['scout','replica','corrupt','sentinel','devourer','core'].map((id,i):EnemyDef=>({id,name:['侦察代理体','复制代理体','侵蚀代理体','护卫代理体','吞噬代理体','帝厉魔核心'][i],art:id,hp:[46,48,50,90,95,190][i],style:(['rapid','buff','jam','shield','spider','core'] as const)[i],scan:false}))
 ].map(e=>[e.id,e]));
 export const RELICS:Record<string,{name:string;text:string}>={reader:{name:'备用读卡器',text:'每场首回合多抽 1 张牌。'},cooler:{name:'散热芯片',text:'每回合前三次攻击伤害段＋1。'},firewall:{name:'防火模块',text:'每回合首次施加灼烧，获得 3 护盾。'},memory:{name:'记忆晶片',text:'战斗胜利后回复 3 生命。'},battery:{name:'应急电池',text:'每场首回合额外获得 1 行动力。'},armor:{name:'合金装甲',text:'每回合开始时获得 3 护盾。'}};
 export const BLESSINGS:Record<string,{name:string;text:string}>={bond:{name:'羁绊共鸣',text:'每场战斗开始时获得 2 同步值。'},guard:{name:'守护之心',text:'每回合第一张防御技能额外获得 3 护盾。'},growth:{name:'生命之光',text:'最大生命＋10，并回复 10 生命。'}};
-export const CHAPTERS=[{name:'现实的裂隙',subtitle:'新宿 · 黄昏边界',theme:'city'},{name:'迷失的数据原野',subtitle:'数码世界 · 记忆森林',theme:'forest'},{name:'最后的信号',subtitle:'侵蚀区域 · 帝厉魔核心',theme:'void'}];
+export const CHAPTERS=[{name:'现实的裂隙',subtitle:'新宿 · 黄昏边界',theme:'city'},{name:'迷失的数据原野',subtitle:'数码世界 · 记忆森林',theme:'forest'},{name:'钢铁回廊',subtitle:'机械禁区 · 流水线遗迹',theme:'steel'},{name:'暗域深渊',subtitle:'病毒巢穴 · 低语深渊',theme:'abyss'},{name:'最后的信号',subtitle:'侵蚀区域 · 帝厉魔核心',theme:'void'}];
 export const PORTRAIT_FORMS=['blackgrowmon','youkomon','doumon','blackgalgomon'];
 export const asset=(id:string)=>`${import.meta.env.BASE_URL}${PORTRAIT_FORMS.includes(id)?'portraits/'+id+'.jpg':'sprites/'+id+'.png'}`;
 export const cardText=(c:{id:string;upgraded:boolean})=>{

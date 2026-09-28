@@ -60,7 +60,7 @@ describe('progress, scanning and evolution',()=>{
  it('two wins unlock support conversion; loss retains collection',()=>{let s=reduceGame(win(fight()),{type:'reward'});s=reduceGame(s,{type:'node',id:s.run!.nodes[1][0].id});s=win(s);expect(s.meta.scans.hagurumon).toBe(100);s=reduceGame(s,{type:'convert',id:'hagurumon'});expect(s.meta.partners).toContain('hagurumon');s=reduceGame(s,{type:'abandon'});expect(s.meta.scans.hagurumon).toBe(100);expect(s.meta.partners).toContain('hagurumon');});
  it('cannot equip support mid-battle or convert an incomplete scan',()=>{const s=fight();expect(reduceGame(s,{type:'convert',id:'mushmon'}).meta.partners).toEqual([]);s.meta.partners=['mushmon'];expect(reduceGame(s,{type:'equip',id:'mushmon'}).run!.support).toBe('default');});
  it('prevents jumping map rows',()=>{const s=start();expect(reduceGame(s,{type:'node',id:s.run!.nodes[7][0].id})).toEqual(s);});
- it.each(['duke','megidra','sakuya','kuzuha'] as Branch[])('evolves %s, swaps two cards without losing upgrades',branch=>{let s=start(BRANCHES[branch].partner);const r=s.run!;r.row=15;r.currentNode=r.nodes[15][0];r.screen='evolution';r.stage=2;r.bosses=2;r.form=r.partner==='guilmon'?'wargrowlmon':'taomon';r.activity.counts={fire:24,detonations:3,skills:50,combos:16};r.deck[0].upgraded=true;const uids=r.deck.slice(0,2).map(c=>c.uid);s=reduceGame(s,{type:'evolve',branch,replace:uids});expect(s.run!.form).toBe(BRANCHES[branch].art);expect(s.run!.deck).toHaveLength(10);expect(s.run!.deck[0].upgraded).toBe(true);expect(s.run!.deck.slice(0,2).map(c=>c.id)).toEqual(BRANCHES[branch].cards);expect(s.run!.screen).toBe('blessing');s=reduceGame(s,{type:'bless',id:'bond'});expect(s.run!.row).toBe(16);});
+ it.each(['duke','megidra','sakuya','kuzuha'] as Branch[])('evolves %s, swaps two cards without losing upgrades',branch=>{let s=start(BRANCHES[branch].partner);const r=s.run!;r.row=29;r.currentNode=r.nodes[29][0];r.screen='evolution';r.stage=2;r.bosses=3;r.form=r.partner==='guilmon'?'wargrowlmon':'taomon';r.activity.counts={fire:32,detonations:4,skills:70,combos:22};r.deck[0].upgraded=true;const uids=r.deck.slice(0,2).map(c=>c.uid);s=reduceGame(s,{type:'evolve',branch,replace:uids});expect(s.run!.form).toBe(BRANCHES[branch].art);expect(s.run!.deck).toHaveLength(10);expect(s.run!.deck[0].upgraded).toBe(true);expect(s.run!.deck.slice(0,2).map(c=>c.id)).toEqual(BRANCHES[branch].cards);expect(s.run!.screen).toBe('blessing');s=reduceGame(s,{type:'bless',id:'bond'});expect(s.run!.row).toBe(30);});
  it('rejects wrong-partner evolution and duplicate replacement cards',()=>{const s=start();s.run!.row=15;s.run!.screen='evolution';const uid=s.run!.deck[0].uid;expect(reduceGame(s,{type:'evolve',branch:'sakuya',replace:[uid,s.run!.deck[1].uid]})).toEqual(s);expect(reduceGame(s,{type:'evolve',branch:'duke',replace:[uid,uid]})).toEqual(s);});
  it('does not sell twice and does not allow buying without gold',()=>{let s=start();s.run!.screen='shop';s.run!.shopStock=['fireball'];s.run!.gold=45;s=reduceGame(s,{type:'buy',id:'fireball'});expect(s.run!.gold).toBe(0);expect(s.run!.deck).toHaveLength(11);expect(reduceGame(s,{type:'buy',id:'fireball'})).toEqual(s);});
  it('save round-trip preserves RNG and next draw exactly',()=>{let s=fight();s=reduceGame(s,{type:'play',uid:s.run!.battle!.hand[0].uid});const restored=parseSave(JSON.stringify(s));expect(restored).toEqual(s);expect(reduceGame(restored,{type:'endTurn'})).toEqual(reduceGame(s,{type:'endTurn'}));});
@@ -98,16 +98,17 @@ export function autoplay(partner:Partner,branch:Branch,seed:number){
  }
  return {save:s,steps};
 }
-describe('full journey',()=>{it.each(['duke','megidra','sakuya','kuzuha','chaos'] as Branch[])('finishes all three chapters with %s',branch=>{const {save,steps}=autoplay(BRANCHES[branch].partner,branch,1);expect(steps,JSON.stringify({row:save.run!.row,screen:save.run!.screen,form:save.run!.form,counts:save.run!.activity})).toBeLessThan(2000);expect(save.run!.screen).toBe('result');expect(save.run!.won,`Stopped at row ${save.run!.row}, hp ${save.run!.hp}`).toBe(true);expect(save.run!.stage,JSON.stringify(save.run!.activity)).toBe(3);expect(save.run!.branch).toBe(branch);if(branch==='chaos'){expect(save.run!.formHistory).toEqual(['guilmon','blackgrowmon','blackwargrowlmon','chaosdukemon']);expect(save.meta.unlockedRoutes).toContain('chaos');}expect(save.meta.wins).toBe(1);});});
+describe('full journey',()=>{it.each(['duke','megidra','sakuya','kuzuha','chaos'] as Branch[])('finishes all five chapters with %s',branch=>{const {save,steps}=autoplay(BRANCHES[branch].partner,branch,1);expect(steps,JSON.stringify({row:save.run!.row,screen:save.run!.screen,form:save.run!.form,counts:save.run!.activity})).toBeLessThan(2000);expect(save.run!.screen).toBe('result');expect(save.run!.won,`Stopped at row ${save.run!.row}, hp ${save.run!.hp}`).toBe(true);expect(save.run!.stage,JSON.stringify(save.run!.activity)).toBe(3);expect(save.run!.branch).toBe(branch);if(branch==='chaos'){expect(save.run!.formHistory).toEqual(['guilmon','blackgrowmon','blackwargrowlmon','chaosdukemon']);expect(save.meta.unlockedRoutes).toContain('chaos');}expect(save.meta.wins).toBe(1);});});
 
-it('completes a different seed with the alternate second-chapter boss',()=>{
- const baselineBoss=makeRun('guilmon',42).nodes[15][0].enemies[0];
- const seed=Array.from({length:100},(_,i)=>i).find(seed=>makeRun('guilmon',seed).nodes[15][0].enemies[0]!==baselineBoss)!;
- expect(seed).toBeDefined();
- const {save,steps}=autoplay('guilmon','duke',seed);
+it('assigns a fixed boss to each of the five chapters',()=>{
+ for(const seed of [1,42,984]){
+  const nodes=makeRun('guilmon',seed).nodes;
+  expect(nodes).toHaveLength(50);
+  expect([9,19,29,39,49].map(row=>nodes[row][0].enemies[0])).toEqual(['sinduramon','beelzebumon','machinedramon','diaboromon','core']);
+ }
+ const {save,steps}=autoplay('guilmon','duke',7);
  expect(steps).toBeLessThan(2000);
- expect(save.run!.won,JSON.stringify({seed,row:save.run!.row,hp:save.run!.hp})).toBe(true);
- expect(save.run!.nodes[15][0].enemies[0]).not.toBe(baselineBoss);
+ expect(save.run!.won,JSON.stringify({row:save.run!.row,hp:save.run!.hp})).toBe(true);
  expect(save.run!.branch).toBe('duke');
 });
 

@@ -25,28 +25,28 @@ export const EVOLUTIONS: Record<string,EvolutionDef> = Object.fromEntries(([
  {id:'growlmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'勇气之路',passive:'招牌牌强化；可选择进攻或守护训练。',cards:['fireball','rock'],groups:[],slot:0},
  {id:'blackgrowmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'暗炎之路',passive:'每回合首次施加灼烧额外＋1。',cards:['darkflame','bloodedge'],groups:[[{metric:'selfCosts',goal:3}],[{metric:'attacks',goal:8},{metric:'fire',goal:3}]],slot:2},
  {id:'wargrowlmon',partner:'guilmon',stage:2,parents:['growlmon','blackgrowmon'],tag:'重炮与守护',passive:'每场开始获得 1 蓄能。',cards:['fireball','cannon'],groups:[],slot:0},
- {id:'blackwargrowlmon',partner:'guilmon',stage:2,parents:['blackgrowmon'],tag:'危险过载',passive:'每回合首次主动自损，获得 1 行动力。',cards:['darkflame','sacrifice'],groups:[[{metric:'attacks',goal:36}],[{metric:'selfCosts',goal:3},{metric:'fire',goal:12}]],slot:2},
+ {id:'blackwargrowlmon',partner:'guilmon',stage:2,parents:['blackgrowmon'],tag:'危险过载',passive:'每回合首次主动自损，获得 1 行动力。',cards:['darkflame','sacrifice'],groups:[[{metric:'attacks',goal:48}],[{metric:'selfCosts',goal:3},{metric:'fire',goal:16}]],slot:2},
  {id:'dukemon',partner:'guilmon',stage:3,parents:['wargrowlmon'],tag:'圣盾反击',passive:BRANCHES.duke.passive+' 主动防御满12次，进化时额外获得圣盾继承：每回合开始＋2护盾。',cards:BRANCHES.duke.cards,branch:'duke',groups:[],slot:0},
- {id:'megidramon',partner:'guilmon',stage:3,parents:['wargrowlmon','blackwargrowlmon'],tag:'灼烧爆发',passive:BRANCHES.megidra.passive, cards:BRANCHES.megidra.cards,branch:'megidra',groups:[[{card:'fireball',label:'火球系列',goal:14},{metric:'fire',goal:24}],[{metric:'detonations',goal:3},{metric:'burnKills',goal:14}]],slot:1},
+ {id:'megidramon',partner:'guilmon',stage:3,parents:['wargrowlmon','blackwargrowlmon'],tag:'灼烧爆发',passive:BRANCHES.megidra.passive, cards:BRANCHES.megidra.cards,branch:'megidra',groups:[[{card:'fireball',label:'火球系列',goal:20},{metric:'fire',goal:32}],[{metric:'detonations',goal:4},{metric:'burnKills',goal:18}]],slot:1},
  {id:'chaosdukemon',partner:'guilmon',stage:3,parents:['blackwargrowlmon'],tag:'血契循环',passive:BRANCHES.chaos.passive,cards:BRANCHES.chaos.cards,branch:'chaos',groups:[[{metric:'selfCosts',goal:6}],[{metric:'heals',goal:4}]],slot:2},
  {id:'renamon',partner:'renamon',stage:0,parents:[],tag:'旅途起点',passive:'以符印与术式开启冒险。',cards:['leaf','talisman'],groups:[],slot:1},
  {id:'kyubimon',partner:'renamon',stage:1,parents:['renamon'],tag:'狐火之路',passive:'招牌牌强化；可选择进攻或守护训练。',cards:['leaf','talisman'],groups:[],slot:0},
- {id:'youkomon',partner:'renamon',stage:1,parents:['renamon'],tag:'妖术之路',passive:'每回合首次施加符印额外＋1。',cards:['foxcurse','illusion'],groups:[[{metric:'skills',goal:18}],[{metric:'marks',goal:9}]],slot:2},
+ {id:'youkomon',partner:'renamon',stage:1,parents:['renamon'],tag:'妖术之路',passive:'每回合首次施加符印额外＋1。',cards:['foxcurse','illusion'],groups:[[{metric:'skills',goal:24}],[{metric:'marks',goal:12}]],slot:2},
  {id:'taomon',partner:'renamon',stage:2,parents:['kyubimon','youkomon'],tag:'术式与守护',passive:'每回合第一张技能额外获得 2 护盾。',cards:['leaf','barrier'],groups:[],slot:0},
- {id:'doumon',partner:'renamon',stage:2,parents:['youkomon'],tag:'咒术控制',passive:'每回合第二张技能，对一名敌人施加 1 符印。',cards:['shadowseal','illusion'],groups:[[{metric:'marks',goal:24}],[{metric:'copies',goal:6},{metric:'weakens',goal:4}]],slot:2},
+ {id:'doumon',partner:'renamon',stage:2,parents:['youkomon'],tag:'咒术控制',passive:'每回合第二张技能，对一名敌人施加 1 符印。',cards:['shadowseal','illusion'],groups:[[{metric:'marks',goal:30}],[{metric:'copies',goal:8},{metric:'weakens',goal:5}]],slot:2},
  {id:'sakuyamon',partner:'renamon',stage:3,parents:['taomon','doumon'],tag:'术式循环',passive:BRANCHES.sakuya.passive+' 消耗符印满6次，进化时额外获得术式继承：首回合多抽1张。',cards:BRANCHES.sakuya.cards,branch:'sakuya',groups:[],slot:0},
- {id:'kuzuhamon',partner:'renamon',stage:3,parents:['taomon','doumon'],tag:'结界式神',passive:BRANCHES.kuzuha.passive,cards:BRANCHES.kuzuha.cards,branch:'kuzuha',groups:[[{metric:'skills',goal:50}],[{metric:'combos',goal:16}]],slot:2},
+ {id:'kuzuhamon',partner:'renamon',stage:3,parents:['taomon','doumon'],tag:'结界式神',passive:BRANCHES.kuzuha.passive,cards:BRANCHES.kuzuha.cards,branch:'kuzuha',groups:[[{metric:'skills',goal:70}],[{metric:'combos',goal:22}]],slot:2},
  {id:'terriermon',partner:'terriermon',stage:0,parents:[],tag:'旅途起点',passive:'连射与蓄能：选择机动火力或防守炮击。',cards:['tinyTwister','blazingShot'],groups:[],slot:1},
  {id:'galgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'连射之路',passive:'每回合第二张攻击牌结算后，获得 1 蓄能。',cards:['gatling','dumUpper'],groups:[],slot:0},
- {id:'blackgalgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'战术之路',passive:'每回合首次防御出牌后，本回合下一张造成直接伤害的攻击牌额外造成 2 总伤害。',cards:['blackGatling','ambushUpper'],groups:[[{metric:'attacks',goal:20}],[{metric:'defenses',goal:12}]],slot:2},
+ {id:'blackgalgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'战术之路',passive:'每回合首次防御出牌后，本回合下一张造成直接伤害的攻击牌额外造成 2 总伤害。',cards:['blackGatling','ambushUpper'],groups:[[{metric:'attacks',goal:26}],[{metric:'defenses',goal:16}]],slot:2},
  {id:'rapidmon',partner:'terriermon',stage:2,parents:['galgomon','blackgalgomon'],tag:'高速机动',passive:'每回合第二张攻击牌结算后，抽 1 张牌。',cards:['rapidFire','goldTriangle'],groups:[],slot:0},
- {id:'blackrapidmon',partner:'terriermon',stage:2,parents:['blackgalgomon','galgomon'],tag:'装甲蓄能',passive:'每回合首次防御出牌额外获得 1 蓄能。',cards:['blackReload','blackMissile'],groups:[[{metric:'defenses',goal:18}],[{metric:'charges',goal:7}]],slot:2},
+ {id:'blackrapidmon',partner:'terriermon',stage:2,parents:['blackgalgomon','galgomon'],tag:'装甲蓄能',passive:'每回合首次防御出牌额外获得 1 蓄能。',cards:['blackReload','blackMissile'],groups:[[{metric:'defenses',goal:24}],[{metric:'charges',goal:9}]],slot:2},
  {id:'saintgalgomon',partner:'terriermon',stage:3,parents:['rapidmon','blackrapidmon'],tag:'连射压制',passive:BRANCHES.saint.passive,cards:BRANCHES.saint.cards,branch:'saint',groups:[],slot:0},
- {id:'blacksaintgalgomon',partner:'terriermon',stage:3,parents:['blackrapidmon'],tag:'重装炮击',passive:BRANCHES.blacksaint.passive,cards:BRANCHES.blacksaint.cards,branch:'blacksaint',groups:[[{metric:'defenses',goal:44}],[{metric:'cannonShots',goal:5}]],slot:2},
+ {id:'blacksaintgalgomon',partner:'terriermon',stage:3,parents:['blackrapidmon'],tag:'重装炮击',passive:BRANCHES.blacksaint.passive,cards:BRANCHES.blacksaint.cards,branch:'blacksaint',groups:[[{metric:'defenses',goal:58}],[{metric:'cannonShots',goal:7}]],slot:2},
 ] satisfies EvolutionDef[]).map(d=>[d.id,d]));
 export interface Requirement { label:string; current:number; goal:number; met:boolean }
 export interface EvolutionStatus { groups:Requirement[][]; data:Requirement[]; parent:boolean; stage:boolean; ready:boolean; achieved:boolean }
-export function stageLimit(r:Run):number { return r.bosses>=2?3:r.bosses>=1?2:r.row>=3?1:0; }
+export function stageLimit(r:Run):number { const megaGate=r.chapterRows===8?2:3;return r.bosses>=megaGate?3:r.bosses>=1?2:r.row>=3?1:0; }
 export function evolutionStatus(r:Run|null,meta:Meta,id:string):EvolutionStatus {
  const d=EVOLUTIONS[id];
  const groups=d.groups.map(group=>group.map(t=>{const current=r?(t.card?r.activity.cards[t.card]??0:r.activity.counts[t.metric!]??0):0;return {label:t.label??METRIC_NAMES[t.metric!],current,goal:t.goal,met:current>=t.goal};}));
@@ -55,7 +55,7 @@ export function evolutionStatus(r:Run|null,meta:Meta,id:string):EvolutionStatus 
  if(id==='chaosdukemon')data.push({label:'混沌资料（跨局）',current:meta.unlockedRoutes.includes('chaos')?1:0,goal:1,met:meta.unlockedRoutes.includes('chaos')});
  if(id==='sakuyamon'&&r?.form==='doumon'){
   data.push({label:'净化资料（跨局）',current:meta.unlockedRoutes.includes('purification')?1:0,goal:1,met:meta.unlockedRoutes.includes('purification')});
-  groups.push([{label:'主动防御',current:r.activity.counts.defenses??0,goal:10,met:(r.activity.counts.defenses??0)>=10}],[{label:'消耗符印',current:r.activity.counts.markBursts??0,goal:4,met:(r.activity.counts.markBursts??0)>=4}]);
+  groups.push([{label:'主动防御',current:r.activity.counts.defenses??0,goal:12,met:(r.activity.counts.defenses??0)>=12}],[{label:'消耗符印',current:r.activity.counts.markBursts??0,goal:5,met:(r.activity.counts.markBursts??0)>=5}]);
  }
  const parent=!!r&&d.partner===r.partner&&d.parents.includes(r.form), stage=!!r&&d.stage===r.stage+1&&d.stage<=stageLimit(r)&&(d.stage!==1||r.victories>=2);
  const achieved=!!r&&r.formHistory.includes(id);
@@ -63,6 +63,6 @@ export function evolutionStatus(r:Run|null,meta:Meta,id:string):EvolutionStatus 
 }
 export function nextEvolutions(r:Run):EvolutionDef[]{return Object.values(EVOLUTIONS).filter(d=>d.partner===r.partner&&d.stage===r.stage+1&&d.parents.includes(r.form));}
 export const stageName=(stage:number)=>['成长期','成熟期','完全体','究极体'][stage];
-export const stageRequirement=(stage:number)=>['初始搭档','到达第1章第4层；赢得2场战斗','击败第1章首领','击败第2章首领'][stage];
+export const stageRequirement=(stage:number,chapterRows=10)=>['初始搭档','到达第1章第4层；赢得2场战斗','击败第1章首领',chapterRows===8?'击败第2章首领':'击败第3章首领'][stage];
 export function activityGains(before:Activity,after:Activity):string[]{return (Object.keys(METRIC_NAMES) as Metric[]).filter(k=>(after.counts[k]??0)>(before.counts[k]??0)).map(k=>`${METRIC_NAMES[k]} +${(after.counts[k]??0)-(before.counts[k]??0)}`);}
 export const formName=(id:string)=>FORM_NAMES[id]??id;

@@ -214,6 +214,26 @@
     "duration": 1000,
     "source": "assets/vendor/digimon-ds/original/rookie/Lopmon.gif"
   },
+  "knightmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Knightmon.gif"
+  },
+  "phantomon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Phantomon.gif"
+  },
+  "kuramon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/in-training/Kuramon.gif"
+  },
+  "diaboromon": {
+    "frames": 4,
+    "duration": 880,
+    "source": "assets/vendor/digimon-ds/original/mega/Diaboromon.gif"
+  },
   "scout": {
     "frames": 4,
     "duration": 1000,

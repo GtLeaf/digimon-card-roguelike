@@ -76,3 +76,8 @@
 .home-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:4px}
 .home-actions .restart-btn{font-size:12px;padding:12px 18px;display:inline-flex;gap:8px;align-items:center}
 @media(max-width:520px){.home-actions .restart-btn{padding:12px 14px}}
+.scene-decor.steel{background:linear-gradient(#1b2b33,#3d4d55 70%,#212d33)}
+.scene-decor.abyss{background:linear-gradient(#261b31,#40264a 70%,#1e1626)}
+.battle-stage .enemies:has(.enemy:nth-child(3)){gap:2px}
+.battle-stage .enemies:has(.enemy:nth-child(3)) .enemy{min-width:96px}
+@media(max-width:480px){.battle-stage .enemies:has(.enemy:nth-child(3)) .enemy>.sprite-wrap{width:104px!important;height:104px!important}}

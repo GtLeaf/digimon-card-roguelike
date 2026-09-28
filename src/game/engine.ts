@@ -6,13 +6,13 @@ import { expandedIntent } from './enemyRules';
 import { applyEvent, eventFor } from './events';
 import { availableNodes } from './map';
 import type { Metric, Action, Battle, BattleNumber, Card, Enemy, Intent, MapNode, Meta, Partner, Run, Save } from './types';
-export const emptySave=():Save=>({version:2,meta:{unlockedRoutes:[],scans:{},partners:[],games:0,wins:0,discovered:[]},run:null,settings:{reducedMotion:false,sound:false}});
+export const emptySave=():Save=>({version:3,meta:{unlockedRoutes:[],scans:{},partners:[],games:0,wins:0,discovered:[]},run:null,settings:{reducedMotion:false,sound:false}});
 const rand=(r:Run)=>{r.rng=(Math.imul(1664525,r.rng)+1013904223)>>>0;return r.rng/4294967296;};
 const choose=<T,>(r:Run,items:T[]):T=>items[Math.floor(rand(r)*items.length)];
 const shuffle=<T,>(r:Run,items:T[])=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(rand(r)*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const makeCard=(r:Run,id:string,upgraded=false,temporary=false):Card=>({uid:`c${++r.seq}`,id,upgraded,temporary});
 export function makeRun(partner:Partner,seed:number,tutorial=true):Run{
- const r:Run={activity:emptyActivity(),victories:0,bosses:0,formHistory:[partner],evolutionTarget:null,evolutionReturn:'node',legacyEvolution:false,bonuses:[],partner,form:partner,stage:0,branch:null,training:'attack',inherit:partner==='guilmon'?'ember':partner==='renamon'?'seal':'ward',hp:partner==='guilmon'?90:partner==='renamon'?82:86,maxHp:partner==='guilmon'?90:partner==='renamon'?82:86,gold:65,deck:[],relics:[],blessing:'',support:'default',potions:1,rng:seed>>>0,seq:0,row:0,nodes:[],path:[],screen:'blessing',currentNode:null,battle:null,reward:null,shopStock:[],shopBought:[],shopRemoved:false,evolved:0,won:false,kills:0,damageDealt:0,message:'选择旅途祝福'};
+ const r:Run={activity:emptyActivity(),victories:0,bosses:0,formHistory:[partner],evolutionTarget:null,evolutionReturn:'node',legacyEvolution:false,bonuses:[],partner,form:partner,stage:0,branch:null,training:'attack',inherit:partner==='guilmon'?'ember':partner==='renamon'?'seal':'ward',hp:partner==='guilmon'?90:partner==='renamon'?82:86,maxHp:partner==='guilmon'?90:partner==='renamon'?82:86,gold:65,deck:[],relics:[],blessing:'',support:'default',potions:1,rng:seed>>>0,seq:0,row:0,chapterRows:10,nodes:[],path:[],screen:'blessing',currentNode:null,battle:null,reward:null,shopStock:[],shopBought:[],shopRemoved:false,evolved:0,won:false,kills:0,damageDealt:0,message:'选择旅途祝福'};
  if(partner==='terriermon')r.deck=['strike','strike','strike','guard','guard','guard','charge','cannon','tinyTwister','blazingShot'].map(id=>makeCard(r,id));
  else r.deck=[...Array.from({length:4},()=>makeCard(r,'strike')),...Array.from({length:4},()=>makeCard(r,'guard')),makeCard(r,partner==='guilmon'?'fireball':partner==='renamon'?'seal':'leaf'),makeCard(r,partner==='guilmon'?'rock':'talisman')];
  r.nodes=generateWorld(()=>rand(r),tutorial);
@@ -20,7 +20,7 @@ export function makeRun(partner:Partner,seed:number,tutorial=true):Run{
 }
 export function cardCost(c:Card):number{const d=CARDS[c.id];return Math.max(0,d.cost-(c.upgraded&&!d.damage&&!d.shield?1:0));}
 export function intent(r:Run,e:Enemy):Intent{
- const b=r.battle;const turn=b?.turn??1;const phase=(turn-1)%3;const ch=Math.floor(r.row/8);const style=ENEMIES[e.id].style;
+ const b=r.battle;const turn=b?.turn??1;const phase=(turn-1)%3;const ch=Math.floor(r.row/r.chapterRows);const style=ENEMIES[e.id].style;
  let i:Intent={name:'攻击',type:'attack',damage:6+ch*2,hits:1,shield:0,detail:'对搭档造成伤害。'};
  if(style==='charge')i=phase===1?{name:'蓄力',type:'buff',damage:0,hits:0,shield:0,detail:'准备下一回合的重击。'}:{...i,name:phase===2?'重击':'爪击',damage:phase===2?16+ch*3:7+ch*2};
  if(style==='shield')i=phase===0?{name:'充能护盾',type:'block',damage:0,hits:0,shield:8+ch*3,detail:'获得护盾，随后发动放电。'}:{...i,name:'放电',damage:8+ch*2};
@@ -46,12 +46,21 @@ function beginBattle(r:Run,node:MapNode){
 }
 function count(r:Run,key:Metric){const b=r.battle;if(!b)return;const used=b.activity.counts[key]??0;if(used>=10)return;b.activity.counts[key]=used+1;r.activity.counts[key]=(r.activity.counts[key]??0)+1;}
 function burnKill(r:Run,e:Enemy){const b=r.battle;if(b&&e.hp<=0&&e.burn>0&&!b.countedKills.includes(e.uid)){b.countedKills.push(e.uid);count(r,'burnKills');}}
+// 击败触发：亡语（自爆／激励）与召唤者死亡时召唤物撤退；撤退不再连锁触发亡语。
+function deathTrigger(r:Run,e:Enemy){
+ const b=r.battle;if(!b||e.deathDone)return;e.deathDone=true;
+ const def=ENEMIES[e.id];
+ if(def.onDeath==='explode'){const absorbed=Math.min(b.block,8);b.block-=absorbed;const before=r.hp;r.hp=Math.max(0,r.hp-(8-absorbed));b.feedback.push({target:'player',kind:'damage',amount:before-r.hp});log(b,`${def.name} · 自爆 ${before-r.hp}`);}
+ if(def.onDeath==='rally'){b.enemies.filter(x=>x.hp>0).forEach(x=>x.strength+=2);log(b,`${def.name} · 激励同伴`);}
+ for(const m of b.enemies)if(m.summonedBy===e.uid&&m.hp>0){m.hp=0;b.feedback.push({target:m.uid,kind:'damage',amount:0});log(b,`${ENEMIES[m.id].name} 随召唤者消散。`);}
+}
 function hit(r:Run,e:Enemy,amount:number,attack=true){
  const b=r.battle;if(!b||e.hp<=0)return;
  let damage=Math.max(0,amount);
  if(attack){damage+=b.strength+(b.burst>0?2:0);if(r.training==='attack'&&r.stage>0)damage+=1;if(r.relics.includes('cooler')&&b.attacks<3)damage++;b.attacks++;if(ENEMIES[e.id].style==='evade'&&e.opening){damage=Math.floor(damage/2);e.opening=false;}}
  const beforeBlock=e.block;const blocked=Math.min(e.block,damage);e.block-=blocked;if(e.id==='machinedramon'&&beforeBlock>0&&e.block===0)e.armorBroken=true;const actual=Math.min(e.hp,damage-blocked);e.hp-=actual;r.damageDealt+=actual;e.stagger+=actual;burnKill(r,e);
  b.feedback.push({target:e.uid,kind:'damage',amount:actual});
+ if(e.hp<=0)deathTrigger(r,e);
 }
 function awardRelic(r:Run){const available=Object.keys(RELICS).filter(id=>!r.relics.includes(id));if(!available.length){r.gold+=35;return undefined;}const id=choose(r,available);r.relics.push(id);return id;}
 function resolve(r:Run,meta:Meta){
@@ -70,15 +79,18 @@ function resolve(r:Run,meta:Meta){
 function finishNode(r:Run){if(r.currentNode&&!r.path.includes(r.currentNode.id))r.path.push(r.currentNode.id);r.row++;r.screen='map';r.battle=null;r.reward=null;r.currentNode=null;}
 function afterReward(r:Run,meta:Meta){
  if(r.currentNode?.kind==='boss'){
-  if(r.row===23){r.won=true;r.screen='result';meta.wins++;if(!r.path.includes(r.currentNode.id))r.path.push(r.currentNode.id);return;}
+  if(r.row===r.nodes.length-1){r.won=true;r.screen='result';meta.wins++;if(!r.path.includes(r.currentNode.id))r.path.push(r.currentNode.id);return;}
   r.screen='evolution';r.evolutionReturn='node';return;
  }
  finishNode(r);
 }
 function playCard(r:Run,meta:Meta,uid:string,target?:string){
  const b=r.battle;if(!b)return;const index=b.hand.findIndex(c=>c.uid===uid);if(index<0)return;const c=b.hand[index],d=CARDS[c.id];const cost=cardCost(c);if(cost>b.energy)return;
- const chosen=b.enemies.find(e=>e.uid===target&&e.hp>0)??b.enemies.find(e=>e.hp>0);
- if(needsTarget(d)&&!chosen)return;
+ const chosen0=b.enemies.find(e=>e.uid===target&&e.hp>0)??b.enemies.find(e=>e.hp>0);
+ if(needsTarget(d)&&!chosen0)return;
+ // 护卫：存活时同伴的指定目标攻击改由护卫承受；群攻不受影响。
+ const guard=chosen0?b.enemies.find(e=>e.hp>0&&e.uid!==chosen0.uid&&ENEMIES[e.id].guard):undefined;
+ const chosen=guard??chosen0;
  b.energy-=cost;b.hand.splice(index,1);
  if(d.kind==='attack'){count(r,'attacks');b.attackPlays++;}if(d.kind==='skill'||d.kind==='power')count(r,'skills');if(d.burn||d.special==='detonate')count(r,'fire');if(c.copied)count(r,'copies');
  if(!c.copied){const series=d.series??d.id;const used=b.activity.cards[series]??0;if(used<3){b.activity.cards[series]=used+1;r.activity.cards[series]=(r.activity.cards[series]??0)+1;}}
@@ -128,7 +140,7 @@ function beginEnemyTurn(r:Run){
 }
 function enemyStep(r:Run,meta:Meta){
  const b=r.battle;if(!b||b.enemyTurnIndex===null||b.enemyTurnIndex>=b.enemies.length)return;
- const e=b.enemies[b.enemyTurnIndex++];if(e.hp<=0)return;const i=intent(r,e);if(!(e.id==='machinedramon'&&(b.turn-1)%3===1))e.block=0;
+ const e=b.enemies[b.enemyTurnIndex++];if(e.hp<=0||e.summonedTurn===b.turn)return;const i=intent(r,e);if(!(e.id==='machinedramon'&&(b.turn-1)%3===1))e.block=0;
  const playerHpBefore=r.hp;
   if(i.type==='attack'){for(let h=0;h<i.hits;h++){const absorbed=Math.min(b.block,i.damage);b.block-=absorbed;const before=r.hp;r.hp=Math.max(0,r.hp-i.damage+absorbed);b.feedback.push({target:'player',kind:'damage',amount:before-r.hp});}e.weakened=0;log(b,`${ENEMIES[e.id].name} · ${i.name} ${i.damage}${i.hits>1?`×${i.hits}`:''}`);}
   if(i.shield)e.block=i.shield;
@@ -138,12 +150,13 @@ function enemyStep(r:Run,meta:Meta){
   if(i.strength)b.enemies.filter(x=>x.hp>0).forEach(x=>x.strength+=i.strength!);
   if(i.type==='buff'&&ENEMIES[e.id].style==='buff')b.enemies.filter(x=>x.hp>0).forEach(x=>x.strength+=2);
   if(i.type==='debuff'){const n=i.jam??(['spider','core'].includes(ENEMIES[e.id].style)?2:1);for(let j=0;j<n;j++)b.discard.push(makeCard(r,'fault',false,true));if(e.id==='core')e.block+=8;}
+  if(i.summon){let spawned=0;for(const id of i.summon){if(b.enemies.filter(x=>x.hp>0).length>=3)break;b.enemies.push({uid:`${e.uid}-m${b.turn}-${b.enemies.length}`,id,hp:ENEMIES[id].hp,maxHp:ENEMIES[id].hp,block:0,burn:0,mark:0,strength:0,weakened:0,opening:true,stagger:0,summonedTurn:b.turn,summonedBy:e.uid});spawned++;}e.summons=(e.summons??0)+1;log(b,`${ENEMIES[e.id].name} · ${i.name}${spawned?`：${spawned}只增援入场，下回合行动`:''}`);}
  if(r.hp<=0)resolve(r,meta);
 }
 function finishEnemyTurn(r:Run,meta:Meta){
  const b=r.battle;if(!b||b.enemyTurnIndex===null||b.enemyTurnIndex<b.enemies.length)return;
  b.enemyTurnIndex=null;
- for(const e of b.enemies){if(e.hp<=0||!e.burn)continue;const damage=Math.min(e.hp,e.burn);e.hp-=damage;r.damageDealt+=damage;b.feedback.push({target:e.uid,kind:'damage',amount:damage});burnKill(r,e);e.burn=Math.max(0,e.burn-1);}
+ for(const e of b.enemies){if(e.hp<=0||!e.burn)continue;const damage=Math.min(e.hp,e.burn);e.hp-=damage;r.damageDealt+=damage;b.feedback.push({target:e.uid,kind:'damage',amount:damage});burnKill(r,e);if(e.hp<=0)deathTrigger(r,e);e.burn=Math.max(0,e.burn-1);}
  resolve(r,meta);if(r.screen!=='battle')return;
  b.turn++;b.energy=3;b.block=(r.relics.includes('armor')?3:0)+(r.training==='defense'&&r.stage>0?3:0)+(r.bonuses.includes('holyward')?2:0);b.selfCostThisTurn=false;b.syncThisTurn=0;b.played=0;b.skillsPlayed=0;b.attacks=0;b.attackPlays=0;b.nextAttackBonus=0;b.cannonGuardUsed=false;b.burned=false;b.marked=false;b.defended=false;b.burst=Math.max(0,b.burst-1);for(const e of b.enemies){e.opening=true;e.stagger=0;e.effectiveAttacks=0;}draw(r,5);log(b,`第 ${b.turn} 回合 · 行动力已恢复`);
 }
@@ -200,7 +213,7 @@ function runAction(state:Save,action:Action):Save{
  }
  if(action.type==='remove'&&r.screen==='shop'&&!r.shopRemoved&&r.gold>=45&&r.deck.length>5){const i=r.deck.findIndex(c=>c.uid===action.uid);if(i>=0){r.deck.splice(i,1);r.gold-=45;r.shopRemoved=true;}}
  if(action.type==='event'&&r.screen==='event'&&eventFor(r)){if(!applyEvent(r,meta,action.choice,action.uid))return state;finishNode(r);return s;}
- if(action.type==='event'&&r.screen==='event'){if(action.choice==='safe'){r.hp=Math.min(r.maxHp,r.hp+10);if(Math.floor(r.row/8)===1&&!meta.unlockedRoutes.includes('purification')){meta.unlockedRoutes.push('purification');r.message='净化资料已永久解锁';}if(Math.floor(r.row/8)===1&&!meta.unlockedRoutes.includes('mechanical')){meta.unlockedRoutes.push('mechanical');r.message=[r.message,'机械研究已永久解锁'].filter(Boolean).join(' · ');}}else{r.hp=Math.max(1,r.hp-8);r.gold+=35;const c=r.deck.find(x=>!x.upgraded&&x.id!=='guard');if(c)c.upgraded=true;}finishNode(r);}
+ if(action.type==='event'&&r.screen==='event'){if(action.choice==='safe'){r.hp=Math.min(r.maxHp,r.hp+10);if(Math.floor(r.row/r.chapterRows)===1&&!meta.unlockedRoutes.includes('purification')){meta.unlockedRoutes.push('purification');r.message='净化资料已永久解锁';}if(Math.floor(r.row/r.chapterRows)===1&&!meta.unlockedRoutes.includes('mechanical')){meta.unlockedRoutes.push('mechanical');r.message=[r.message,'机械研究已永久解锁'].filter(Boolean).join(' · ');}}else{r.hp=Math.max(1,r.hp-8);r.gold+=35;const c=r.deck.find(x=>!x.upgraded&&x.id!=='guard');if(c)c.upgraded=true;}finishNode(r);}
  if(action.type==='bless'&&r.screen==='blessing'&&BLESSINGS[action.id]){r.message='';if(action.id==='growth'){r.maxHp+=10;r.hp=Math.min(r.maxHp,r.hp+10);}r.blessing=action.id;if(r.currentNode)finishNode(r);else r.screen='map';}
  if(action.type==='evolve'&&r.screen==='evolution'){
   const form=action.form??(action.branch?BRANCHES[action.branch].art:PARTNERS[r.partner].forms[r.stage+1]);

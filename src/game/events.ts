@@ -33,6 +33,18 @@ export const EVENTS:Record<string,StoryEvent>={
   {id:'risk',title:'伸出援手',text:'失去6生命（最低保留1），黑大耳兽加入支援伙伴。',effect:{hpCost:6,partner:'lopmon'}},
   {id:'safe',title:'留下食物后离开',text:'回复10生命。',effect:{heal:10}},
  ]},
+ spring:{id:'spring',title:'数据之泉',story:'一眼清澈的数据泉在废墟间流淌。搭档可以把爪子伸进去，也可以只喝一口就走。',hint:'生命换强化 / 安全恢复',choices:[
+  {id:'risk',title:'潜入泉底打捞',text:'失去10生命（最低保留1），获得20金币，强化第一张未强化的非防御插件牌。',effect:{hpCost:10,gold:20,autoUpgrade:true}},
+  {id:'safe',title:'饮一口泉水',text:'回复14生命。',effect:{heal:14}},
+ ]},
+ blackmarket:{id:'blackmarket',title:'黑市摊位',story:'蒙面商人铺开一块防水布：上面只有一张磁盘，但价格随心情浮动。',hint:'高价消耗品 / 出售零件',choices:[
+  {id:'risk',title:'咬牙买下磁盘',text:'支付25金币，获得1个恢复磁盘，最多携带2个。',effect:{goldCost:25,potion:true}},
+  {id:'safe',title:'卖点旧零件',text:'获得12金币。',effect:{gold:12}},
+ ]},
+ echo:{id:'echo',title:'回响信号',story:'一段陌生的信号在你们之间回响，仿佛在邀请搭档模仿它。深听耗神，浅听安心。',hint:'生命换金币 / 安全恢复',choices:[
+  {id:'risk',title:'追踪信号源头',text:'失去12生命（最低保留1），获得55金币。',effect:{hpCost:12,gold:55}},
+  {id:'safe',title:'屏蔽信号休息',text:'回复8生命。',effect:{heal:8}},
+ ]},
 };
 export const eventFor=(run:Run):StoryEvent|undefined=>run.currentNode?.eventId?EVENTS[run.currentNode.eventId]:undefined;
 export function eligibleEventCards(run:Run,choice:EventChoice){return run.deck.filter(c=>choice.effect.card==='upgrade'?!c.upgraded:true);}

@@ -38,6 +38,12 @@ export function expandedIntent(run:Run,enemy:Enemy):Intent|undefined {
   case 'chrysalimon':return phase===0?pause('蛹壳硬化','block','获得12护盾，蜷缩蓄势。',12):attack(phase===2?'触手狂舞':'触手鞭打',phase===2?4+ch:6+ch,phase===2?2:1,'硬化后下一回合触手连击。');
   case 'infermon':return phase===0?{...pause('病毒侵蚀','debuff','向弃牌堆加入1张故障牌；行动前击败它可避免本次侵蚀。'),jam:1}:phase===1?attack('地狱业火',12+ch):attack('疯狂乱抓',5+ch,2,'侵蚀、重击、乱抓循环。');
   case 'armageddemon':return phase===0?pause('暗黑领域','block','获得10护盾，领域展开时无法被打断。',10):phase===1?attack('全力破坏',15+ch):attack('灭世咆哮',8+ch,2,'领域、破坏、咆哮三段循环。');
+  case 'lilithmon':return phase===0?{...pause('魅惑低语','debuff','向弃牌堆加入1张故障牌；行动前击败它可避免本次魅惑。'),jam:1}:phase===1?{...attack('娜扎尔之爪',10+ch,1,'回复本次造成的生命伤害，最多6点；完全格挡可阻止回复。'),drain:6}:attack('幻影苦痛',6+ch,2,'魅惑、吸血、双段苦痛循环。');
+  case 'leviamon':return phase===0?{...attack('深渊巨口',13+ch,1,'回复本次造成的生命伤害，最多8点；完全格挡可阻止回复。'),drain:8}:phase===1?pause('漩涡牢狱','block','获得10护盾，深渊短暂平静。',10):attack('末日潮汐',8+ch,2,'吞噬、蛰伏、潮汐循环。');
+  case 'grandracmon':return phase===1?{...attack('吸血之眸',7+ch,1,'回复本次造成的生命伤害，最多6点；完全格挡可阻止回复。'),drain:6}:phase===2?pause('夜雾化身','block','化身夜雾，获得10护盾。',10):attack('水晶革命',8+ch,2,'双段水晶、吸血、雾化循环。');
+  case 'daemon':return phase===0?{...pause('愤怒积聚','buff','攻击伤害＋2，可叠加；愤怒每三回合积聚一次。'),strength:2}:phase===1?attack('火焰扫荡',7+ch,2):attack('炼狱爪',12+ch,1,'愤怒会持续推高魔王的所有攻击。');
+  case 'belphemon':return phase===2?attack('觉醒咆哮',9+ch,3,'沉睡两回合后觉醒，三段咆哮倾泻怒火。'):pause('沉睡','block','沉睡中：获得20护盾，不攻击；第三回合觉醒爆发。',20);
+  case 'barbamon':return phase===0?{...pause('贪婪魔咒','buff','攻击伤害＋1，可叠加；随后挥舞死亡诱惑。'),strength:1}:phase===1?attack('死亡诱惑',11+ch):attack('暗狱殿业火',7+ch,2,'魔咒会持续推高魔王的所有攻击。');
   case 'vajramon':{const bonus=Math.min(3,enemy.effectiveAttacks??0)*3;return phase===1?pause('防御架势','block','获得14护盾；蓄力观察你的攻势。',14):attack('连续斩击',6+ch+bonus,2,`反击蓄能：本回合你的攻击牌每命中生命一次，斩击伤害＋3（当前＋${bonus}，至多＋9）。`);}
   case 'core':{
    const cycle=(turn-1)%4;

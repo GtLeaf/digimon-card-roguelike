@@ -92,6 +92,12 @@ export const ENEMIES:Record<string,EnemyDef>=Object.fromEntries([
  {id:'bishopchessmon',name:'相棋兽',art:'bishopchessmon',hp:75,style:'expanded' as const,scan:true},
  {id:'infermon',name:'地狱兽',art:'infermon',hp:88,style:'expanded' as const,scan:true},
  {id:'armageddemon',name:'灭世魔兽',art:'armageddemon',hp:110,style:'expanded' as const,scan:true},
+ {id:'lilithmon',name:'莉莉丝兽',art:'lilithmon',hp:92,style:'expanded' as const,scan:true},
+ {id:'leviamon',name:'利维坦兽',art:'leviamon',hp:108,style:'expanded' as const,scan:true},
+ {id:'grandracmon',name:'大德拉库兽',art:'grandracmon',hp:96,style:'expanded' as const,scan:true},
+ {id:'daemon',name:'究极魔兽',art:'daemon',hp:100,style:'expanded' as const,scan:true},
+ {id:'belphemon',name:'贝尔菲兽',art:'belphemon',hp:105,style:'expanded' as const,scan:true},
+ {id:'barbamon',name:'巴鲁巴兽',art:'barbamon',hp:95,style:'expanded' as const,scan:true},
  {id:'lopmon',name:'黑大耳兽',art:'lopmon',hp:1,style:'rapid' as const,scan:false,support:'安慰之光：清除手牌中 1 张故障牌；没有故障牌时回复 6 生命。'},
  ...['scout','replica','corrupt','sentinel','devourer','core'].map((id,i):EnemyDef=>({id,name:['侦察代理体','复制代理体','侵蚀代理体','护卫代理体','吞噬代理体','帝厉魔核心'][i],art:id,hp:[46,48,50,90,95,190][i],style:(['rapid','buff','jam','shield','spider','core'] as const)[i],scan:false}))
 ].map(e=>[e.id,e]));

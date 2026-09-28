@@ -284,6 +284,36 @@
     "duration": 800,
     "source": "assets/vendor/digimon-ds/original/mega/Armageddemon.gif"
   },
+  "lilithmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/mega/Lilithmon.gif"
+  },
+  "barbamon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/unobtainable/Barbamon.gif"
+  },
+  "belphemon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/unobtainable/Belphemon.gif"
+  },
+  "daemon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/unobtainable/Daemon.gif"
+  },
+  "grandracmon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/unobtainable/GranDracmon.gif"
+  },
+  "leviamon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/unobtainable/Leviamon.gif"
+  },
   "scout": {
     "frames": 4,
     "duration": 1000,

@@ -21,10 +21,10 @@ describe('curated world generation',()=>{
   for(const e of ENCOUNTERS){expect(e.enemies.length).toBeLessThanOrEqual(3);expect(e.enemies.every(id=>!!ENEMIES[id])).toBe(true);expect(e.enemies.filter(id=>['jam','spider'].includes(ENEMIES[id].style)||id==='clockmon').length).toBeLessThan(2);}
   expect(ENCOUNTERS.filter(e=>e.enemies.length===3).length).toBeGreaterThanOrEqual(4);
   const added=['gotsumon','betamon','monodramon','clockmon','seadramon','gekomon','devimon','skullgreymon','machinedramon'];
-  expect(Object.keys(ENEMIES)).toHaveLength(45);
+  expect(Object.keys(ENEMIES)).toHaveLength(51);
   for(const id of added){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
   for(const id of ['knightmon','phantomon','kuramon','diaboromon']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
-  for(const id of ['pawnchessmonblack','pawnchessmonwhite','knightchessmonblack','knightchessmonwhite','rookchessmon','bishopchessmon','keramon','chrysalimon','infermon','armageddemon']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
+  for(const id of ['pawnchessmonblack','pawnchessmonwhite','knightchessmonblack','knightchessmonwhite','rookchessmon','bishopchessmon','keramon','chrysalimon','infermon','armageddemon','lilithmon','leviamon','grandracmon','daemon','belphemon','barbamon']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
  });
  it('varies templates across three-lane chapters while every path can reach recovery and the finale',()=>{
   const layouts=new Set<string>(),seen=new Set<string>();
@@ -144,8 +144,8 @@ describe('summon, guard, enrage and on-death mechanics',()=>{
   b.enemies.push({...b.enemies[0],uid:'add',id:'replica',hp:48,maxHp:48});
   expect(intent(s.run!,b.enemies[0]).damage).toBe(28);
  });
- it('chess and virus line enemies always expose a defined intent',()=>{
-  for(const id of ['pawnchessmonblack','pawnchessmonwhite','knightchessmonblack','knightchessmonwhite','rookchessmon','bishopchessmon','keramon','chrysalimon','infermon','armageddemon']){
+ it('chess, virus and demon-lord line enemies always expose a defined intent',()=>{
+  for(const id of ['pawnchessmonblack','pawnchessmonwhite','knightchessmonblack','knightchessmonwhite','rookchessmon','bishopchessmon','keramon','chrysalimon','infermon','armageddemon','lilithmon','leviamon','grandracmon','daemon','belphemon','barbamon']){
    const s=fight(id);const b=s.run!.battle!;
    for(let t=1;t<=3;t++){b.turn=t;const plan=intent(s.run!,b.enemies[0]);expect(plan,`${id} turn ${t}`).toBeTruthy();expect(plan.name).not.toBe('');}
   }

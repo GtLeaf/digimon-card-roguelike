@@ -33,4 +33,4 @@ Sprites are property of Digimon and Bandai Namco Entertainment Inc/Namco Bandai 
 
 内容包 A（2026-09-27）：从同一固定版本的原始档案新增使用 Gotsumon、Betamon、Monodramon、Clockmon、Seadramon、Gekomon、Devimon、SkullGreymon、Machinedramon 九种精灵；来源及权利说明同上。
 
-章节扩展（2026-09-29）：从同一固定版本的原始档案新增使用 Knightmon、Phantomon、Kuramon、Diaboromon、PawnChessmonBlack、PawnChessmonWhite、KnightChessmonBlack、KnightChessmonWhite、RookChessmon、BishopChessmon、Keramon、Chrysalimon、Infermon、Armageddemon 十四种精灵（public/sprites/ 下对应立绘与横排动画）；来源及权利说明同上。
+章节扩展（2026-09-29）：从同一固定版本的原始档案新增使用 Knightmon、Phantomon、Kuramon、Diaboromon、PawnChessmonBlack、PawnChessmonWhite、KnightChessmonBlack、KnightChessmonWhite、RookChessmon、BishopChessmon、Keramon、Chrysalimon、Infermon、Armageddemon、Lilithmon、Leviamon、GranDracmon、Daemon、Belphemon、Barbamon 二十种精灵（public/sprites/ 下对应立绘与横排动画）；来源及权利说明同上。

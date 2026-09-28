@@ -25,6 +25,7 @@ describe('curated world generation',()=>{
   for(const id of added){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
   for(const id of ['knightmon','phantomon','kuramon','diaboromon']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
   for(const id of ['pawnchessmonblack','pawnchessmonwhite','knightchessmonblack','knightchessmonwhite','rookchessmon','bishopchessmon','keramon','chrysalimon','infermon','armageddemon','lilithmon','leviamon','grandracmon','daemon','belphemon','barbamon']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
+  for(const id of ['sorcerymon','matadormon','vamdemon','venommyotismon','belialvamdemon','beelzebumonblaster']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
  });
  it('varies templates across three-lane chapters while every path can reach recovery and the finale',()=>{
   const layouts=new Set<string>(),seen=new Set<string>();

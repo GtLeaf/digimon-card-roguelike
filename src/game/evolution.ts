@@ -2,7 +2,7 @@ import { BRANCHES, FORM_NAMES } from './data';
 import type { Activity, Branch, Meta, Metric, Partner, Run } from './types';
 
 export const emptyActivity = (): Activity => ({ counts: {}, cards: {} });
-export const METRIC_NAMES: Record<Metric, string> = { attacks:'攻击出牌',defenses:'主动防御',skills:'技能出牌',fire:'火焰出牌',marks:'施加符印',detonations:'引爆灼烧',markBursts:'消耗符印',selfCosts:'主动自损',heals:'有效治疗',copies:'使用复制牌',weakens:'施加虚弱',combos:'双技能回合',burnKills:'灼烧击杀',charges:'主动蓄能',cannonShots:'蓄能炮击' };
+export const METRIC_NAMES: Record<Metric, string> = { attacks:'攻击出牌',defenses:'主动防御',skills:'技能出牌',fire:'火焰出牌',marks:'施加符印',detonations:'引爆灼烧',markBursts:'消耗符印',selfCosts:'主动自损',heals:'有效治疗',copies:'使用复制牌',weakens:'施加虚弱',combos:'双技能回合',burnKills:'灼烧击杀',charges:'主动蓄能',cannonShots:'蓄能炮击',kills:'击败敌人',devourSpent:'消耗噬能',bigTurns:'满编出牌回合' };
 export const ROUTE_DATA: Record<string,{name:string;source:string}> = {
  mechanical:{name:'机械研究',source:'齿轮兽或安杜路兽扫描达到 100%，或在第二章事件中完成机械研究'},
  chaos:{name:'混沌资料',source:'邪龙兽扫描达到 100%，或在失控机械档案中读取混沌记忆'},
@@ -43,6 +43,15 @@ export const EVOLUTIONS: Record<string,EvolutionDef> = Object.fromEntries(([
  {id:'blackrapidmon',partner:'terriermon',stage:2,parents:['blackgalgomon','galgomon'],tag:'装甲蓄能',passive:'每回合首次防御出牌额外获得 1 蓄能；每回合首次施加虚弱时，获得 1 蓄能。',cards:['blackReload','blackMissile'],groups:[[{metric:'charges',goal:20}],[{metric:'weakens',goal:10}]],slot:2},
  {id:'saintgalgomon',partner:'terriermon',stage:3,parents:['rapidmon','blackrapidmon'],tag:'连射压制',passive:BRANCHES.saint.passive,cards:BRANCHES.saint.cards,branch:'saint',groups:[],slot:0},
  {id:'blacksaintgalgomon',partner:'terriermon',stage:3,parents:['blackrapidmon'],tag:'重装炮击',passive:BRANCHES.blacksaint.passive,cards:BRANCHES.blacksaint.cards,branch:'blacksaint',groups:[[{metric:'defenses',goal:58}],[{metric:'cannonShots',goal:7}]],slot:2},
+ {id:'impmon',partner:'impmon',stage:0,parents:[],tag:'旅途起点',passive:'以恶作剧与噬能开启冒险。',cards:['nightfire','taunt'],groups:[],slot:1},
+ {id:'sorcerymon',partner:'impmon',stage:1,parents:['impmon'],tag:'魔人之路',passive:'招牌牌强化；可选择进攻或守护训练。',cards:['frostSorcery','magicShield'],groups:[],slot:0},
+ {id:'devimon',partner:'impmon',stage:1,parents:['impmon'],tag:'堕天之路',passive:'攻击处于虚弱状态的敌人时，每段伤害＋1。',cards:['bloodClaw','nightmareWave'],groups:[[{metric:'weakens',goal:10}],[{metric:'attacks',goal:15}]],slot:2},
+ {id:'matadormon',partner:'impmon',stage:2,parents:['sorcerymon'],tag:'华丽剑舞',passive:'每场战斗开始时获得 1 噬能。',cards:['soulHarvest','lureDance'],groups:[],slot:0},
+ {id:'vamdemon',partner:'impmon',stage:2,parents:['devimon'],tag:'暗夜吸血',passive:'吸血效果额外回复 2 生命。',cards:['batSwarm','crimsonRain'],groups:[[{metric:'weakens',goal:20}],[{metric:'heals',goal:10}]],slot:2},
+ {id:'beelzebumon',partner:'impmon',stage:3,parents:['matadormon'],tag:'暴食吞噬',passive:BRANCHES.gluttony.passive,cards:BRANCHES.gluttony.cards,branch:'gluttony',groups:[[{metric:'kills',goal:25},{metric:'devourSpent',goal:15}]],slot:1},
+ {id:'beelzebumonblaster',partner:'impmon',stage:3,parents:['matadormon'],tag:'疾风连射',passive:BRANCHES.blast.passive,cards:BRANCHES.blast.cards,branch:'blast',groups:[[{metric:'bigTurns',goal:3},{metric:'attacks',goal:50}]],slot:0},
+ {id:'venommyotismon',partner:'impmon',stage:3,parents:['vamdemon'],tag:'剧毒吸血',passive:BRANCHES.venom.passive,cards:BRANCHES.venom.cards,branch:'venom',groups:[[{metric:'weakens',goal:25}],[{metric:'heals',goal:15}]],slot:2},
+ {id:'belialvamdemon',partner:'impmon',stage:3,parents:['vamdemon'],tag:'绝望收割',passive:BRANCHES.belial.passive,cards:BRANCHES.belial.cards,branch:'belial',groups:[[{metric:'attacks',goal:55}],[{metric:'selfCosts',goal:4},{metric:'kills',goal:30}]],slot:2},
 ] satisfies EvolutionDef[]).map(d=>[d.id,d]));
 export interface Requirement { label:string; current:number; goal:number; met:boolean }
 export interface EvolutionStatus { groups:Requirement[][]; data:Requirement[]; parent:boolean; stage:boolean; ready:boolean; achieved:boolean }

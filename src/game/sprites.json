@@ -314,6 +314,36 @@
     "duration": 1000,
     "source": "assets/vendor/digimon-ds/original/unobtainable/Leviamon.gif"
   },
+  "sorcerymon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Sorcerymon.gif"
+  },
+  "matadormon": {
+    "frames": 4,
+    "duration": 600,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Matadormon.gif"
+  },
+  "vamdemon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Vamdemon.gif"
+  },
+  "venommyotismon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/mega/VenomMyotismon.gif"
+  },
+  "belialvamdemon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/mega/BelialVamdemon.gif"
+  },
+  "beelzebumonblaster": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/mega/BeelzebumonBlaster.gif"
+  },
   "scout": {
     "frames": 4,
     "duration": 1000,

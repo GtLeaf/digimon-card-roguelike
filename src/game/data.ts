@@ -66,11 +66,34 @@ export const CARDS:Record<string,CardDef> = Object.fromEntries([
  card('gravityField','重力力场',2,'skill','terriermon','获得 7 护盾，对所有敌人施加 2 虚弱。','blackrapidmon',{shield:7,weak:2,all:true}),
  card('zoneSuppress','战术·全域压制',2,'attack','blacksaint','对所有敌人造成 8 伤害、施加 1 虚弱，消耗全部蓄能，每层额外 3 伤害。','blacksaintgalgomon',{damage:8,all:true,weak:1,special:'cannon',chargeMultiplier:3}),
  card('fault','数据故障',1,'status','status','不能产生效果。支付 1 行动力清除，本场耗竭。','core',{exhaust:true}),
+ card('nightfire','暗夜之火',1,'attack','impmon','造成 6 点伤害，获得 1 噬能。','impmon',{damage:6,devour:1}),
+ card('taunt','嘲笑',1,'skill','impmon','施加 2 虚弱。','impmon',{weak:2}),
+ card('prank','恶作剧',0,'skill','impmon','抽 1 张牌。耗竭。','impmon',{draw:1,exhaust:true,upgradeText:'抽 2 张牌。耗竭。'}),
+ card('frostSorcery','冰晶魔法',1,'attack','impmon','造成 7 伤害，施加 1 虚弱。','sorcerymon',{damage:7,weak:1}),
+ card('magicShield','魔术屏障',1,'skill','impmon','获得 8 护盾，抽 1 张牌。','sorcerymon',{shield:8,draw:1}),
+ card('devourAura','噬能光环',1,'power','impmon','本场战斗中，每次击败敌人额外获得 1 噬能。耗竭。','sorcerymon',{special:'devouraura',exhaust:true}),
+ card('soulHarvest','灵魂收割',2,'attack','impmon','造成 10 点伤害，获得 1 噬能；随后消耗全部噬能，每层额外 3 伤害。','matadormon',{damage:10,special:'devour',devourPower:3,devour:1}),
+ card('lureDance','引逗剑舞',1,'attack','impmon','造成 7 伤害；若目标处于虚弱，额外造成 4 伤害。','matadormon',{damage:7,special:'lure'}),
+ card('thousandCuts','千羽剑雨',2,'attack','impmon','造成 4×3 段伤害。','matadormon',{damage:4,hits:3}),
+ card('grandFinale','华丽终幕',1,'skill','impmon','获得 6 护盾，获得 1 噬能。','matadormon',{shield:6,devour:1}),
+ card('bloodClaw','吸血魔爪',1,'attack','impmon','造成 8 伤害；若造成生命伤害，回复 2 生命。','devimon',{damage:8,drain:2}),
+ card('nightmareWave','恶梦冲击波',1,'skill','impmon','对所有敌人施加 2 虚弱。','devimon',{weak:2,all:true}),
+ card('batSwarm','蝙蝠群袭',1,'attack','impmon','造成 3×3 段伤害。','vamdemon',{damage:3,hits:3}),
+ card('crimsonRain','深红血雨',2,'attack','impmon','对所有敌人造成 6 伤害，施加 1 虚弱；消耗全部噬能，每层额外 2 伤害。','vamdemon',{damage:6,weak:1,all:true,special:'devour',devourPower:2}),
+ card('twinClaw','双重爪击',1,'attack','impmon','造成 5×2 段伤害，获得 1 噬能。','beelzebumon',{damage:5,hits:2,devour:1}),
+ card('deathCannon','死亡加农炮',2,'attack','impmon','造成 12 伤害，消耗全部噬能，每层额外 5 伤害。耗竭。','beelzebumon',{damage:12,special:'devour',devourPower:5,exhaust:true}),
+ card('gustCannon','疾风加农',1,'attack','impmon','对所有敌人造成 4×2 段伤害。','beelzebumonblaster',{damage:4,hits:2,all:true}),
+ card('shiningWing','光辉之翼',1,'skill','impmon','获得 10 护盾，抽 1 张牌。','beelzebumonblaster',{shield:10,draw:1}),
+ card('venomFog','剧毒迷雾',2,'skill','impmon','对所有敌人施加 2 虚弱，获得 6 护盾。','venommyotismon',{weak:2,shield:6,all:true}),
+ card('bloodFeast','血腥宴席',2,'attack','impmon','造成 14 伤害；若造成生命伤害，回复 5 生命。耗竭。','venommyotismon',{damage:14,drain:5,exhaust:true}),
+ card('despairHowl','绝望嚎叫',1,'skill','impmon','对所有敌人施加 1 虚弱，获得 2 噬能。','belialvamdemon',{weak:1,all:true,devour:2}),
+ card('darkDisaster','暗黑大灾害',2,'attack','impmon','失去 3 生命，造成 9×2 段伤害。','belialvamdemon',{damage:9,hits:2,special:'sacrifice'}),
 ].map(c=>[c.id,c]));
 export const PARTNERS:Record<Partner,{name:string;tag:string;description:string;forms:string[];branches:Branch[]}>={
  guilmon:{name:'基尔兽',tag:'火焰 · 勇气',description:'用烈焰突破防线，或以圣盾守护羁绊。',forms:['guilmon','growlmon','wargrowlmon'],branches:['duke','megidra','chaos']},
  renamon:{name:'妖狐兽',tag:'符印 · 灵巧',description:'编织符印与术式，让每一次出牌彼此呼应。',forms:['renamon','kyubimon','taomon'],branches:['sakuya','kuzuha']},
- terriermon:{name:'大耳兽',tag:'连射 · 蓄能',description:'用连射掌握节奏，或蓄能化身重装炮台。',forms:['terriermon','galgomon','rapidmon'],branches:['saint','blacksaint']}
+ terriermon:{name:'大耳兽',tag:'连射 · 蓄能',description:'用连射掌握节奏，或蓄能化身重装炮台。',forms:['terriermon','galgomon','rapidmon'],branches:['saint','blacksaint']},
+ impmon:{name:'小妖兽',tag:'恶作剧 · 吞噬',description:'积攒噬能，在暴食与堕天之间选择你的魔王之路。',forms:['impmon','sorcerymon','matadormon'],branches:['gluttony','blast','venom','belial']}
 };
 export const BRANCHES:Record<Branch,{name:string;art:string;tag:string;passive:string;cards:string[];partner:Partner}>={
  saint:{name:'撒多格杜兽',art:'saintgalgomon',tag:'连射压制',passive:'每回合第二张攻击牌结算后，获得 1 蓄能并抽 1 张牌。',cards:['giantMissile','burstShot'],partner:'terriermon'},
@@ -79,9 +102,13 @@ export const BRANCHES:Record<Branch,{name:string;art:string;tag:string;passive:s
  duke:{name:'红莲骑士兽',art:'dukemon',tag:'圣盾反击',passive:'每回合首张防御技能额外获得 3 护盾。',cards:['royal','aegis'],partner:'guilmon'},
  megidra:{name:'灭世魔龙兽',art:'megidramon',tag:'灼烧爆发',passive:'每回合首次施加灼烧，额外增加 2 层。',cards:['megido','apocalypse'],partner:'guilmon'},
  sakuya:{name:'沙古牙兽',art:'sakuyamon',tag:'术式循环',passive:'每回合首次消耗符印，抽 1 张牌。',cards:['sacred','mirrors'],partner:'renamon'},
- kuzuha:{name:'葛叶兽',art:'kuzuhamon',tag:'结界式神',passive:'每回合第二张技能牌触发式神，攻击一名敌人造成 4 伤害。',cards:['foxguardian','mandala'],partner:'renamon'}
+ kuzuha:{name:'葛叶兽',art:'kuzuhamon',tag:'结界式神',passive:'每回合第二张技能牌触发式神，攻击一名敌人造成 4 伤害。',cards:['foxguardian','mandala'],partner:'renamon'},
+ gluttony:{name:'别西卜兽',art:'beelzebumon',tag:'暴食吞噬',passive:'每击败一个敌人，本场攻击每段伤害＋1，并回复 4 生命。',cards:['twinClaw','deathCannon'],partner:'impmon'},
+ blast:{name:'别西卜兽 · 疾风形态',art:'beelzebumonblaster',tag:'疾风连射',passive:'每回合第三张及以后的攻击牌，每段伤害＋2。',cards:['gustCannon','shiningWing'],partner:'impmon'},
+ venom:{name:'怨毒吸血魔兽',art:'venommyotismon',tag:'剧毒吸血',passive:'施加虚弱额外＋1；每回合首次施加虚弱时回复 3 生命。',cards:['venomFog','bloodFeast'],partner:'impmon'},
+ belial:{name:'贝利亚吸血魔兽',art:'belialvamdemon',tag:'绝望收割',passive:'击败敌人时抽 1 张牌；消耗噬能时每层额外＋2 伤害。',cards:['despairHowl','darkDisaster'],partner:'impmon'}
 };
-export const FORM_NAMES:Record<string,string>={terriermon:'大耳兽',galgomon:'加鲁哥兽',blackgalgomon:'黑加鲁哥兽',rapidmon:'拉比兽',blackrapidmon:'黑拉比兽',saintgalgomon:'撒多格杜兽',blacksaintgalgomon:'黑撒多格杜兽',blackgrowmon:'黑古拉兽',blackwargrowlmon:'黑大古拉兽',chaosdukemon:'混沌红莲骑士兽',youkomon:'妖狐兽（蓝）',doumon:'道士兽',guilmon:'基尔兽',growlmon:'古拉兽',wargrowlmon:'大古拉兽',renamon:'妖狐兽',kyubimon:'九尾狐兽',taomon:'祭师兽',dukemon:'红莲骑士兽',megidramon:'灭世魔龙兽',sakuyamon:'沙古牙兽',kuzuhamon:'葛叶兽'};
+export const FORM_NAMES:Record<string,string>={terriermon:'大耳兽',galgomon:'加鲁哥兽',blackgalgomon:'黑加鲁哥兽',rapidmon:'拉比兽',blackrapidmon:'黑拉比兽',saintgalgomon:'撒多格杜兽',blacksaintgalgomon:'黑撒多格杜兽',blackgrowmon:'黑古拉兽',blackwargrowlmon:'黑大古拉兽',chaosdukemon:'混沌红莲骑士兽',youkomon:'妖狐兽（蓝）',doumon:'道士兽',guilmon:'基尔兽',growlmon:'古拉兽',wargrowlmon:'大古拉兽',renamon:'妖狐兽',kyubimon:'九尾狐兽',taomon:'祭师兽',dukemon:'红莲骑士兽',megidramon:'灭世魔龙兽',sakuyamon:'沙古牙兽',kuzuhamon:'葛叶兽',impmon:'小妖兽',sorcerymon:'术士兽',matadormon:'斗牛士兽',devimon:'恶魔兽',vamdemon:'吸血魔兽',beelzebumon:'别西卜兽',beelzebumonblaster:'别西卜兽 · 疾风形态',venommyotismon:'怨毒吸血魔兽',belialvamdemon:'贝利亚吸血魔兽'};
 const enemy=(id:string,name:string,hp:number,style:EnemyDef['style'],support?:string):EnemyDef=>({id,name,hp,style,art:id,scan:true,support});
 export const ENEMIES:Record<string,EnemyDef>=Object.fromEntries([
  enemy('gotsumon','矿石兽',30,'expanded','矿石核心：获得 2 蓄能。'),enemy('betamon','比多兽',26,'expanded','数据汲取：抽 2 张牌。'),enemy('monodramon','独角龙兽',32,'expanded'),enemy('clockmon','时钟兽',34,'expanded'),enemy('seadramon','海龙兽',46,'expanded'),enemy('gekomon','怪蛙兽',30,'expanded'),enemy('devimon','恶魔兽',68,'expanded'),enemy('skullgreymon','丧尸暴龙兽',82,'expanded'),enemy('machinedramon','无限龙兽',148,'expanded'),
@@ -117,7 +144,7 @@ export const cardText=(c:{id:string;upgraded:boolean})=>{
  if(!d.damage&&!d.shield)text+=` 强化：费用 ${d.cost}→${Math.max(0,d.cost-1)}。`;
  return text;
 };
-export const needsTarget=(d:CardDef)=>!d.all&&!!(d.damage||d.mark||d.burn||d.special==='markburst'||d.special==='detonate');
+export const needsTarget=(d:CardDef)=>!d.all&&!!(d.damage||d.mark||d.burn||d.weak||d.special==='markburst'||d.special==='detonate');
 
 export const PARTNER_IDS=Object.keys(PARTNERS) as Partner[];
 export const inheritanceOptions=(partner:Partner)=>partner==='guilmon'?['ember','ward']:partner==='renamon'?['seal','flow']:['ward','flow'];

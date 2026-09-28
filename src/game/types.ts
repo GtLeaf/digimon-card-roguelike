@@ -1,6 +1,6 @@
 export type Partner = 'guilmon' | 'renamon' | 'terriermon';
 export type Branch = 'duke' | 'megidra' | 'sakuya' | 'kuzuha' | 'chaos' | 'saint' | 'blacksaint';
-export type Screen = 'map' | 'battle' | 'reward' | 'camp' | 'shop' | 'event' | 'treasure' | 'evolution' | 'blessing' | 'result';
+export type Screen = 'map' | 'battle' | 'reward' | 'camp' | 'shop' | 'event' | 'treasure' | 'evolution' | 'blessing' | 'result' | 'rest';
 export type NodeKind = 'battle' | 'elite' | 'boss' | 'camp' | 'shop' | 'event' | 'treasure' | 'evolution';
 export type CardKind = 'attack' | 'skill' | 'power' | 'status';
 export type Special = 'detonate' | 'shieldhit' | 'markburst' | 'copy' | 'cannon' | 'purge' | 'sacrifice';
@@ -15,7 +15,7 @@ export interface Activity { counts: Partial<Record<Metric, number>>; cards: Reco
 export interface Battle { activity: Activity; startActivity: Activity; selfCostThisTurn: boolean; countedKills: string[]; enemies: Enemy[]; hand: Card[]; draw: Card[]; discard: Card[]; exhaust: Card[]; turn: number; enemyTurnIndex: number|null; energy: number; block: number; sync: number; syncThisTurn: number; burst: number; burstUsed: boolean; supportUsed: boolean; strength: number; charge: number; played: number; skillsPlayed: number; attacks: number; attackPlays: number; nextAttackBonus: number; cannonGuardUsed: boolean; burned: boolean; marked: boolean; defended: boolean; log: string[]; feedback: BattleNumber[]; }
 export interface MapNode { id: string; row: number; lane: number; kind: NodeKind; label: string; enemies: string[]; next: string[]; encounterId?:string; eventId?:string; }
 export interface Reward { cards: string[]; gold: number; scans: {id:string; before:number; after:number}[]; relic?: string; gains?: string[]; unlocks?: string[]; }
-export interface Run { activity: Activity; victories: number; bosses: number; formHistory: string[]; evolutionTarget: string|null; evolutionReturn: 'node'|'camp'; legacyEvolution: boolean; bonuses: string[]; partner: Partner; form: string; stage: number; branch: Branch|null; training: 'attack'|'defense'; inherit: 'ember'|'ward'|'seal'|'flow'; hp: number; maxHp: number; gold: number; deck: Card[]; relics: string[]; blessing: string; support: string; potions: number; rng: number; seq: number; row: number; chapterRows: number; nodes: MapNode[][]; path: string[]; screen: Screen; currentNode: MapNode|null; battle: Battle|null; reward: Reward|null; shopStock: string[]; shopBought: string[]; shopRemoved: boolean; evolved: number; won: boolean; kills: number; damageDealt: number; message: string; }
+export interface Run { activity: Activity; victories: number; bosses: number; formHistory: string[]; evolutionTarget: string|null; evolutionReturn: 'node'|'camp'; legacyEvolution: boolean; bonuses: string[]; partner: Partner; form: string; stage: number; branch: Branch|null; training: 'attack'|'defense'; inherit: 'ember'|'ward'|'seal'|'flow'; hp: number; maxHp: number; gold: number; deck: Card[]; relics: string[]; blessing: string; support: string; potions: number; rng: number; seq: number; row: number; chapterRows: number; nodes: MapNode[][]; path: string[]; screen: Screen; currentNode: MapNode|null; battle: Battle|null; reward: Reward|null; shopStock: string[]; shopBought: string[]; shopRemoved: boolean; supportSpent: boolean; evolved: number; won: boolean; kills: number; damageDealt: number; message: string; }
 export interface Meta { unlockedRoutes: string[]; scans: Record<string,number>; partners: string[]; games: number; wins: number; discovered: string[]; }
 export interface Save { version: 3; meta: Meta; run: Run|null; settings: { reducedMotion: boolean; sound: boolean }; }
 export type Action =
@@ -27,7 +27,7 @@ export type Action =
  | {type:'camp';mode:'heal'|'upgrade';uid?:string}
  | {type:'buy';id:string} | {type:'remove';uid:string}
  | {type:'event';choice:'risk'|'safe';uid?:string} | {type:'bless';id:string}
- | {type:'track';form:string|null} | {type:'campEvolution'} | {type:'deferEvolution'}
+ | {type:'track';form:string|null} | {type:'campEvolution'} | {type:'deferEvolution'} | {type:'rest'}
  | {type:'evolve';form?:string;branch?:Branch;training?:'attack'|'defense';replace?:string[];inherit?:Run['inherit']}
  | {type:'convert';id:string} | {type:'equip';id:string}
  | {type:'settings';key:'sound'|'reducedMotion'} | {type:'abandon'};

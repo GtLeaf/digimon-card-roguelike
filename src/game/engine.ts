@@ -12,7 +12,7 @@ const choose=<T,>(r:Run,items:T[]):T=>items[Math.floor(rand(r)*items.length)];
 const shuffle=<T,>(r:Run,items:T[])=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(rand(r)*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 const makeCard=(r:Run,id:string,upgraded=false,temporary=false):Card=>({uid:`c${++r.seq}`,id,upgraded,temporary});
 export function makeRun(partner:Partner,seed:number,tutorial=true):Run{
- const r:Run={activity:emptyActivity(),victories:0,bosses:0,formHistory:[partner],evolutionTarget:null,evolutionReturn:'node',legacyEvolution:false,bonuses:[],partner,form:partner,stage:0,branch:null,training:'attack',inherit:partner==='guilmon'?'ember':partner==='renamon'?'seal':'ward',hp:partner==='guilmon'?90:partner==='renamon'?82:86,maxHp:partner==='guilmon'?90:partner==='renamon'?82:86,gold:65,deck:[],relics:[],blessing:'',support:'default',potions:1,rng:seed>>>0,seq:0,row:0,chapterRows:10,nodes:[],path:[],screen:'blessing',currentNode:null,battle:null,reward:null,shopStock:[],shopBought:[],shopRemoved:false,evolved:0,won:false,kills:0,damageDealt:0,message:'选择旅途祝福'};
+ const r:Run={activity:emptyActivity(),victories:0,bosses:0,formHistory:[partner],evolutionTarget:null,evolutionReturn:'node',legacyEvolution:false,bonuses:[],partner,form:partner,stage:0,branch:null,training:'attack',inherit:partner==='guilmon'?'ember':partner==='renamon'?'seal':'ward',hp:partner==='guilmon'?90:partner==='renamon'?82:86,maxHp:partner==='guilmon'?90:partner==='renamon'?82:86,gold:65,deck:[],relics:[],blessing:'',support:'default',potions:1,rng:seed>>>0,seq:0,row:0,chapterRows:10,nodes:[],path:[],screen:'blessing',currentNode:null,battle:null,reward:null,shopStock:[],shopBought:[],shopRemoved:false,supportSpent:false,evolved:0,won:false,kills:0,damageDealt:0,message:'选择旅途祝福'};
  if(partner==='terriermon')r.deck=['strike','strike','strike','guard','guard','guard','charge','cannon','tinyTwister','blazingShot'].map(id=>makeCard(r,id));
  else r.deck=[...Array.from({length:4},()=>makeCard(r,'strike')),...Array.from({length:4},()=>makeCard(r,'guard')),makeCard(r,partner==='guilmon'?'fireball':partner==='renamon'?'seal':'leaf'),makeCard(r,partner==='guilmon'?'rock':'talisman')];
  r.nodes=generateWorld(()=>rand(r),tutorial);
@@ -39,7 +39,7 @@ export function intent(r:Run,e:Enemy):Intent{
 const log=(b:Battle,s:string)=>{b.log=[s,...b.log].slice(0,12);};
 function draw(r:Run,n:number){const b=r.battle;if(!b)return;for(let i=0;i<n;i++){if(!b.draw.length){b.draw=shuffle(r,b.discard);b.discard=[];}const c=b.draw.pop();if(!c)break;if(b.hand.length<8)b.hand.push(c);else b.discard.push(c);}}
 function beginBattle(r:Run,node:MapNode){
- r.battle={activity:emptyActivity(),startActivity:structuredClone(r.activity),selfCostThisTurn:false,countedKills:[],enemies:node.enemies.map((id,index)=>({uid:`${node.id}-e${index}`,id,hp:ENEMIES[id].hp,maxHp:ENEMIES[id].hp,block:0,burn:0,mark:0,strength:0,weakened:0,opening:true,stagger:0})),hand:[],draw:shuffle(r,r.deck),discard:[],exhaust:[],turn:1,enemyTurnIndex:null,energy:3+(r.relics.includes('battery')?1:0),block:r.relics.includes('armor')?3:0,sync:r.blessing==='bond'?2:0,syncThisTurn:0,burst:0,burstUsed:false,supportUsed:false,strength:0,charge:r.form==='wargrowlmon'?1:0,played:0,skillsPlayed:0,attacks:0,attackPlays:0,nextAttackBonus:0,cannonGuardUsed:false,burned:false,marked:false,defended:false,log:['连接建立。先观察敌人的行动意图。'],feedback:[]};
+ r.battle={activity:emptyActivity(),startActivity:structuredClone(r.activity),selfCostThisTurn:false,countedKills:[],enemies:node.enemies.map((id,index)=>({uid:`${node.id}-e${index}`,id,hp:ENEMIES[id].hp,maxHp:ENEMIES[id].hp,block:0,burn:0,mark:0,strength:0,weakened:0,opening:true,stagger:0})),hand:[],draw:shuffle(r,r.deck),discard:[],exhaust:[],turn:1,enemyTurnIndex:null,energy:3+(r.relics.includes('battery')?1:0),block:r.relics.includes('armor')?3:0,sync:r.blessing==='bond'?2:0,syncThisTurn:0,burst:0,burstUsed:false,supportUsed:r.support==='default'&&r.supportSpent,strength:0,charge:r.form==='wargrowlmon'?1:0,played:0,skillsPlayed:0,attacks:0,attackPlays:0,nextAttackBonus:0,cannonGuardUsed:false,burned:false,marked:false,defended:false,log:['连接建立。先观察敌人的行动意图。'],feedback:[]};
  if(r.training==='defense'&&r.stage>0)r.battle.block+=3;
  if(r.bonuses.includes('holyward'))r.battle.block+=2;
  draw(r,5+(r.relics.includes('reader')?1:0)+(r.bonuses.includes('ritual')?1:0));r.screen='battle';
@@ -181,7 +181,7 @@ function runAction(state:Save,action:Action):Save{
  if(action.type==='node'){
   if(r.screen!=='map')return state;const n=availableNodes(r).find(x=>x.id===action.id);if(!n)return state;r.currentNode=n;r.message='';
   if(['battle','elite','boss'].includes(n.kind))beginBattle(r,n);
-  else{r.screen=n.kind as Run['screen'];if(n.kind==='evolution')r.evolutionReturn='node';if(n.kind==='shop'){r.shopStock=shuffle(r,cardPool(r)).slice(0,3);r.shopBought=[];r.shopRemoved=false;}if(n.kind==='treasure'){const id=awardRelic(r);r.message=id?`获得 ${RELICS[id].name}`:'获得 35 金币';}}
+  else{r.screen=n.kind as Run['screen'];if(n.kind==='evolution'){if(r.stage>=3)r.screen='rest';else r.evolutionReturn='node';}if(n.kind==='camp')r.supportSpent=false;if(n.kind==='shop'){r.shopStock=shuffle(r,cardPool(r)).slice(0,3);r.shopBought=[];r.shopRemoved=false;}if(n.kind==='treasure'){const id=awardRelic(r);r.message=id?`获得 ${RELICS[id].name}`:'获得 35 金币';}}
   return s;
  }
  if(action.type==='play'&&r.screen==='battle'&&r.battle?.enemyTurnIndex===null)playCard(r,meta,action.uid,action.target);
@@ -190,7 +190,7 @@ function runAction(state:Save,action:Action):Save{
  if(action.type==='enemyStep'&&r.screen==='battle')enemyStep(r,meta);
  if(action.type==='finishEnemyTurn'&&r.screen==='battle')finishEnemyTurn(r,meta);
  if(action.type==='potion'&&r.screen==='battle'&&r.battle?.enemyTurnIndex===null&&r.potions>0&&r.hp<r.maxHp){r.potions--;const before=r.hp;r.hp=Math.min(r.maxHp,r.hp+18);count(r,'heals');if(r.battle){r.battle.feedback.push({target:'player',kind:'heal',amount:r.hp-before});log(r.battle,`恢复磁盘 · 回复 ${r.hp-before} 生命`);}}
- if(action.type==='support'&&r.screen==='battle'&&r.battle&&r.battle.enemyTurnIndex===null&&!r.battle.supportUsed){const b=r.battle;const target=b.enemies.find(e=>e.uid===action.target&&e.hp>0)??b.enemies.find(e=>e.hp>0);b.supportUsed=true;const sup=r.support;
+ if(action.type==='support'&&r.screen==='battle'&&r.battle&&r.battle.enemyTurnIndex===null&&!r.battle.supportUsed){const b=r.battle;const target=b.enemies.find(e=>e.uid===action.target&&e.hp>0)??b.enemies.find(e=>e.hp>0);b.supportUsed=true;const sup=r.support;if(sup==='default')r.supportSpent=true;
   if(sup==='mushmon'&&target){target.weakened+=2;count(r,'weakens');}
   else if(sup==='picodevimon'&&target)hit(r,target,8,false);
   else if(sup==='hagurumon')b.block+=10;
@@ -206,6 +206,7 @@ function runAction(state:Save,action:Action):Save{
  if(action.type==='reward'&&r.screen==='reward'&&r.reward){if(action.card&&(!r.reward.cards.includes(action.card)||!CARDS[action.card]||!skillUnlocked(r,CARDS[action.card])))return state;if(action.card)r.deck.push(makeCard(r,action.card));afterReward(r,meta);}
  if(action.type==='continue'&&['treasure','shop'].includes(r.screen))finishNode(r);
  if(action.type==='camp'&&r.screen==='camp'){if(action.mode==='heal'){r.hp=Math.min(r.maxHp,r.hp+Math.ceil(r.maxHp*.3));finishNode(r);}else{const c=r.deck.find(x=>x.uid===action.uid&&!x.upgraded);if(c){c.upgraded=true;finishNode(r);}}}
+ if(action.type==='rest'&&r.screen==='rest'){r.hp=Math.min(r.maxHp,r.hp+Math.ceil(r.maxHp*.15));finishNode(r);}
  if(action.type==='buy'&&r.screen==='shop'&&!r.shopBought.includes(action.id)){
   if(r.shopStock.includes(action.id)&&r.gold>=45&&CARDS[action.id]&&skillUnlocked(r,CARDS[action.id])){r.gold-=45;r.deck.push(makeCard(r,action.id));r.shopBought.push(action.id);}
   else if(action.id==='potion'&&r.gold>=30&&r.potions<2){r.gold-=30;r.potions++;r.shopBought.push(action.id);}

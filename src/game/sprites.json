@@ -209,6 +209,11 @@
     "duration": 1000,
     "source": "assets/vendor/digimon-ds/original/mega/Beelzebumon.gif"
   },
+  "lopmon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/rookie/Lopmon.gif"
+  },
   "scout": {
     "frames": 4,
     "duration": 1000,

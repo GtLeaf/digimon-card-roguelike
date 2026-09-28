@@ -3,7 +3,7 @@ from PIL import Image,ImageDraw
 import json
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'assets/vendor/digimon-ds/original';OUT=ROOT/'public/sprites';OUT.mkdir(parents=True,exist_ok=True)
-names=['Gotsumon','Betamon','Monodramon','Clockmon','Seadramon','Gekomon','Devimon','SkullGreymon','Machinedramon','Terriermon','Galgomon','Rapidmon','BlackRapidmon','SaintGalgomon','BlackSaintGalgomon','BlackWarGrowlmon','ChaosDukemon','Guilmon','Growlmon','WarGrowlmon','Dukemon','Megidramon','Renamon','Kyubimon','Taomon','Sakuyamon','Kuzuhamon','Goblimon','Mushmon','Hagurumon','PicoDevimon','Bakemon','Impmon','Devidramon','Dokugumon','Sinduramon','Ogremon','Leomon','Andromon','IceDevimon','Vajramon','Beelzebumon']
+names=['Gotsumon','Betamon','Monodramon','Clockmon','Seadramon','Gekomon','Devimon','SkullGreymon','Machinedramon','Terriermon','Galgomon','Rapidmon','BlackRapidmon','SaintGalgomon','BlackSaintGalgomon','BlackWarGrowlmon','ChaosDukemon','Guilmon','Growlmon','WarGrowlmon','Dukemon','Megidramon','Renamon','Kyubimon','Taomon','Sakuyamon','Kuzuhamon','Goblimon','Mushmon','Hagurumon','PicoDevimon','Bakemon','Impmon','Devidramon','Dokugumon','Sinduramon','Ogremon','Leomon','Andromon','IceDevimon','Vajramon','Beelzebumon','Lopmon']
 meta={}
 for name in names:
  p=next(SOURCE.rglob(name+'.gif'));frames=[];dur=[]

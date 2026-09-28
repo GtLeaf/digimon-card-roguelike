@@ -14,12 +14,12 @@ function play(s:Save,i:number){return reduceGame(s,{type:'play',uid:`t${i}`});}
 function event(id:string){const s=start();s.run!.hp=40;s.run!.currentNode={id:'event-test',kind:'event',label:EVENTS[id].title,eventId:id,row:5,lane:0,enemies:[],next:[]};s.run!.screen='event';s.run!.row=5;return s;}
 
 describe('curated world generation',()=>{
- it('contains 30 distinct formations and nine complete new character assets',()=>{
+ it('contains 30 distinct formations and ten complete new character assets',()=>{
   expect(ENCOUNTERS).toHaveLength(30);
   for(let ch=0;ch<3;ch++){const set=ENCOUNTERS.filter(e=>e.chapter===ch);expect(set).toHaveLength(10);expect(new Set(set.map(e=>[...e.enemies].sort().join(','))).size).toBe(10);}
   for(const e of ENCOUNTERS){expect(e.enemies.length).toBeLessThanOrEqual(3);expect(e.enemies.every(id=>!!ENEMIES[id])).toBe(true);expect(e.enemies.filter(id=>['jam','spider'].includes(ENEMIES[id].style)||id==='clockmon').length).toBeLessThan(2);}
   const added=['gotsumon','betamon','monodramon','clockmon','seadramon','gekomon','devimon','skullgreymon','machinedramon'];
-  expect(Object.keys(ENEMIES)).toHaveLength(30);
+  expect(Object.keys(ENEMIES)).toHaveLength(31);
   for(const id of added){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
  });
  it('varies templates and bosses while every path can reach recovery and the finale',()=>{
@@ -59,8 +59,8 @@ describe('new enemy mechanics',()=>{
  it('new scanned enemies grant normal data and boss data once',()=>{for(const [id,kind,expected] of [['gotsumon','battle',50],['machinedramon','boss',100]] as const){let s=fight(id);s.run!.currentNode!.kind=kind;s.run!.battle!.enemies[0].hp=1;hand(s,['strike']);s=play(s,0);expect(s.meta.scans[id]).toBe(expected);expect(play(s,0).meta.scans[id]).toBe(expected);}});
 });
 
-describe('six events and persistence',()=>{
- it('all six events are reachable and have a free safe exit',()=>{expect(Object.keys(EVENTS)).toHaveLength(6);for(const id of Object.keys(EVENTS)){const s=event(id);s.run!.gold=0;const safe=EVENTS[id].choices.find(c=>c.id==='safe')!;expect(eventChoiceBlock(s.run!,safe)).toBe('');const next=reduceGame(s,{type:'event',choice:'safe'});expect(next.run!.screen).toBe('map');expect(next.run!.row).toBe(6);}});
+describe('seven events and persistence',()=>{
+ it('all seven events are reachable and have a free safe exit',()=>{expect(Object.keys(EVENTS)).toHaveLength(7);for(const id of Object.keys(EVENTS)){const s=event(id);s.run!.gold=0;const safe=EVENTS[id].choices.find(c=>c.id==='safe')!;expect(eventChoiceBlock(s.run!,safe)).toBe('');const next=reduceGame(s,{type:'event',choice:'safe'});expect(next.run!.screen).toBe('map');expect(next.run!.row).toBe(6);}});
  it('validates costs and exact card target atomically and blocks repeat rewards',()=>{let s=event('shelter');const before=structuredClone(s);expect(reduceGame(s,{type:'event',choice:'risk'})).toEqual(before);expect(reduceGame(s,{type:'event',choice:'risk',uid:'missing'})).toEqual(before);s.run!.gold=14;expect(reduceGame(s,{type:'event',choice:'risk',uid:s.run!.deck[0].uid})).toEqual(s);s=before;const uid=s.run!.deck[0].uid;s=reduceGame(s,{type:'event',choice:'risk',uid});expect(s.run!.gold).toBe(50);expect(s.run!.deck.some(c=>c.uid===uid)).toBe(false);expect(reduceGame(s,{type:'event',choice:'risk',uid})).toEqual(s);});
  it('does not remove below five cards or upgrade an already upgraded card',()=>{const s=event('shelter');s.run!.deck=s.run!.deck.slice(0,5);expect(reduceGame(s,{type:'event',choice:'risk',uid:s.run!.deck[0].uid})).toEqual(s);const lab=event('laboratory');lab.run!.deck[0].upgraded=true;expect(reduceGame(lab,{type:'event',choice:'risk',uid:lab.run!.deck[0].uid})).toEqual(lab);const good=reduceGame(lab,{type:'event',choice:'risk',uid:lab.run!.deck[1].uid});expect(good.run!.deck[1].upgraded).toBe(true);expect(good.run!.gold).toBe(40);});
  it('research unlocks persist without granting evolution behaviors',()=>{for(const choice of ['safe','risk'] as const){let s=event('research');s=reduceGame(s,{type:'event',choice});expect(s.meta.unlockedRoutes).toEqual(choice==='safe'?['mechanical','purification']:['chaos']);expect(s.run!.activity.counts).toEqual({});s=parseSave(JSON.stringify(s));s=reduceGame(s,{type:'abandon'});s=reduceGame(s,{type:'start',partner:'renamon',seed:123});expect(s.meta.unlockedRoutes.length).toBeGreaterThan(0);}});

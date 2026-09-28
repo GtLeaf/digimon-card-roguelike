@@ -177,7 +177,18 @@ function runAction(state:Save,action:Action):Save{
  if(action.type==='enemyStep'&&r.screen==='battle')enemyStep(r,meta);
  if(action.type==='finishEnemyTurn'&&r.screen==='battle')finishEnemyTurn(r,meta);
  if(action.type==='potion'&&r.screen==='battle'&&r.battle?.enemyTurnIndex===null&&r.potions>0&&r.hp<r.maxHp){r.potions--;const before=r.hp;r.hp=Math.min(r.maxHp,r.hp+18);count(r,'heals');if(r.battle){r.battle.feedback.push({target:'player',kind:'heal',amount:r.hp-before});log(r.battle,`恢复磁盘 · 回复 ${r.hp-before} 生命`);}}
- if(action.type==='support'&&r.screen==='battle'&&r.battle&&r.battle.enemyTurnIndex===null&&!r.battle.supportUsed){const b=r.battle;const target=b.enemies.find(e=>e.uid===action.target&&e.hp>0)??b.enemies.find(e=>e.hp>0);b.supportUsed=true;if(r.support==='mushmon'&&target){target.weakened+=2;count(r,'weakens');}else if(r.support==='picodevimon'&&target)hit(r,target,8,false);else b.block+=r.support==='hagurumon'?10:8;log(b,`${ENEMIES[r.support]?.name??'应急防御程序'} · 支援已抵达`);resolve(r,meta);}
+ if(action.type==='support'&&r.screen==='battle'&&r.battle&&r.battle.enemyTurnIndex===null&&!r.battle.supportUsed){const b=r.battle;const target=b.enemies.find(e=>e.uid===action.target&&e.hp>0)??b.enemies.find(e=>e.hp>0);b.supportUsed=true;const sup=r.support;
+  if(sup==='mushmon'&&target){target.weakened+=2;count(r,'weakens');}
+  else if(sup==='picodevimon'&&target)hit(r,target,8,false);
+  else if(sup==='hagurumon')b.block+=10;
+  else if(sup==='impmon'&&target)hit(r,target,target.hp*2<=target.maxHp?14:8,false);
+  else if(sup==='leomon'){for(const e of b.enemies)if(e.hp>0)e.weakened+=2;count(r,'weakens');}
+  else if(sup==='andromon')b.block+=12;
+  else if(sup==='gotsumon'){b.charge+=2;count(r,'charges');}
+  else if(sup==='betamon')draw(r,2);
+  else if(sup==='lopmon'){const f=b.hand.find(c=>CARDS[c.id].kind==='status');if(f){b.hand.splice(b.hand.indexOf(f),1);b.exhaust.push(f);}else{const before=r.hp;r.hp=Math.min(r.maxHp,r.hp+6);if(r.hp>before)count(r,'heals');}}
+  else b.block+=8;
+  log(b,`${ENEMIES[sup]?.name??'应急防御程序'} · 支援已抵达`);resolve(r,meta);}
  if(action.type==='burst'&&r.screen==='battle'&&r.battle&&r.battle.enemyTurnIndex===null&&r.branch){const b=r.battle;if(b.sync>=6&&!b.burstUsed){b.sync-=6;b.burstUsed=true;b.burst=3;const signature=makeCard(r,BRANCHES[r.branch].cards[0],true,true);if(b.hand.length<8)b.hand.push(signature);else b.draw.push(signature);log(b,'同步爆发！本回合起三回合攻击每段＋2，获得强化必杀牌。');}}
  if(action.type==='reward'&&r.screen==='reward'&&r.reward){if(action.card&&(!r.reward.cards.includes(action.card)||!CARDS[action.card]||!skillUnlocked(r,CARDS[action.card])))return state;if(action.card)r.deck.push(makeCard(r,action.card));afterReward(r,meta);}
  if(action.type==='continue'&&['treasure','shop'].includes(r.screen))finishNode(r);

@@ -1,7 +1,7 @@
 import { CARDS } from './data';
 import type { Meta, Run } from './types';
 
-interface EventEffect { hpCost?:number; goldCost?:number; heal?:number; gold?:number; card?:'upgrade'|'remove'; autoUpgrade?:boolean; potion?:boolean; training?:Run['training']; routes?:string[] }
+interface EventEffect { hpCost?:number; goldCost?:number; heal?:number; gold?:number; card?:'upgrade'|'remove'; autoUpgrade?:boolean; potion?:boolean; training?:Run['training']; routes?:string[]; partner?:string }
 export interface EventChoice { id:'risk'|'safe'; title:string; text:string; effect:EventEffect }
 export interface StoryEvent { id:string; title:string; story:string; hint:string; choices:EventChoice[] }
 export const EVENTS:Record<string,StoryEvent>={
@@ -29,6 +29,10 @@ export const EVENTS:Record<string,StoryEvent>={
   {id:'risk',title:'购买恢复磁盘',text:'支付20金币，获得1个恢复磁盘，最多携带2个。',effect:{goldCost:20,potion:true}},
   {id:'safe',title:'出售旧零件',text:'获得10金币。',effect:{gold:10}},
  ]},
+ rescue:{id:'rescue',title:'幼兽的求救',story:'废墟深处传来微弱的鸣叫：一只黑大耳兽被困在崩塌的数据碎片下，正警惕地望着你们。',hint:'获得支援伙伴 / 安全离开',choices:[
+  {id:'risk',title:'伸出援手',text:'失去6生命（最低保留1），黑大耳兽加入支援伙伴。',effect:{hpCost:6,partner:'lopmon'}},
+  {id:'safe',title:'留下食物后离开',text:'回复10生命。',effect:{heal:10}},
+ ]},
 };
 export const eventFor=(run:Run):StoryEvent|undefined=>run.currentNode?.eventId?EVENTS[run.currentNode.eventId]:undefined;
 export function eligibleEventCards(run:Run,choice:EventChoice){return run.deck.filter(c=>choice.effect.card==='upgrade'?!c.upgraded:true);}
@@ -53,6 +57,7 @@ export function applyEvent(run:Run,meta:Meta,choiceId:'risk'|'safe',uid?:string)
  if(e.autoUpgrade){const c=run.deck.find(c=>!c.upgraded&&c.id!=='guard');if(c)c.upgraded=true;}
  if(e.potion)run.potions++;
  if(e.training)run.training=e.training;
+ if(e.partner&&!meta.partners.includes(e.partner))meta.partners.push(e.partner);
  for(const route of e.routes??[])if(!meta.unlockedRoutes.includes(route))meta.unlockedRoutes.push(route);
  run.message=`${event!.title} · ${choice.title}：${choice.text}${card?`（${CARDS[card.id].name}）`:''}`;
  return true;

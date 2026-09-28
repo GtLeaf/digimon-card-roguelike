@@ -108,3 +108,68 @@ it('completes a different seed with the alternate second-chapter boss',()=>{
  expect(save.run!.nodes[15][0].enemies[0]).not.toBe(baselineBoss);
  expect(save.run!.branch).toBe('duke');
 });
+
+describe('support squad expansion',()=>{
+ const sup=(id:string)=>{const s=fight();s.run!.support=id;return s;};
+ it('impmon deals 8 to a healthy target and 14 to a wounded one',()=>{
+  let s=sup('impmon');const e=s.run!.battle!.enemies[0];e.block=0;
+  s=reduceGame(s,{type:'support',target:e.uid});
+  expect(s.run!.battle!.enemies[0].hp).toBe(e.maxHp-8);
+  let t=sup('impmon');const w=t.run!.battle!.enemies[0];w.block=0;w.hp=Math.floor(w.maxHp/2);
+  t=reduceGame(t,{type:'support',target:w.uid});
+  expect(t.run!.battle!.enemies[0].hp).toBe(0);
+ });
+ it('leomon weakens every living enemy and records the weaken count',()=>{
+  let s=sup('leomon');const b=s.run!.battle!;
+  b.enemies.push({...b.enemies[0],uid:'second-enemy',id:'goblimon',hp:30,maxHp:30,block:0});
+  s=reduceGame(s,{type:'support'});
+  expect(s.run!.battle!.enemies.every(e=>e.weakened>=2)).toBe(true);
+  expect(s.run!.battle!.activity.counts.weakens).toBe(1);
+ });
+ it('andromon grants 12 block and gotsumon grants 2 charge with a charge count',()=>{
+  let s=sup('andromon');s.run!.battle!.block=0;
+  s=reduceGame(s,{type:'support'});
+  expect(s.run!.battle!.block).toBe(12);
+  let t=sup('gotsumon');t.run!.battle!.charge=0;
+  t=reduceGame(t,{type:'support'});
+  expect(t.run!.battle!.charge).toBe(2);
+  expect(t.run!.battle!.activity.counts.charges).toBe(1);
+ });
+ it('betamon draws two cards from the draw pile',()=>{
+  let s=sup('betamon');hand(s,['strike']);const pile=s.run!.battle!.draw.length;
+  s=reduceGame(s,{type:'support'});
+  expect(s.run!.battle!.hand).toHaveLength(3);
+  expect(s.run!.battle!.draw).toHaveLength(pile-2);
+ });
+ it('lopmon purges one fault card, or heals 6 when the hand is clean',()=>{
+  let s=sup('lopmon');hand(s,['fault','strike']);
+  s=reduceGame(s,{type:'support'});
+  expect(s.run!.battle!.hand.map(c=>c.id)).toEqual(['strike']);
+  expect(s.run!.battle!.exhaust.map(c=>c.id)).toContain('fault');
+  let t=sup('lopmon');hand(t,['strike']);t.run!.hp=t.run!.maxHp-10;
+  t=reduceGame(t,{type:'support'});
+  expect(t.run!.hp).toBe(t.run!.maxHp-4);
+  expect(t.run!.battle!.activity.counts.heals).toBe(1);
+ });
+});
+describe('rescue event',()=>{
+ const withRescue=()=>{const s=start();s.run!.screen='event';s.run!.currentNode={id:'n-test',row:0,lane:0,kind:'event',label:'幼兽的求救',enemies:[],next:[],eventId:'rescue'};return s;};
+ it('risk choice recruits lopmon at a cost of 6 hp',()=>{
+  let s=withRescue();const hp=s.run!.hp;
+  s=reduceGame(s,{type:'event',choice:'risk'});
+  expect(s.meta.partners).toContain('lopmon');
+  expect(s.run!.hp).toBe(hp-6);
+  expect(s.run!.screen).toBe('map');
+ });
+ it('safe choice heals without recruiting lopmon',()=>{
+  let s=withRescue();s.run!.hp=20;
+  s=reduceGame(s,{type:'event',choice:'safe'});
+  expect(s.meta.partners).not.toContain('lopmon');
+  expect(s.run!.hp).toBe(30);
+ });
+ it('equips lopmon as support outside battle once recruited',()=>{
+  let s=withRescue();s.meta.partners=['lopmon'];
+  s=reduceGame(s,{type:'equip',id:'lopmon'});
+  expect(s.run!.support).toBe('lopmon');
+ });
+});

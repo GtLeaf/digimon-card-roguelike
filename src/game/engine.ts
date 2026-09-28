@@ -92,7 +92,7 @@ function playCard(r:Run,meta:Meta,uid:string,target?:string){
  if(tacticalBonus)b.nextAttackBonus=0;
  if(d.special==='sacrifice'){const before=r.hp;r.hp=Math.max(0,r.hp-3);b.feedback.push({target:'player',kind:'damage',amount:before-r.hp});count(r,'selfCosts');if(!b.selfCostThisTurn){if(r.form==='blackwargrowlmon')b.energy++;if(r.branch==='chaos')b.block+=6;b.selfCostThisTurn=true;}if(!r.hp){b.exhaust.push(c);resolve(r,meta);return;}}
  if(d.shield){count(r,'defenses');let shield=d.shield+up;if(!b.defended){if(r.blessing==='guard')shield+=3;if(r.branch==='duke')shield+=3;if(r.inherit==='ward'&&r.stage>0)shield+=2;if(['blackrapidmon','blacksaintgalgomon'].includes(r.form))b.charge++;b.defended=true;}b.block+=shield;}
- if(d.heal&&r.hp<r.maxHp){const before=r.hp;r.hp=Math.min(r.maxHp,r.hp+d.heal);b.feedback.push({target:'player',kind:'heal',amount:r.hp-before});count(r,'heals');}
+ if(d.heal&&r.hp<r.maxHp){const before=r.hp;r.hp=Math.min(r.maxHp,r.hp+d.heal+(c.upgraded&&d.upgradeText?2:0));b.feedback.push({target:'player',kind:'heal',amount:r.hp-before});count(r,'heals');}
  if(d.energy)b.energy+=d.energy+(c.upgraded&&d.upgradeText?1:0);if(d.strength)b.strength+=d.strength;if(d.charge){b.charge+=d.charge;count(r,'charges');}
  if(d.special==='copy'){const original=b.hand.find(x=>!x.copied&&CARDS[x.id].kind!=='status'&&CARDS[x.id].special!=='copy');if(original&&b.hand.length<8)b.hand.push({...makeCard(r,original.id,original.upgraded,true),copied:true});}
  if(d.special==='purge'){const faults=b.hand.filter(x=>CARDS[x.id].kind==='status');b.hand=b.hand.filter(x=>CARDS[x.id].kind!=='status');b.exhaust.push(...faults);}

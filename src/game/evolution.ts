@@ -23,7 +23,7 @@ export interface EvolutionDef {
 export const EVOLUTIONS: Record<string,EvolutionDef> = Object.fromEntries(([
  {id:'guilmon',partner:'guilmon',stage:0,parents:[],tag:'旅途起点',passive:'以火焰与勇气开启冒险。',cards:['fireball','rock'],groups:[],slot:1},
  {id:'growlmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'勇气之路',passive:'招牌牌强化；可选择进攻或守护训练。',cards:['fireball','rock'],groups:[],slot:0},
- {id:'blackgrowmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'暗炎之路',passive:'每回合首次施加灼烧额外＋1。',cards:['darkflame','bloodedge'],groups:[[{metric:'attacks',goal:8}],[{metric:'fire',goal:3}]],slot:2},
+ {id:'blackgrowmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'暗炎之路',passive:'每回合首次施加灼烧额外＋1。',cards:['darkflame','bloodedge'],groups:[[{metric:'selfCosts',goal:3}],[{metric:'attacks',goal:8},{metric:'fire',goal:3}]],slot:2},
  {id:'wargrowlmon',partner:'guilmon',stage:2,parents:['growlmon','blackgrowmon'],tag:'重炮与守护',passive:'每场开始获得 1 蓄能。',cards:['fireball','cannon'],groups:[],slot:0},
  {id:'blackwargrowlmon',partner:'guilmon',stage:2,parents:['blackgrowmon'],tag:'危险过载',passive:'每回合首次主动自损，获得 1 行动力。',cards:['darkflame','sacrifice'],groups:[[{metric:'attacks',goal:36}],[{metric:'selfCosts',goal:3},{metric:'fire',goal:12}]],slot:2},
  {id:'dukemon',partner:'guilmon',stage:3,parents:['wargrowlmon'],tag:'圣盾反击',passive:BRANCHES.duke.passive+' 主动防御满12次，进化时额外获得圣盾继承：每回合开始＋2护盾。',cards:BRANCHES.duke.cards,branch:'duke',groups:[],slot:0},

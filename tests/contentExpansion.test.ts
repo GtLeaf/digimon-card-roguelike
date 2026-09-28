@@ -14,15 +14,17 @@ function play(s:Save,i:number){return reduceGame(s,{type:'play',uid:`t${i}`});}
 function event(id:string){const s=start();s.run!.hp=40;s.run!.currentNode={id:'event-test',kind:'event',label:EVENTS[id].title,eventId:id,row:5,lane:0,enemies:[],next:[]};s.run!.screen='event';s.run!.row=5;return s;}
 
 describe('curated world generation',()=>{
- it('contains 50 distinct formations and four new digimon assets',()=>{
-  expect(ENCOUNTERS).toHaveLength(50);
-  for(let ch=0;ch<5;ch++){const set=ENCOUNTERS.filter(e=>e.chapter===ch);expect(set).toHaveLength(10);expect(new Set(set.map(e=>[...e.enemies].sort().join(','))).size).toBe(10);}
+ it('contains 54 distinct formations and fourteen new digimon assets',()=>{
+  expect(ENCOUNTERS).toHaveLength(54);
+  const counts=[10,10,12,12,10];
+  for(let ch=0;ch<5;ch++){const set=ENCOUNTERS.filter(e=>e.chapter===ch);expect(set).toHaveLength(counts[ch]);expect(new Set(set.map(e=>[...e.enemies].sort().join(','))).size).toBe(set.length);}
   for(const e of ENCOUNTERS){expect(e.enemies.length).toBeLessThanOrEqual(3);expect(e.enemies.every(id=>!!ENEMIES[id])).toBe(true);expect(e.enemies.filter(id=>['jam','spider'].includes(ENEMIES[id].style)||id==='clockmon').length).toBeLessThan(2);}
   expect(ENCOUNTERS.filter(e=>e.enemies.length===3).length).toBeGreaterThanOrEqual(4);
   const added=['gotsumon','betamon','monodramon','clockmon','seadramon','gekomon','devimon','skullgreymon','machinedramon'];
-  expect(Object.keys(ENEMIES)).toHaveLength(35);
+  expect(Object.keys(ENEMIES)).toHaveLength(45);
   for(const id of added){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
   for(const id of ['knightmon','phantomon','kuramon','diaboromon']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
+  for(const id of ['pawnchessmonblack','pawnchessmonwhite','knightchessmonblack','knightchessmonwhite','rookchessmon','bishopchessmon','keramon','chrysalimon','infermon','armageddemon']){expect(existsSync(`public/sprites/${id}.png`)).toBe(true);expect(existsSync(`public/sprites/${id}-sheet.png`)).toBe(true);}
  });
  it('varies templates across three-lane chapters while every path can reach recovery and the finale',()=>{
   const layouts=new Set<string>(),seen=new Set<string>();
@@ -42,7 +44,7 @@ describe('curated world generation',()=>{
    for(let row=0;row<49;row++){const next=new Set<string>();for(const id of frontier){const node=r.nodes[row].find(n=>n.id===id)!;expect(node.next.length).toBeGreaterThan(0);for(const target of node.next){expect(r.nodes[row+1].some(n=>n.id===target)).toBe(true);next.add(target);}}frontier=[...next];}
    expect(frontier).toEqual([r.nodes[49][0].id]);
   }
-  expect(layouts.size).toBeGreaterThan(3);expect(seen.size).toBe(50);
+  expect(layouts.size).toBeGreaterThan(3);expect(seen.size).toBe(ENCOUNTERS.length);
  });
  it('tutorial repeats only until the initial gear scan is completed',()=>{const first=start();expect(first.run!.nodes.slice(0,2).map(row=>row[0].encounterId)).toEqual(['tutorial-0','tutorial-1']);const s=emptySave();s.meta.scans.hagurumon=100;const repeat=reduceGame(s,{type:'start',partner:'guilmon',seed:42});expect(repeat.run!.nodes.flat().some(n=>n.encounterId?.startsWith('tutorial'))).toBe(false);});
  it('save reload never regenerates the chosen formations, boss or event',()=>{let s=start();const before=structuredClone(s.run!.nodes);s=parseSave(JSON.stringify(s));expect(s.run!.nodes).toEqual(before);expect(makeRun('guilmon',42)).toEqual(makeRun('guilmon',42));});
@@ -141,5 +143,23 @@ describe('summon, guard, enrage and on-death mechanics',()=>{
   b.turn=4;expect(intent(s.run!,b.enemies[0]).damage).toBe(24);
   b.enemies.push({...b.enemies[0],uid:'add',id:'replica',hp:48,maxHp:48});
   expect(intent(s.run!,b.enemies[0]).damage).toBe(28);
+ });
+ it('chess and virus line enemies always expose a defined intent',()=>{
+  for(const id of ['pawnchessmonblack','pawnchessmonwhite','knightchessmonblack','knightchessmonwhite','rookchessmon','bishopchessmon','keramon','chrysalimon','infermon','armageddemon']){
+   const s=fight(id);const b=s.run!.battle!;
+   for(let t=1;t<=3;t++){b.turn=t;const plan=intent(s.run!,b.enemies[0]);expect(plan,`${id} turn ${t}`).toBeTruthy();expect(plan.name).not.toBe('');}
+  }
+ });
+ it('rookchessmon guards allies like knightmon and bishop heals the most injured',()=>{
+  let s=fight('rookchessmon');const b=s.run!.battle!;
+  b.enemies.push({...b.enemies[0],uid:'ally',id:'goblimon',hp:30,maxHp:30});
+  hand(s,['strike']);
+  s=reduceGame(s,{type:'play',uid:'t0',target:'ally'});
+  expect(s.run!.battle!.enemies[0].hp).toBe(85-7);
+  expect(s.run!.battle!.enemies[1].hp).toBe(30);
+  const s2=fight('bishopchessmon');const b2=s2.run!.battle!;
+  b2.turn=2;b2.enemies.push({...b2.enemies[0],uid:'hurt',id:'goblimon',hp:10,maxHp:30});
+  const healed=reduceGame(s2,{type:'endTurn'});
+  expect(healed.run!.battle!.enemies[1].hp).toBe(20);
  });
 });

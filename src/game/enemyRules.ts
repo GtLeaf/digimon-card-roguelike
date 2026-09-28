@@ -31,6 +31,13 @@ export function expandedIntent(run:Run,enemy:Enemy):Intent|undefined {
    if(phase===0)return canSummon?{...pause('集群增殖','buff','召唤1只库拉蒙（场上最多3个敌人，最多召唤2次）；库拉蒙被击败时自爆。优先清场可阻止召唤。'),summon:['kuramon']}:pause('数据屏障','block','场地已满或召唤次数用尽：改为获得12护盾。',12);
    return phase===1?attack('灾祸巨炮',13+ch):attack('失乐园',8+ch,2,'两段咆哮；召唤间隙是输出窗口。');
   }
+  case 'knightchessmonblack':return phase===1?pause('迂回走位','buff','下一回合发动两段飞跃刺击。'):attack(phase===2?'飞跃刺击':'马棋突刺',phase===2?9+ch:5+ch,2,'每三回合迂回一次，随后刺击加重。');
+  case 'knightchessmonwhite':return phase===0?pause('掩护阵型','block','获得8护盾，维持阵线。',8):attack('马棋枪击',6+ch,1,'白棋稳扎稳打，先守后攻。');
+  case 'rookchessmon':return phase===0?pause('城塞壁垒','block','获得14护盾。护卫同伴：存活时，同伴受到的指定目标攻击由它承受。',14):attack(phase===2?'城堡滚压':'城堡冲撞',phase===2?6+ch:9+ch,phase===2?2:1,'护卫同伴：存活时，同伴受到的指定目标攻击由它承受。');
+  case 'bishopchessmon':return phase===0?{...pause('魔法阵展开','buff','所有存活同伴攻击伤害＋1；下回合治疗受伤最多的同伴。'),strength:1}:phase===1?{...pause('治愈魔导','heal','为缺失生命最多的存活同伴回复10生命，不复活已击败单位。'),heal:10}:attack('魔导光弹',7+ch);
+  case 'chrysalimon':return phase===0?pause('蛹壳硬化','block','获得12护盾，蜷缩蓄势。',12):attack(phase===2?'触手狂舞':'触手鞭打',phase===2?4+ch:6+ch,phase===2?2:1,'硬化后下一回合触手连击。');
+  case 'infermon':return phase===0?{...pause('病毒侵蚀','debuff','向弃牌堆加入1张故障牌；行动前击败它可避免本次侵蚀。'),jam:1}:phase===1?attack('地狱业火',12+ch):attack('疯狂乱抓',5+ch,2,'侵蚀、重击、乱抓循环。');
+  case 'armageddemon':return phase===0?pause('暗黑领域','block','获得10护盾，领域展开时无法被打断。',10):phase===1?attack('全力破坏',15+ch):attack('灭世咆哮',8+ch,2,'领域、破坏、咆哮三段循环。');
   case 'vajramon':{const bonus=Math.min(3,enemy.effectiveAttacks??0)*3;return phase===1?pause('防御架势','block','获得14护盾；蓄力观察你的攻势。',14):attack('连续斩击',6+ch+bonus,2,`反击蓄能：本回合你的攻击牌每命中生命一次，斩击伤害＋3（当前＋${bonus}，至多＋9）。`);}
   case 'core':{
    const cycle=(turn-1)%4;

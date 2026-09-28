@@ -87,6 +87,11 @@ export const ENEMIES:Record<string,EnemyDef>=Object.fromEntries([
  {id:'phantomon',name:'幻影兽',art:'phantomon',hp:46,style:'expanded' as const,scan:true},
  {id:'kuramon',name:'库拉蒙',art:'kuramon',hp:18,style:'expanded' as const,scan:true,onDeath:'explode' as const},
  {id:'diaboromon',name:'超恶魔兽',art:'diaboromon',hp:168,style:'expanded' as const,scan:false},
+ enemy('pawnchessmonblack','兵棋兽（黑）',30,'charge'),enemy('pawnchessmonwhite','兵棋兽（白）',30,'shield'),enemy('knightchessmonblack','马棋兽（黑）',40,'expanded'),enemy('knightchessmonwhite','马棋兽（白）',40,'expanded'),enemy('keramon','哈哈兽',34,'jam','数据啃噬：目标下次攻击每段伤害－2。'),enemy('chrysalimon','虫蛹兽',48,'expanded'),
+ {id:'rookchessmon',name:'车棋兽',art:'rookchessmon',hp:85,style:'expanded' as const,scan:true,guard:true},
+ {id:'bishopchessmon',name:'相棋兽',art:'bishopchessmon',hp:75,style:'expanded' as const,scan:true},
+ {id:'infermon',name:'地狱兽',art:'infermon',hp:88,style:'expanded' as const,scan:true},
+ {id:'armageddemon',name:'灭世魔兽',art:'armageddemon',hp:110,style:'expanded' as const,scan:true},
  {id:'lopmon',name:'黑大耳兽',art:'lopmon',hp:1,style:'rapid' as const,scan:false,support:'安慰之光：清除手牌中 1 张故障牌；没有故障牌时回复 6 生命。'},
  ...['scout','replica','corrupt','sentinel','devourer','core'].map((id,i):EnemyDef=>({id,name:['侦察代理体','复制代理体','侵蚀代理体','护卫代理体','吞噬代理体','帝厉魔核心'][i],art:id,hp:[46,48,50,90,95,190][i],style:(['rapid','buff','jam','shield','spider','core'] as const)[i],scan:false}))
 ].map(e=>[e.id,e]));

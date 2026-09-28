@@ -12,7 +12,7 @@ const layouts:NodeKind[][][]=[
  [['battle','battle','battle'],['battle','event','battle'],['battle','shop','elite'],['treasure','battle','battle'],['evolution'],['battle','event','camp'],['elite','shop','battle'],['treasure'],['camp'],['boss']],
 ];
 const BOSSES=['sinduramon','beelzebumon','machinedramon','diaboromon','core'];
-const ELITES=[['devidramon','dokugumon','devimon'],['icedevimon','vajramon','skullgreymon'],['sentinel','vajramon','skullgreymon'],['devimon','icedevimon','devourer'],['sentinel','devourer','skullgreymon']];
+const ELITES=[['devidramon','dokugumon','devimon'],['icedevimon','vajramon','skullgreymon'],['rookchessmon','bishopchessmon','vajramon','skullgreymon'],['devimon','icedevimon','infermon'],['sentinel','devourer','armageddemon']];
 export function generateWorld(random:()=>number,tutorial:boolean):MapNode[][] {
  const usedEvents=new Set<string>(),nodes:MapNode[][]=[];
  const pick=<T,>(items:T[])=>items[Math.floor(random()*items.length)];

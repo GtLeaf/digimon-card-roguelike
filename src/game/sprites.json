@@ -234,6 +234,56 @@
     "duration": 880,
     "source": "assets/vendor/digimon-ds/original/mega/Diaboromon.gif"
   },
+  "pawnchessmonblack": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/PawnChessmonBlack.gif"
+  },
+  "pawnchessmonwhite": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/PawnChessmonWhite.gif"
+  },
+  "knightchessmonblack": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/champion/KnightChessmonBlack.gif"
+  },
+  "knightchessmonwhite": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/champion/KnightChessmonWhite.gif"
+  },
+  "rookchessmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/RookChessmon.gif"
+  },
+  "bishopchessmon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/ultimate/BishopChessmon.gif"
+  },
+  "keramon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/rookie/Keramon.gif"
+  },
+  "chrysalimon": {
+    "frames": 4,
+    "duration": 1000,
+    "source": "assets/vendor/digimon-ds/original/champion/Chrysalimon.gif"
+  },
+  "infermon": {
+    "frames": 4,
+    "duration": 700,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Infermon.gif"
+  },
+  "armageddemon": {
+    "frames": 4,
+    "duration": 800,
+    "source": "assets/vendor/digimon-ds/original/mega/Armageddemon.gif"
+  },
   "scout": {
     "frames": 4,
     "duration": 1000,

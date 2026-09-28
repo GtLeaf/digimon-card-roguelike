@@ -2,7 +2,7 @@ import { describe,expect,it } from 'vitest';
 import { emptySave, makeRun, reduceGame, intent, cardCost } from '../src/game/engine';
 import { availableNodes } from '../src/game/map';
 import { evolutionStatus, nextEvolutions } from '../src/game/evolution';
-import { CARDS, BRANCHES } from '../src/game/data';
+import { CARDS, BRANCHES, cardText } from '../src/game/data';
 import { parseSave } from '../src/game/storage';
 import type { Save, Partner, Branch, Action } from '../src/game/types';
 function start(partner:Partner='guilmon',seed=42){let s=reduceGame(emptySave(),{type:'start',partner,seed});s=reduceGame(s,{type:'bless',id:'guard'});return s;}
@@ -171,5 +171,44 @@ describe('rescue event',()=>{
   let s=withRescue();s.meta.partners=['lopmon'];
   s=reduceGame(s,{type:'equip',id:'lopmon'});
   expect(s.run!.support).toBe('lopmon');
+ });
+});
+
+describe('zero-cost card upgrades',()=>{
+ const upgradedHand=(s:Save,id:string)=>{hand(s,[id]);s.run!.battle!.hand[0].upgraded=true;return s;};
+ it('upgraded battery grants 2 energy instead of 1',()=>{
+  let s=upgradedHand(fight(),'battery');
+  s=reduceGame(s,{type:'play',uid:'test0'});
+  expect(s.run!.battle!.energy).toBe(7);
+  let t=fight();hand(t,['battery']);
+  t=reduceGame(t,{type:'play',uid:'test0'});
+  expect(t.run!.battle!.energy).toBe(6);
+ });
+ it('upgraded haste draws two and insight draws three',()=>{
+  let s=upgradedHand(fight(),'haste');
+  s=reduceGame(s,{type:'play',uid:'test0'});
+  expect(s.run!.battle!.hand).toHaveLength(2);
+  let t=upgradedHand(fight(),'insight');
+  t=reduceGame(t,{type:'play',uid:'test0'});
+  expect(t.run!.battle!.hand).toHaveLength(3);
+ });
+ it('upgraded sacrifice keeps the self cost but grants 2 energy and draws 2',()=>{
+  let s=upgradedHand(fight(),'sacrifice');const hp=s.run!.hp;
+  s=reduceGame(s,{type:'play',uid:'test0'});
+  expect(s.run!.hp).toBe(hp-3);
+  expect(s.run!.battle!.energy).toBe(7);
+  expect(s.run!.battle!.hand).toHaveLength(2);
+ });
+ it('upgraded purge still clears faults and draws two',()=>{
+  let s=upgradedHand(fight(),'purge');hand(s,['fault','purge']);s.run!.battle!.hand[1].upgraded=true;
+  s=reduceGame(s,{type:'play',uid:'test1'});
+  expect(s.run!.battle!.hand.map(c=>c.id)).not.toContain('fault');
+  expect(s.run!.battle!.exhaust.map(c=>c.id)).toContain('fault');
+  expect(s.run!.battle!.hand).toHaveLength(2);
+ });
+ it('cardText shows the upgraded effect instead of an empty cost reduction',()=>{
+  expect(cardText({id:'battery',upgraded:true})).toBe('获得 2 点行动力。耗竭。');
+  expect(cardText({id:'battery',upgraded:false})).toBe('获得 1 点行动力。耗竭。');
+  expect(cardText({id:'haste',upgraded:true})).toBe('抽 2 张牌。耗竭。');
  });
 });

@@ -93,7 +93,7 @@ function playCard(r:Run,meta:Meta,uid:string,target?:string){
  if(d.special==='sacrifice'){const before=r.hp;r.hp=Math.max(0,r.hp-3);b.feedback.push({target:'player',kind:'damage',amount:before-r.hp});count(r,'selfCosts');if(!b.selfCostThisTurn){if(r.form==='blackwargrowlmon')b.energy++;if(r.branch==='chaos')b.block+=6;b.selfCostThisTurn=true;}if(!r.hp){b.exhaust.push(c);resolve(r,meta);return;}}
  if(d.shield){count(r,'defenses');let shield=d.shield+up;if(!b.defended){if(r.blessing==='guard')shield+=3;if(r.branch==='duke')shield+=3;if(r.inherit==='ward'&&r.stage>0)shield+=2;if(['blackrapidmon','blacksaintgalgomon'].includes(r.form))b.charge++;b.defended=true;}b.block+=shield;}
  if(d.heal&&r.hp<r.maxHp){const before=r.hp;r.hp=Math.min(r.maxHp,r.hp+d.heal);b.feedback.push({target:'player',kind:'heal',amount:r.hp-before});count(r,'heals');}
- if(d.energy)b.energy+=d.energy;if(d.strength)b.strength+=d.strength;if(d.charge){b.charge+=d.charge;count(r,'charges');}
+ if(d.energy)b.energy+=d.energy+(c.upgraded&&d.upgradeText?1:0);if(d.strength)b.strength+=d.strength;if(d.charge){b.charge+=d.charge;count(r,'charges');}
  if(d.special==='copy'){const original=b.hand.find(x=>!x.copied&&CARDS[x.id].kind!=='status'&&CARDS[x.id].special!=='copy');if(original&&b.hand.length<8)b.hand.push({...makeCard(r,original.id,original.upgraded,true),copied:true});}
  if(d.special==='purge'){const faults=b.hand.filter(x=>CARDS[x.id].kind==='status');b.hand=b.hand.filter(x=>CARDS[x.id].kind!=='status');b.exhaust.push(...faults);}
  let bonus=b.charge>0?(d.chargedDamage??0):0;if(d.special==='shieldhit')bonus+=Math.floor(b.block/2);if(d.special==='cannon'){if(b.charge>0){count(r,'cannonShots');if(r.form==='blacksaintgalgomon'&&!b.cannonGuardUsed){b.block+=6;b.cannonGuardUsed=true;}}bonus+=b.charge*(d.chargeMultiplier??4);b.charge=0;}
@@ -116,7 +116,7 @@ function playCard(r:Run,meta:Meta,uid:string,target?:string){
  if(r.branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power')&&b.skillsPlayed===2){const e=b.enemies.find(x=>x.hp>0);if(e)hit(r,e,4,false);log(b,'管狐追击 · 4 伤害');}
  if(firstDefense&&r.form==='blackgalgomon')b.nextAttackBonus=2;
  if(d.kind==='attack'&&b.attackPlays===2){if(['galgomon','saintgalgomon'].includes(r.form))b.charge++;if(['rapidmon','saintgalgomon'].includes(r.form))draw(r,1);}
- if(d.draw)draw(r,d.draw);
+ if(d.draw)draw(r,d.draw+(c.upgraded&&d.upgradeText?1:0));
  if(r.inherit==='flow'&&r.stage>0&&b.played===1&&d.kind==='skill')b.block+=2;
  if(d.exhaust||c.copied||c.temporary)b.exhaust.push(c);else b.discard.push(c);
  resolve(r,meta);

@@ -3,12 +3,12 @@ const card = (id: string,name: string,cost: number,kind: CardDef['kind'],family:
 export const CARDS:Record<string,CardDef> = Object.fromEntries([
  card('strike','攻击指令',1,'attack','common','造成 7 点伤害。','guilmon',{damage:7}),
  card('guard','防御插件',1,'skill','common','获得 7 点护盾。','hagurumon',{shield:7}),
- card('haste','高速插件',0,'skill','common','抽 1 张牌。耗竭。','picodevimon',{draw:1,exhaust:true}),
+ card('haste','高速插件',0,'skill','common','抽 1 张牌。耗竭。','picodevimon',{draw:1,exhaust:true,upgradeText:'抽 2 张牌。耗竭。'}),
  card('fortify','防护屏障',2,'skill','common','获得 17 点护盾。','andromon',{shield:17}),
  card('mend','数据修复',1,'skill','common','回复 5 点生命。耗竭。','mushmon',{heal:5,exhaust:true}),
- card('battery','能量装填',0,'skill','common','获得 1 点行动力。耗竭。','hagurumon',{energy:1,exhaust:true}),
+ card('battery','能量装填',0,'skill','common','获得 1 点行动力。耗竭。','hagurumon',{energy:1,exhaust:true,upgradeText:'获得 2 点行动力。耗竭。'}),
  card('study','紧急分析',1,'skill','common','抽 2 张牌。','renamon',{draw:2}),
- card('purge','净化程序',0,'skill','common','清除手牌中的故障牌，抽 1 张。耗竭。','taomon',{special:'purge',draw:1,exhaust:true}),
+ card('purge','净化程序',0,'skill','common','清除手牌中的故障牌，抽 1 张。耗竭。','taomon',{special:'purge',draw:1,exhaust:true,upgradeText:'清除手牌中的故障牌，抽 2 张。耗竭。'}),
  card('brace','战术整备',1,'skill','common','获得 5 护盾，抽 1 张牌。','leomon',{shield:5,draw:1}),
  card('shieldbash','盾击',1,'attack','common','造成 4 ＋当前护盾一半的伤害。','dukemon',{damage:4,special:'shieldhit'}),
  card('charge','蓄能指令',1,'power','common','获得 2 蓄能，获得 4 护盾。','andromon',{charge:2,shield:4}),
@@ -20,7 +20,7 @@ export const CARDS:Record<string,CardDef> = Object.fromEntries([
  card('doublecut','双刃斩',1,'attack','guilmon','造成 5×2 段伤害。','growlmon',{damage:5,hits:2}),
  card('roar','勇气咆哮',1,'power','guilmon','本场攻击每段伤害＋2。耗竭。','guilmon',{strength:2,exhaust:true}),
  card('heatwave','热浪',1,'attack','guilmon','对所有敌人造成 3 伤害，施加 2 灼烧。','growlmon',{damage:3,burn:2,all:true}),
- card('sacrifice','危险过载',0,'skill','guilmon','失去 3 生命，获得 1 行动力，抽 1 张牌。耗竭。','blackwargrowlmon',{special:'sacrifice',energy:1,draw:1,exhaust:true}),
+ card('sacrifice','危险过载',0,'skill','guilmon','失去 3 生命，获得 1 行动力，抽 1 张牌。耗竭。','blackwargrowlmon',{special:'sacrifice',energy:1,draw:1,exhaust:true,upgradeText:'失去 3 生命，获得 2 行动力，抽 2 张牌。耗竭。'}),
  card('flare','余烬护甲',1,'skill','guilmon','获得 8 护盾，对所有敌人施加 1 灼烧。','wargrowlmon',{shield:8,burn:1,all:true}),
  card('leaf','狐叶楔',1,'attack','renamon','造成 3×2 段伤害，施加 1 符印。','renamon',{damage:3,hits:2,mark:1}),
  card('illusion','狐变虚',1,'skill','renamon','复制手中最左侧非复制、非故障牌；复制牌耗竭。','renamon',{special:'copy'}),
@@ -28,7 +28,7 @@ export const CARDS:Record<string,CardDef> = Object.fromEntries([
  card('seal','解印',1,'attack','renamon','造成 5 伤害；消耗符印，每层额外 5 伤害。','renamon',{damage:5,special:'markburst'}),
  card('spirit','狐火',1,'attack','renamon','造成 7 伤害，施加 1 灼烧和 1 符印。','kyubimon',{damage:7,burn:1,mark:1}),
  card('barrier','金刚结界',1,'skill','renamon','获得 10 护盾。','taomon',{shield:10}),
- card('insight','灵视',0,'skill','renamon','抽 2 张牌。耗竭。','renamon',{draw:2,exhaust:true}),
+ card('insight','灵视',0,'skill','renamon','抽 2 张牌。耗竭。','renamon',{draw:2,exhaust:true,upgradeText:'抽 3 张牌。耗竭。'}),
  card('cyclone','狐炎龙',2,'attack','renamon','对所有敌人造成 11 伤害，施加 1 符印。','kyubimon',{damage:11,mark:1,all:true}),
  card('ritual','阴阳术',1,'power','renamon','本场攻击每段伤害＋1，抽 1 张牌。耗竭。','taomon',{strength:1,draw:1,exhaust:true}),
  card('royal','皇家枪击',2,'attack','duke','造成 22 伤害，获得 8 护盾。','dukemon',{damage:22,shield:8}),
@@ -93,6 +93,7 @@ export const PORTRAIT_FORMS=['blackgrowmon','youkomon','doumon','blackgalgomon']
 export const asset=(id:string)=>`${import.meta.env.BASE_URL}${PORTRAIT_FORMS.includes(id)?'portraits/'+id+'.jpg':'sprites/'+id+'.png'}`;
 export const cardText=(c:{id:string;upgraded:boolean})=>{
  const d=CARDS[c.id];if(!c.upgraded)return d.text;
+ if(d.upgradeText)return d.upgradeText;
  let text=d.text;if(d.damage)text=text.replace(/造成 \d+/,`造成 ${d.damage+(d.upgradeDamage??3)}`);
  if(d.shield)text=text.replace(/获得 \d+ (?:点)?护盾/,`获得 ${d.shield+3} 护盾`);
  if(!d.damage&&!d.shield)text+=` 强化：费用 ${d.cost}→${Math.max(0,d.cost-1)}。`;

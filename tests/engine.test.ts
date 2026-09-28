@@ -81,7 +81,7 @@ describe('progress, scanning and evolution',()=>{
 export function autoplay(partner:Partner,branch:Branch,seed:number){
  let s=emptySave();if(partner==='impmon')s.meta.scans.beelzebumon=100;
  s=reduceGame(s,{type:'start',partner,seed});s=reduceGame(s,{type:'bless',id:'guard'});let steps=0;
- const favs:string[]=partner==='impmon'?['deathCannon','twinClaw','gustCannon','bloodFeast','venomFog','shiningWing','darkDisaster','despairHowl','soulHarvest','nightfire','bloodClaw','thousandCuts','lureDance','frostSorcery','batSwarm','mend','fortify','magicShield','grandFinale','brace','taunt','nightmareWave']:partner==='guilmon'?(branch==='chaos'?['sacrifice','mend','bloodedge','brace','roar','fireball']:branch==='megidra'?['ignite','fireball','heatwave','flare','roar','brace','mend']:['roar','fireball','brace','fortify','doublecut','inferno','mend']):(branch==='kuzuha'?['barrier','brace','talisman','ritual','mend','insight','leaf']:['leaf','seal','barrier','brace','ritual','fortify','mend']);
+ const favs:string[]=partner==='impmon'?['deathCannon','twinClaw','gustCannon','bloodFeast','venomFog','shiningWing','darkDisaster','despairHowl','soulHarvest','devourTrick','devourFeast','nightfire','bloodClaw','thousandCuts','lureDance','frostSorcery','batSwarm','mend','fortify','magicShield','grandFinale','brace','taunt','nightmareWave']:partner==='guilmon'?(branch==='chaos'?['sacrifice','mend','bloodedge','brace','roar','fireball']:branch==='megidra'?['ignite','fireball','heatwave','flare','roar','brace','mend']:['roar','fireball','brace','fortify','doublecut','inferno','mend']):(branch==='kuzuha'?['barrier','brace','talisman','ritual','mend','insight','leaf']:['leaf','seal','barrier','brace','ritual','fortify','mend']);
  while(s.run!.screen!=='result'&&steps++<2000){
   const r=s.run!;let action:Action;
   switch(r.screen){
@@ -93,7 +93,7 @@ export function autoplay(partner:Partner,branch:Branch,seed:number){
     if(r.branch&&b.sync>=6&&!b.burstUsed){action={type:'burst'};break;}
     const incoming=b.enemies.filter(e=>e.hp>0).reduce((n,e)=>{const i=intent(r,e);return n+i.damage*i.hits;},0);
     const candidates=b.hand.filter(c=>cardCost(c)<=b.energy);
-    const score=(c:typeof candidates[number])=>{const d=CARDS[c.id];let score=(d.damage??0)*(d.hits??1)+(d.burn??0)*2+(d.mark??0)+(d.weak??0)*3+(d.devour??0)*6+(d.heal??0)*2+(d.draw??0)*2+(d.strength??0)*7+(d.energy??0)*10;if(d.shield)score+=Math.min(d.shield+ (c.upgraded?3:0),Math.max(0,incoming-b.block))*1.7;if(d.special==='detonate')score+=target.burn*(branch==='megidra'?6:3);if(branch==='megidra'&&d.burn&&!target.burn)score+=12;if(d.special==='markburst')score+=target.mark*5;if(d.special==='devour')score+=b.devour*((d.devourPower??4)+(branch==='belial'?2:0));if(partner==='impmon'&&d.weak)score+=2;if(d.special==='copy')score=1;if(branch==='megidra'&&d.burn)score+=10;if(branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power'))score+=4;if(d.all)score*=b.enemies.filter(e=>e.hp>0).length;if(d.special==='sacrifice')score-=8;if(branch==='chaos'){if(r.stage===0&&d.burn)score+=10;if(d.special==='sacrifice'&&r.hp>15)score+=15;if(d.heal&&r.hp<r.maxHp)score+=15;}return score;};
+    const score=(c:typeof candidates[number])=>{const d=CARDS[c.id];let score=(d.damage??0)*(d.hits??1)+(d.burn??0)*2+(d.mark??0)+(d.weak??0)*3+(d.devour??0)*6+(d.heal??0)*2+(d.draw??0)*2+(d.strength??0)*7+(d.energy??0)*10;if(d.shield)score+=Math.min(d.shield+ (c.upgraded?3:0),Math.max(0,incoming-b.block))*1.7;const layers=Math.min(b.devour,3);if(d.special==='devour')score+=layers*((d.devourPower??4)+(branch==='belial'?2:0));if(d.devourShield)score+=layers*d.devourShield*1.7;if(d.devourWeak)score+=layers*d.devourWeak*3;if(d.devourHeal)score+=layers*d.devourHeal*(r.hp<r.maxHp*.7?2:0);if(d.special==='detonate')score+=target.burn*(branch==='megidra'?6:3);if(branch==='megidra'&&d.burn&&!target.burn)score+=12;if(d.special==='markburst')score+=target.mark*5;if(partner==='impmon'&&d.weak)score+=2;if(d.special==='copy')score=1;if(branch==='megidra'&&d.burn)score+=10;if(branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power'))score+=4;if(d.all)score*=b.enemies.filter(e=>e.hp>0).length;if(d.special==='sacrifice')score-=8;if(branch==='chaos'){if(r.stage===0&&d.burn)score+=10;if(d.special==='sacrifice'&&r.hp>15)score+=15;if(d.heal&&r.hp<r.maxHp)score+=15;}return score;};
     candidates.sort((a,b)=>score(b)-score(a));const c=candidates[0];action=c?{type:'play',uid:c.uid,target:target.uid}:{type:'endTurn'};break;
    }
    case 'reward':{const pool=r.reward!.cards;const fav=favs;const pick=fav.find(id=>pool.includes(id));action={type:'reward',card:pick};break;}
@@ -238,26 +238,58 @@ describe('impmon partner line',()=>{
   const s=impStart();
   expect(s.run!.partner).toBe('impmon');
   expect(s.run!.hp).toBe(84);
-  expect(s.run!.deck.map(c=>c.id)).toEqual(['strike','strike','strike','guard','guard','guard','nightfire','nightfire','taunt','prank']);
+  expect(s.run!.deck.map(c=>c.id)).toEqual(['strike','strike','guard','guard','guard','nightfire','nightfire','taunt','prank','devourTrick']);
  });
- it('gains 2 devour per kill, plus 1 more with devour aura',()=>{
+ it('devour comes from kills, life damage and a per-turn floor',()=>{
   let s=impFight();hand(s,['strike']);s.run!.battle!.enemies.forEach(e=>e.hp=1);
   s=reduceGame(s,{type:'play',uid:'test0'});
-  expect(s.run!.screen).toBe('reward');expect(s.run!.battle!.devour).toBe(2);
+  expect(s.run!.screen).toBe('reward');expect(s.run!.battle!.devour).toBe(1);
   expect(s.run!.activity.counts.kills).toBe(1);
   let t=impFight();hand(t,['devourAura','strike']);t.run!.battle!.enemies.forEach(e=>e.hp=1);
   t=reduceGame(t,{type:'play',uid:'test0'});
   expect(t.run!.battle!.devourAura).toBe(true);
   t=reduceGame(t,{type:'play',uid:'test1'});
-  expect(t.run!.battle!.devour).toBe(3);
+  expect(t.run!.battle!.devour).toBe(2);
+  let u=impFight();hand(u,['strike','strike']);u.run!.battle!.enemies[0].block=0;
+  u=reduceGame(u,{type:'play',uid:'test0'});
+  expect(u.run!.battle!.devour).toBe(1);
+  u=reduceGame(u,{type:'play',uid:'test1'});
+  expect(u.run!.battle!.devour).toBe(2);
+  expect(u.run!.battle!.devourPool).toBe(4);
+  u=reduceGame(u,{type:'endTurn'});
+  expect(u.run!.battle!.devour).toBe(3);
+  expect(u.run!.battle!.devourPool).toBe(0);
  });
- it('death cannon consumes all devour for bonus damage',()=>{
+ it('death cannon consumes up to three devour layers for bonus damage',()=>{
   let s=impFight();hand(s,['deathCannon']);const e=s.run!.battle!.enemies[0];e.block=0;s.run!.battle!.devour=3;
   const hp=e.hp;
   s=reduceGame(s,{type:'play',uid:'test0',target:e.uid});
-  expect(s.run!.battle!.devour).toBe(0);
+  expect(s.run!.battle!.devour).toBe(2);
   expect(s.run!.battle!.enemies[0].hp).toBe(hp-27);
-  expect(s.run!.battle!.activity.counts.devourSpent).toBe(1);
+  expect(s.run!.battle!.activity.counts.devourSpent).toBe(3);
+  let t=impFight();hand(t,['deathCannon']);const w=t.run!.battle!.enemies[0];w.block=0;t.run!.battle!.devour=5;
+  t=reduceGame(t,{type:'play',uid:'test0',target:w.uid});
+  expect(t.run!.battle!.devour).toBe(4);
+  expect(t.run!.battle!.enemies[0].hp).toBe(w.maxHp-27);
+  expect(t.run!.battle!.activity.counts.devourSpent).toBe(3);
+ });
+ it('devourTrick, magicShield, nightmareWave and devourFeast each convert up to three layers',()=>{
+  let s=impFight();hand(s,['devourTrick']);const e=s.run!.battle!.enemies[0];e.block=0;s.run!.battle!.devour=3;
+  const hp=e.hp;s=reduceGame(s,{type:'play',uid:'test0',target:e.uid});
+  expect(s.run!.battle!.enemies[0].hp).toBe(hp-10);
+  expect(s.run!.battle!.devour).toBe(2);
+  let t=impFight();hand(t,['magicShield']);t.run!.battle!.devour=3;
+  t=reduceGame(t,{type:'play',uid:'test0'});
+  expect(t.run!.battle!.block).toBe(15);
+  expect(t.run!.battle!.devour).toBe(0);
+  let u=impFight();hand(u,['nightmareWave']);u.run!.battle!.devour=2;
+  u=reduceGame(u,{type:'play',uid:'test0'});
+  expect(u.run!.battle!.enemies[0].weakened).toBe(4);
+  expect(u.run!.battle!.devour).toBe(0);
+  let v=impFight();hand(v,['devourFeast']);v.run!.hp=50;v.run!.battle!.devour=3;
+  v=reduceGame(v,{type:'play',uid:'test0'});
+  expect(v.run!.hp).toBe(59);
+  expect(v.run!.battle!.devour).toBe(0);
  });
  it('belial branch adds 2 damage per devour layer and draws on kill',()=>{
   let s=impFight();s.run!.branch='belial';hand(s,['deathCannon']);const e=s.run!.battle!.enemies[0];e.block=0;s.run!.battle!.devour=2;

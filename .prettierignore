@@ -1,0 +1,8 @@
+dist
+assets
+public
+previews
+tools
+node_modules
+src/game/sprites.json
+*.md

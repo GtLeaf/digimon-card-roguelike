@@ -238,7 +238,7 @@ describe('impmon partner line',()=>{
   const s=impStart();
   expect(s.run!.partner).toBe('impmon');
   expect(s.run!.hp).toBe(84);
-  expect(s.run!.deck.map(c=>c.id)).toEqual(['strike','strike','strike','guard','guard','guard','nightfire','nightfire','prank','devourTrick']);
+  expect(s.run!.deck.map(c=>c.id)).toEqual(['strike','strike','strike','guard','guard','guard','nightfire','nightfire','taunt','devourTrick']);
  });
  it('devour comes from kills, life damage and a per-turn floor',()=>{
   let s=impFight();hand(s,['strike']);s.run!.battle!.enemies.forEach(e=>e.hp=1);

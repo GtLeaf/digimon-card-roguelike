@@ -26,7 +26,7 @@ export function expandedIntent(run:Run,enemy:Enemy):Intent|undefined {
   }
   case 'knightmon':return phase===0?pause('骑士守势','block','获得10护盾。护卫同伴：存活时，同伴受到的指定目标攻击由它承受。',10):attack('狂暴大剑',4+ch,2,'护卫同伴：存活时，同伴受到的指定目标攻击由它承受。');
   case 'phantomon':{const mad=enemy.hp*2<=enemy.maxHp;return mad?attack('幻影暴走',5+ch,2,'狂暴中：生命低于一半后每回合改为两段连续攻击。'):phase===2?pause('死灵咒唱','buff','下一回合发动灵魂收割；生命低于一半后进入狂暴。'):attack('灵魂收割',8+ch,1,'生命低于一半后进入狂暴，改为每回合两段攻击。');}
-  case 'kuramon':return attack('数据啃噬',5+ch,1,'被击败时自爆，对搭档造成8伤害；被召唤的个体在召唤者被击败后随之消散。');
+  case 'kuramon':return attack('数据啃噬',5+ch,1,'被击败时自爆，对搭档造成8伤害；召唤者被击败后陷入失控（攻击伤害-2），继续战斗。');
   case 'diaboromon':{
    if(phase===0)return canSummon?{...pause('集群增殖','buff','召唤1只库拉蒙（场上最多3个敌人，最多召唤2次）；库拉蒙被击败时自爆。优先清场可阻止召唤。'),summon:['kuramon']}:pause('数据屏障','block','场地已满或召唤次数用尽：改为获得12护盾。',12);
    return phase===1?attack('灾祸巨炮',13+ch):attack('失乐园',8+ch,2,'两段咆哮；召唤间隙是输出窗口。');

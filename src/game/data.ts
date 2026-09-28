@@ -62,6 +62,9 @@ export const CARDS:Record<string,CardDef> = Object.fromEntries([
  card('burstShot','爆裂射击',1,'attack','saint','对所有敌人造成 4×2 段伤害。','saintgalgomon',{damage:4,hits:2,all:true,upgradeDamage:1}),
  card('heavySalvo','战术·重装齐射',2,'attack','blacksaint','造成 12 伤害，消耗全部蓄能，每层额外 5 伤害。耗竭。','blacksaintgalgomon',{damage:12,special:'cannon',chargeMultiplier:5,exhaust:true}),
  card('fortressLoad','战术·要塞整备',1,'skill','blacksaint','获得 12 护盾，获得 2 蓄能。','blacksaintgalgomon',{shield:12,charge:2}),
+ card('suppressBarrage','压制弹幕',1,'attack','terriermon','对所有敌人造成 5 伤害，施加 1 虚弱。','blackgalgomon',{damage:5,all:true,weak:1}),
+ card('gravityField','重力力场',2,'skill','terriermon','获得 7 护盾，对所有敌人施加 2 虚弱。','blackrapidmon',{shield:7,weak:2,all:true}),
+ card('zoneSuppress','战术·全域压制',2,'attack','blacksaint','对所有敌人造成 8 伤害、施加 1 虚弱，消耗全部蓄能，每层额外 3 伤害。','blacksaintgalgomon',{damage:8,all:true,weak:1,special:'cannon',chargeMultiplier:3}),
  card('fault','数据故障',1,'status','status','不能产生效果。支付 1 行动力清除，本场耗竭。','core',{exhaust:true}),
 ].map(c=>[c.id,c]));
 export const PARTNERS:Record<Partner,{name:string;tag:string;description:string;forms:string[];branches:Branch[]}>={

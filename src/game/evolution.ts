@@ -38,9 +38,9 @@ export const EVOLUTIONS: Record<string,EvolutionDef> = Object.fromEntries(([
  {id:'kuzuhamon',partner:'renamon',stage:3,parents:['taomon','doumon'],tag:'结界式神',passive:BRANCHES.kuzuha.passive,cards:BRANCHES.kuzuha.cards,branch:'kuzuha',groups:[[{metric:'skills',goal:70}],[{metric:'combos',goal:22}]],slot:2},
  {id:'terriermon',partner:'terriermon',stage:0,parents:[],tag:'旅途起点',passive:'连射与蓄能：选择机动火力或防守炮击。',cards:['tinyTwister','blazingShot'],groups:[],slot:1},
  {id:'galgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'连射之路',passive:'每回合第二张攻击牌结算后，获得 1 蓄能。',cards:['gatling','dumUpper'],groups:[],slot:0},
- {id:'blackgalgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'战术之路',passive:'每回合首次防御出牌后，本回合下一张造成直接伤害的攻击牌额外造成 2 总伤害。',cards:['blackGatling','ambushUpper'],groups:[[{metric:'attacks',goal:20}],[{metric:'defenses',goal:14}]],slot:2},
+ {id:'blackgalgomon',partner:'terriermon',stage:1,parents:['terriermon'],tag:'战术之路',passive:'每回合首次防御出牌后，本回合下一张造成直接伤害的攻击牌额外造成 2 总伤害。攻击处于虚弱状态的敌人时，每段伤害＋1。',cards:['blackGatling','ambushUpper'],groups:[[{metric:'attacks',goal:20}],[{metric:'defenses',goal:14}]],slot:2},
  {id:'rapidmon',partner:'terriermon',stage:2,parents:['galgomon','blackgalgomon'],tag:'高速机动',passive:'每回合第二张攻击牌结算后，抽 1 张牌。',cards:['rapidFire','goldTriangle'],groups:[],slot:0},
- {id:'blackrapidmon',partner:'terriermon',stage:2,parents:['blackgalgomon','galgomon'],tag:'装甲蓄能',passive:'每回合首次防御出牌额外获得 1 蓄能。',cards:['blackReload','blackMissile'],groups:[[{metric:'charges',goal:20}],[{metric:'weakens',goal:10}]],slot:2},
+ {id:'blackrapidmon',partner:'terriermon',stage:2,parents:['blackgalgomon','galgomon'],tag:'装甲蓄能',passive:'每回合首次防御出牌额外获得 1 蓄能；每回合首次施加虚弱时，获得 1 蓄能。',cards:['blackReload','blackMissile'],groups:[[{metric:'charges',goal:20}],[{metric:'weakens',goal:10}]],slot:2},
  {id:'saintgalgomon',partner:'terriermon',stage:3,parents:['rapidmon','blackrapidmon'],tag:'连射压制',passive:BRANCHES.saint.passive,cards:BRANCHES.saint.cards,branch:'saint',groups:[],slot:0},
  {id:'blacksaintgalgomon',partner:'terriermon',stage:3,parents:['blackrapidmon'],tag:'重装炮击',passive:BRANCHES.blacksaint.passive,cards:BRANCHES.blacksaint.cards,branch:'blacksaint',groups:[[{metric:'defenses',goal:58}],[{metric:'cannonShots',goal:7}]],slot:2},
 ] satisfies EvolutionDef[]).map(d=>[d.id,d]));

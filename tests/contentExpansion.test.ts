@@ -95,15 +95,20 @@ describe('summon, guard, enrage and on-death mechanics',()=>{
   expect(s.run!.battle!.enemies[1].summonedTurn).toBe(1);
   expect(s.run!.hp).toBeLessThan(s.run!.maxHp);
  });
- it('killing the summoner retreats its minions without triggering their on-death',()=>{
+ it('killing the summoner leaves its minion rogue on the field; battle continues until the field is cleared',()=>{
   let s=fight('diaboromon');s=reduceGame(s,{type:'endTurn'});
-  const b=s.run!.battle!;
-  expect(b.enemies.map(e=>e.id)).toEqual(['diaboromon','kuramon']);
-  b.enemies[0].hp=1;b.enemies[0].block=0;const hp=s.run!.hp;
+  expect(s.run!.battle!.enemies.map(e=>e.id)).toEqual(['diaboromon','kuramon']);
+  expect(intent(s.run!,s.run!.battle!.enemies[1]).damage).toBe(5);
+  s.run!.battle!.enemies[0].hp=1;s.run!.battle!.enemies[0].block=0;
   hand(s,['strike']);
   s=reduceGame(s,{type:'play',uid:'t0'});
+  expect(s.run!.screen).toBe('battle');
+  const k=s.run!.battle!.enemies[1];
+  expect(k.rogue).toBe(true);
+  expect(intent(s.run!,k).damage).toBe(3);
+  k.hp=1;k.block=0;hand(s,['strike']);
+  s=reduceGame(s,{type:'play',uid:'t0'});
   expect(s.run!.screen).toBe('reward');
-  expect(s.run!.hp).toBe(hp);
  });
  it('kuramon explodes for 8 on defeat, absorbed by block first',()=>{
   let s=fight('kuramon');const b=s.run!.battle!;b.enemies[0].hp=3;b.block=5;hand(s,['strike']);

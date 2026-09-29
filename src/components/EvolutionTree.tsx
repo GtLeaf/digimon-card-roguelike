@@ -263,7 +263,9 @@ export function EvolutionTree({
                 id,
                 upgraded:
                   choose &&
-                  (d.stage < 3 || !!run?.deck.find((c) => c.uid === replacements[i])?.upgraded),
+                  (d.stage < 3
+                    ? !!d.signatureUpgrade
+                    : !!run?.deck.find((c) => c.uid === replacements[i])?.upgraded),
               }}
             />
           ))}

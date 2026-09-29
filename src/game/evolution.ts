@@ -59,6 +59,8 @@ export interface EvolutionDef {
   tag: string;
   passive: string;
   cards: string[];
+  /** 进化时给强化版招牌牌 */
+  signatureUpgrade?: boolean;
   branch?: Branch;
   groups: Term[][];
   slot: number;
@@ -85,6 +87,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         tag: '勇气之路',
         passive: '招牌牌强化；可选择进攻或守护训练。',
         cards: ['fireball', 'rock'],
+        signatureUpgrade: true,
         groups: [],
         slot: 0,
       },
@@ -198,6 +201,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         tag: '狐火之路',
         passive: '招牌牌强化；可选择进攻或守护训练。',
         cards: ['leaf', 'talisman'],
+        signatureUpgrade: true,
         groups: [],
         slot: 0,
       },
@@ -364,6 +368,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         tag: '魔人之路',
         passive: '招牌牌强化；可选择进攻或守护训练。',
         cards: ['frostSorcery', 'magicShield'],
+        signatureUpgrade: true,
         groups: [],
         slot: 0,
       },

@@ -6,7 +6,9 @@ import { parseSave } from '../src/game/storage';
 import { CARDS, cardText } from '../src/game/data';
 import type { Partner, Save } from '../src/game/types';
 function start(partner: Partner = 'guilmon') {
-  return reduceGame(reduceGame(emptySave(), { type: 'start', partner, seed: 42 }), {
+  const base = emptySave();
+  if (partner === 'impmon') base.meta.scans.beelzebumon = 100;
+  return reduceGame(reduceGame(base, { type: 'start', partner, seed: 42 }), {
     type: 'bless',
     id: 'guard',
   });
@@ -276,8 +278,23 @@ describe('evolution conditions and branching', () => {
     s = reduceGame(s, { type: 'evolve', form, replace: replacements(s) });
     expect(s.run!.form).toBe(form);
     expect(s.run!.deck).toHaveLength(10);
-    expect(s.run!.deck[0].upgraded).toBe(true);
+    expect(s.run!.deck[0].upgraded).toBe(d.stage === 3);
     expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(d.cards);
+  });
+  it.each([
+    ['growlmon', true],
+    ['kyubimon', true],
+    ['sorcerymon', true],
+    ['galgomon', false],
+    ['blackgalgomon', false],
+    ['rapidmon', false],
+    ['matadormon', false],
+  ])('grants %s signature cards upgraded=%s per the signature-upgrade passive', (form, upgraded) => {
+    let s = ready(form);
+    for (const group of EVOLUTIONS[form].groups)
+      for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
+    const after = reduceGame(s, { type: 'evolve', form, replace: replacements(s) }).run!;
+    expect(after.deck.slice(0, 2).map((c) => c.upgraded)).toEqual([upgraded, upgraded]);
   });
   it('OR alternatives work without also requiring the other option', () => {
     const s = ready('megidramon');

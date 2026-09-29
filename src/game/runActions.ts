@@ -155,7 +155,7 @@ export function evolveAction(s: Save, action: Extract<Action, { type: 'evolve' }
     const c = r.deck.find((x) => x.uid === uid);
     if (c) {
       c.id = d.cards[i];
-      if (d.stage < 3) c.upgraded = true;
+      if (d.stage < 3) c.upgraded = !!d.signatureUpgrade;
     }
   });
   r.form = form;

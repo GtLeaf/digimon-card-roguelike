@@ -36,7 +36,6 @@ export type Special =
   | 'sacrifice'
   | 'devour'
   | 'devouraura'
-  | 'devourconvert'
   | 'lure';
 export interface CardDef {
   id: string;
@@ -74,6 +73,8 @@ export interface CardDef {
   devourWeak?: number;
   devourHeal?: number;
   devourVuln?: number;
+  devourAll?: boolean;
+  convert?: number;
 }
 export interface Card {
   uid: string;
@@ -198,10 +199,7 @@ export interface Battle {
   defended: boolean;
   weakenedThisTurn: boolean;
   devour: number;
-  devourPool: number;
-  devourFromDamage: number;
   devourAura: boolean;
-  devourConvert: boolean;
   log: string[];
   feedback: BattleNumber[];
 }

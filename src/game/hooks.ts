@@ -15,7 +15,6 @@ export interface PassiveHooks {
   battleStart?(c: HookCtx): void;
   onTurnStart?(c: HookCtx): void;
   attackHitBonus?(c: HookCtx): number;
-  onDamageDealt?(c: HookCtx, actual: number): void;
   onKill?(c: HookCtx, e: Enemy): void;
   onFirstSelfCost?(c: HookCtx): void;
   firstDefenseShield?(c: HookCtx): number;
@@ -35,24 +34,21 @@ export interface PassiveHooks {
 }
 
 // 键为搭档/形态/分支 id；一场战斗中按 [partner, form, branch] 顺序触发。
+export const DEVOUR_CAP = 6;
+export const gainDevour = (b: Battle, n: number) => {
+  b.devour = Math.min(DEVOUR_CAP, b.devour + n);
+};
 export const PASSIVES: Record<string, PassiveHooks> = {
   impmon: {
     onTurnStart({ b, log }) {
-      b.devour++;
+      if (b.devour >= DEVOUR_CAP) return;
+      gainDevour(b, 1);
       log(`噬能 ＋1（回合 · 当前 ${b.devour}）`);
     },
-    onDamageDealt({ b }, actual) {
-      if (!b.devourConvert || actual <= 0) return;
-      b.devourPool += actual;
-      while (b.devourPool >= 5 && b.devourFromDamage < 2) {
-        b.devourPool -= 5;
-        b.devour++;
-        b.devourFromDamage++;
-      }
-    },
     onKill({ b, log }) {
+      if (b.devour >= DEVOUR_CAP) return;
       const gain = 1 + (b.devourAura ? 1 : 0);
-      b.devour += gain;
+      gainDevour(b, gain);
       log(`噬能 ＋${gain}（击败 · 当前 ${b.devour}）`);
     },
   },

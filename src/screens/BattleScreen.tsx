@@ -235,7 +235,7 @@ export function BattleScreen({
         {b.devour > 0 && (
           <span>
             <Flame size={14} />
-            噬能 {b.devour}
+            噬能 {b.devour}/6
           </span>
         )}
         <button className="text-btn" onClick={onHelp}>

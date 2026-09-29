@@ -377,7 +377,6 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
     partner === 'impmon'
       ? [
           'deathCannon',
-          'devourPulse',
           'twinClaw',
           'gustCannon',
           'bloodFeast',
@@ -500,11 +499,13 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
               Math.min(d.shield + (c.upgraded ? 3 : 0), Math.max(0, incoming - b.block)) * 1.7;
           const layers = Math.min(b.devour, 3);
           if (d.special === 'devour')
-            score += layers * ((d.devourPower ?? 4) + (branch === 'belial' ? 2 : 0));
+            score +=
+              Math.min(b.devour, d.devourAll ? 6 : 3) *
+              ((d.devourPower ?? 4) + (branch === 'belial' ? 2 : 0));
+          if (d.convert) score += 4;
           if (d.devourShield) score += layers * d.devourShield * 1.7;
           if (d.devourWeak) score += layers * d.devourWeak * 3;
           if (d.devourHeal) score += layers * d.devourHeal * (r.hp < r.maxHp * 0.7 ? 2 : 0);
-          if (d.special === 'devourconvert') score += b.devourConvert ? 0 : 30;
           if (d.devourVuln) score += b.devour >= 3 ? d.devourVuln * 4 : 2;
           if (d.special === 'detonate') score += target.burn * (branch === 'megidra' ? 6 : 3);
           if (branch === 'megidra' && d.burn && !target.burn) score += 12;
@@ -875,7 +876,7 @@ describe('impmon partner line', () => {
       'devourTrick',
     ]);
   });
-  it('devour comes from kills and a per-turn floor; life damage converts only with devourPulse', () => {
+  it('devour comes from kills, a per-turn floor and per-card damage conversion', () => {
     let s = impFight();
     hand(s, ['strike']);
     s.run!.battle!.enemies.forEach((e) => (e.hp = 1));
@@ -891,28 +892,23 @@ describe('impmon partner line', () => {
     t = reduceGame(t, { type: 'play', uid: 'test1' });
     expect(t.run!.battle!.devour).toBe(2);
     let u = impFight();
-    hand(u, ['strike', 'strike']);
+    hand(u, ['strike', 'nightfire']);
     u.run!.battle!.enemies[0].block = 0;
     u = reduceGame(u, { type: 'play', uid: 'test0' });
     expect(u.run!.battle!.devour).toBe(0);
-    expect(u.run!.battle!.devourPool).toBe(0);
     u = reduceGame(u, { type: 'play', uid: 'test1' });
-    expect(u.run!.battle!.devour).toBe(0);
+    expect(u.run!.battle!.devour).toBe(1);
+    u = reduceGame(u, { type: 'endTurn' });
+    expect(u.run!.battle!.devour).toBe(2);
     let v = impFight();
-    hand(v, ['devourPulse', 'strike', 'strike']);
-    v.run!.battle!.enemies[0].block = 0;
-    v = reduceGame(v, { type: 'play', uid: 'test0' });
-    expect(v.run!.battle!.devourConvert).toBe(true);
-    v = reduceGame(v, { type: 'play', uid: 'test1' });
-    expect(v.run!.battle!.devour).toBe(1);
-    v = reduceGame(v, { type: 'play', uid: 'test2' });
+    hand(v, ['nightfire']);
+    const w = v.run!.battle!.enemies[0];
+    w.block = 0;
+    w.vulnerable = 5;
+    v = reduceGame(v, { type: 'play', uid: 'test0', target: w.uid });
     expect(v.run!.battle!.devour).toBe(2);
-    expect(v.run!.battle!.devourPool).toBe(4);
-    v = reduceGame(v, { type: 'endTurn' });
-    expect(v.run!.battle!.devour).toBe(3);
-    expect(v.run!.battle!.devourPool).toBe(0);
   });
-  it('death cannon consumes up to three devour layers for bonus damage', () => {
+  it('death cannon consumes all devour layers (up to six) for bonus damage', () => {
     let s = impFight();
     hand(s, ['deathCannon']);
     const e = s.run!.battle!.enemies[0];
@@ -921,7 +917,7 @@ describe('impmon partner line', () => {
     const hp = e.hp;
     s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
     expect(s.run!.battle!.devour).toBe(0);
-    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 27);
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 24);
     expect(s.run!.battle!.activity.counts.devourSpent).toBe(3);
     let t = impFight();
     hand(t, ['deathCannon']);
@@ -929,9 +925,18 @@ describe('impmon partner line', () => {
     w.block = 0;
     t.run!.battle!.devour = 5;
     t = reduceGame(t, { type: 'play', uid: 'test0', target: w.uid });
-    expect(t.run!.battle!.devour).toBe(2);
-    expect(t.run!.battle!.enemies[0].hp).toBe(w.maxHp - 27);
-    expect(t.run!.battle!.activity.counts.devourSpent).toBe(3);
+    expect(t.run!.battle!.devour).toBe(1); // 32 伤害击毙敌人，击败 ＋1
+    expect(t.run!.battle!.enemies[0].hp).toBe(0);
+    expect(t.run!.battle!.activity.counts.devourSpent).toBe(5);
+    let u = impFight();
+    hand(u, ['deathCannon']);
+    const x = u.run!.battle!.enemies[0];
+    x.block = 0;
+    u.run!.battle!.devour = 8;
+    u = reduceGame(u, { type: 'play', uid: 'test0', target: x.uid });
+    expect(u.run!.battle!.devour).toBe(3); // 8 层只能消耗 6 层，击毙再 ＋1
+    expect(u.run!.battle!.enemies[0].hp).toBe(0);
+    expect(u.run!.battle!.activity.counts.devourSpent).toBe(6);
   });
   it('devourTrick, magicShield, nightmareWave and devourFeast each convert up to three layers', () => {
     let s = impFight();
@@ -996,7 +1001,7 @@ describe('impmon partner line', () => {
     s.run!.battle!.devour = 2;
     const hp = e.hp;
     s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
-    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 26);
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 24);
     let t = impFight();
     t.run!.branch = 'belial';
     hand(t, ['strike']);

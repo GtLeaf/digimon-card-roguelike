@@ -2,7 +2,7 @@ import { cardPool } from './cardSkills';
 import { BRANCHES, CARDS, ENEMIES, RELICS, needsTarget } from './data';
 import { emptyActivity, syncRouteData, activityGains } from './evolution';
 import { expandedIntent } from './enemyRules';
-import { PASSIVES, type HookCtx, type PassiveHooks } from './hooks';
+import { DEVOUR_CAP, PASSIVES, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
 import { choose, makeCard, shuffle } from './random';
 import type { Battle, Card, Enemy, Intent, MapNode, Meta, Metric, Run } from './types';
 
@@ -257,10 +257,7 @@ export function beginBattle(r: Run, node: MapNode) {
     defended: false,
     weakenedThisTurn: false,
     devour: 0,
-    devourPool: 0,
-    devourFromDamage: 0,
     devourAura: false,
-    devourConvert: false,
     log: ['连接建立。先观察敌人的行动意图。'],
     feedback: [],
   };
@@ -337,7 +334,6 @@ function hit(r: Run, e: Enemy, amount: number, attack = true) {
   r.damageDealt += actual;
   e.stagger += actual;
   burnKill(r, e);
-  fire(r, (h, c) => h.onDamageDealt?.(c, actual));
   b.feedback.push({ target: e.uid, kind: 'damage', amount: actual });
   if (e.hp <= 0) deathTrigger(r, e);
 }
@@ -517,14 +513,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     b.charge += d.charge;
     count(r, 'charges');
   }
-  if (d.devour) b.devour += d.devour;
+  if (d.devour) gainDevour(b, d.devour);
   if (d.special === 'devouraura') {
     b.devourAura = true;
     log(b, '噬能光环 · 本场击败敌人额外＋1 噬能');
-  }
-  if (d.special === 'devourconvert') {
-    b.devourConvert = true;
-    log(b, '噬能血脉 · 本场造成的伤害将转化为噬能');
   }
   if (d.special === 'copy') {
     const original = b.hand.find(
@@ -553,7 +545,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (d.special === 'devour')
     bonus +=
-      spendDevour(r, 3) * ((d.devourPower ?? 4) + sum(r, (h, cx) => h.devourPowerBonus?.(cx)));
+      spendDevour(r, d.devourAll ? DEVOUR_CAP : 3) *
+      ((d.devourPower ?? 4) + sum(r, (h, cx) => h.devourPowerBonus?.(cx)));
   const targets = d.all ? b.enemies.filter((e) => e.hp > 0) : chosen ? [chosen] : [];
   const beforeDamage = r.damageDealt;
   let appliedMark = false,
@@ -625,6 +618,14 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (detonated) count(r, 'detonations');
   if (consumedMark) count(r, 'markBursts');
+  // 内建转化：按本牌实际造成的生命伤害折算噬能，单次出牌至多 2 层。
+  if (d.convert) {
+    const gain = Math.min(2, Math.floor((r.damageDealt - beforeDamage) / d.convert));
+    if (gain > 0) {
+      gainDevour(b, gain);
+      log(b, `噬能 ＋${gain}（转化 · 当前 ${b.devour}）`);
+    }
+  }
   if (d.drain && r.damageDealt > beforeDamage && r.hp < r.maxHp) {
     const before = r.hp;
     r.hp = Math.min(r.maxHp, r.hp + d.drain + sum(r, (h, cx) => h.drainBonus?.(cx)));
@@ -763,8 +764,6 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   b.marked = false;
   b.defended = false;
   b.weakenedThisTurn = false;
-  b.devourPool = 0;
-  b.devourFromDamage = 0;
   fire(r, (h, c) => h.onTurnStart?.(c));
   b.burst = Math.max(0, b.burst - 1);
   for (const e of b.enemies) {

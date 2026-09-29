@@ -154,6 +154,7 @@ export function BattleScreen({
                     </span>
                   )}
                   {e.weakened > 0 && <span>虚弱 {e.weakened}</span>}
+                  {(e.vulnerable ?? 0) > 0 && <span>易伤 {e.vulnerable}</span>}
                   {e.rogue && <span>失控</span>}
                   {e.hp <= 0 && <span>已击败</span>}
                 </span>

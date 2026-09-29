@@ -51,6 +51,7 @@ const enemy = z.object({
   mark: z.number(),
   strength: z.number(),
   weakened: z.number(),
+  vulnerable: z.number().int().nonnegative().optional(),
   opening: z.boolean(),
   stagger: z.number(),
   effectiveAttacks: z.number().int().nonnegative().optional(),
@@ -121,6 +122,7 @@ const battle = z.object({
   devourPool: z.number().int().nonnegative().default(0),
   devourFromDamage: z.number().int().nonnegative().default(0),
   devourAura: z.boolean().default(false),
+  devourConvert: z.boolean().default(false),
   log: z.array(z.string()),
   feedback: z
     .array(

@@ -42,7 +42,7 @@ export const PASSIVES: Record<string, PassiveHooks> = {
       log(`噬能 ＋1（回合 · 当前 ${b.devour}）`);
     },
     onDamageDealt({ b }, actual) {
-      if (actual <= 0) return;
+      if (!b.devourConvert || actual <= 0) return;
       b.devourPool += actual;
       while (b.devourPool >= 5 && b.devourFromDamage < 2) {
         b.devourPool -= 5;

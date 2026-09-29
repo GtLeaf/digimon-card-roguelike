@@ -587,6 +587,16 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       { special: 'devouraura', exhaust: true },
     ),
     card(
+      'devourPulse',
+      '噬能血脉',
+      1,
+      'power',
+      'impmon',
+      '本场战斗中，你造成的伤害每 5 点转化为 1 噬能（每回合至多 2 层）。耗竭。',
+      'sorcerymon',
+      { special: 'devourconvert', exhaust: true },
+    ),
+    card(
       'soulHarvest',
       '灵魂收割',
       2,
@@ -639,6 +649,19 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       '对所有敌人施加 2 虚弱；消耗至多 3 层噬能，每层再施加 1 虚弱。',
       'devimon',
       { weak: 2, all: true, devourWeak: 1 },
+    ),
+    card(
+      'devourCorrode',
+      '噬能侵蚀',
+      1,
+      'skill',
+      'impmon',
+      '消耗 3 层噬能，施加 3 易伤；噬能不足 3 层时不消耗，施加 1 易伤。',
+      'devimon',
+      {
+        devourVuln: 3,
+        upgradeText: '消耗 3 层噬能，施加 4 易伤；噬能不足 3 层时不消耗，施加 2 易伤。',
+      },
     ),
     card('batSwarm', '蝙蝠群袭', 1, 'attack', 'impmon', '造成 3×3 段伤害。', 'vamdemon', {
       damage: 3,
@@ -1118,6 +1141,7 @@ export const needsTarget = (d: CardDef) =>
     d.mark ||
     d.burn ||
     d.weak ||
+    d.devourVuln ||
     d.special === 'markburst' ||
     d.special === 'detonate'
   );

@@ -260,6 +260,7 @@ export function beginBattle(r: Run, node: MapNode) {
     devourPool: 0,
     devourFromDamage: 0,
     devourAura: false,
+    devourConvert: false,
     log: ['连接建立。先观察敌人的行动意图。'],
     feedback: [],
   };
@@ -318,6 +319,7 @@ function hit(r: Run, e: Enemy, amount: number, attack = true) {
   if (attack) {
     damage += b.strength + (b.burst > 0 ? 2 : 0);
     damage += sum(r, (h, c) => h.attackHitBonus?.(c));
+    if (e.vulnerable) damage += e.vulnerable;
     if (r.training === 'attack' && r.stage > 0) damage += 1;
     if (r.relics.includes('cooler') && b.attacks < 3) damage++;
     b.attacks++;
@@ -520,6 +522,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     b.devourAura = true;
     log(b, '噬能光环 · 本场击败敌人额外＋1 噬能');
   }
+  if (d.special === 'devourconvert') {
+    b.devourConvert = true;
+    log(b, '噬能血脉 · 本场造成的伤害将转化为噬能');
+  }
   if (d.special === 'copy') {
     const original = b.hand.find(
       (x) => !x.copied && CARDS[x.id].kind !== 'status' && CARDS[x.id].special !== 'copy',
@@ -555,6 +561,11 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     detonated = false,
     consumedMark = false;
   const devourWeakSpent = d.devourWeak ? spendDevour(r, 3) : 0;
+  // 噬能侵蚀：噬能满 3 层才消耗并足额施加易伤，不足则不消耗、保底施加 1 层。
+  const devourVulnSpent = d.devourVuln && b.devour >= 3 ? spendDevour(r, 3) : 0;
+  const vulnGain = d.devourVuln
+    ? (devourVulnSpent ? d.devourVuln : 1) + (c.upgraded && d.upgradeText ? 1 : 0)
+    : 0;
   const burnBonus =
     !b.burned && d.burn
       ? sum(r, (h, cx) => h.firstBurnBonus?.(cx)) + (r.inherit === 'ember' && r.stage > 0 ? 1 : 0)
@@ -598,6 +609,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
           (d.weak ?? 0) + devourWeakSpent + (d.weak ? sum(r, (h, cx) => h.weakBonus?.(cx)) : 0);
         appliedWeak = true;
       }
+      if (vulnGain) e.vulnerable = (e.vulnerable ?? 0) + vulnGain;
     }
   }
   if (appliedMark) {
@@ -720,7 +732,9 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   if (!b || b.enemyTurnIndex === null || b.enemyTurnIndex < b.enemies.length) return;
   b.enemyTurnIndex = null;
   for (const e of b.enemies) {
-    if (e.hp <= 0 || !e.burn) continue;
+    if (e.hp <= 0) continue;
+    if (e.vulnerable) e.vulnerable = Math.max(0, e.vulnerable - 1);
+    if (!e.burn) continue;
     const damage = Math.min(e.hp, e.burn);
     e.hp -= damage;
     r.damageDealt += damage;

@@ -225,7 +225,10 @@ export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
       return phase === 0
         ? pause('暗黑领域', 'block', '获得10护盾，领域展开时无法被打断。', 10)
         : phase === 1
-          ? attack('全力破坏', 15 + ch)
+          ? {
+              ...attack('全力破坏', 15 + ch, 1, '穿透：无视护盾，用虚弱或高生命硬接。'),
+              pierce: true,
+            }
           : attack('灭世咆哮', 8 + ch, 2, '领域、破坏、咆哮三段循环。');
     case 'lilithmon':
       return phase === 0
@@ -239,9 +242,10 @@ export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
                 '娜扎尔之爪',
                 10 + ch,
                 1,
-                '回复本次造成的生命伤害，最多6点；完全格挡可阻止回复。',
+                '穿透：无视护盾。回复本次造成的生命伤害，最多6点；用虚弱压低伤害可阻止回复。',
               ),
               drain: 6,
+              pierce: true,
             }
           : attack('幻影苦痛', 6 + ch, 2, '魅惑、吸血、双段苦痛循环。');
     case 'leviamon':

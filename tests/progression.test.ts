@@ -289,13 +289,16 @@ describe('evolution conditions and branching', () => {
     ['blackgalgomon', false],
     ['rapidmon', false],
     ['matadormon', false],
-  ])('grants %s signature cards upgraded=%s per the signature-upgrade passive', (form, upgraded) => {
-    let s = ready(form);
-    for (const group of EVOLUTIONS[form].groups)
-      for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
-    const after = reduceGame(s, { type: 'evolve', form, replace: replacements(s) }).run!;
-    expect(after.deck.slice(0, 2).map((c) => c.upgraded)).toEqual([upgraded, upgraded]);
-  });
+  ])(
+    'grants %s signature cards upgraded=%s per the signature-upgrade passive',
+    (form, upgraded) => {
+      const s = ready(form);
+      for (const group of EVOLUTIONS[form].groups)
+        for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
+      const after = reduceGame(s, { type: 'evolve', form, replace: replacements(s) }).run!;
+      expect(after.deck.slice(0, 2).map((c) => c.upgraded)).toEqual([upgraded, upgraded]);
+    },
+  );
   it('OR alternatives work without also requiring the other option', () => {
     const s = ready('megidramon');
     s.run!.activity.counts = { fire: 32, burnKills: 18 };

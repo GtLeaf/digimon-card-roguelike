@@ -180,8 +180,10 @@ export function intent(r: Run, e: Enemy): Intent {
       detail: '本回合已承受 20 点攻击伤害，重击被打断。',
     };
   i = expandedIntent(r, e) ?? i;
+  // Boss 软狂暴：第 11 回合起攻击伤害每回合＋2（至多＋8），数值直接体现在意图预告中。
+  const enrage = r.currentNode?.kind === 'boss' ? Math.min(8, Math.max(0, turn - 10) * 2) : 0;
   if (i.type === 'attack') {
-    i.damage = Math.max(0, i.damage + e.strength - e.weakened);
+    i.damage = Math.max(0, i.damage + e.strength + enrage - e.weakened);
     if (e.rogue && i.damage > 0) i.damage = Math.max(1, i.damage - 2);
   }
   return i;
@@ -664,7 +666,7 @@ export function enemyStep(r: Run, meta: Meta) {
   const playerHpBefore = r.hp;
   if (i.type === 'attack') {
     for (let h = 0; h < i.hits; h++) {
-      const absorbed = Math.min(b.block, i.damage);
+      const absorbed = i.pierce ? 0 : Math.min(b.block, i.damage);
       b.block -= absorbed;
       const before = r.hp;
       r.hp = Math.max(0, r.hp - i.damage + absorbed);
@@ -747,6 +749,8 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   resolve(r, meta);
   if (r.screen !== 'battle') return;
   b.turn++;
+  if (r.currentNode?.kind === 'boss' && b.turn === 11)
+    log(b, '敌方进入狂暴：攻击伤害每回合＋2（至多＋8）。');
   b.energy = 3;
   b.block =
     (r.relics.includes('armor') ? 3 : 0) +

@@ -450,6 +450,7 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
           (branch === 'megidra' || branch === 'kuzuha' || branch === 'chaos'
             ? nodes.find((n) => n.kind === 'battle')
             : undefined) ??
+          (r.deck.length > 16 ? nodes.find((n) => n.kind === 'shop') : undefined) ??
           nodes.find((n) => n.kind === 'camp') ??
           nodes.find((n) => n.kind === 'treasure') ??
           nodes.find((n) => n.kind === 'event') ??
@@ -502,6 +503,8 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
             score +=
               Math.min(b.devour, d.devourAll ? 6 : 3) *
               ((d.devourPower ?? 4) + (branch === 'belial' ? 2 : 0));
+          // 全量爆发牌存到 4 层以上再放，除非当前层数已经够斩杀。
+          if (d.devourAll && b.devour < 4 && (d.damage ?? 0) + b.devour * 4 < target.hp) score = 0;
           if (d.convert) score += 4;
           if (d.devourShield) score += layers * d.devourShield * 1.7;
           if (d.devourWeak) score += layers * d.devourWeak * 3;
@@ -515,6 +518,8 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
           if (branch === 'megidra' && d.burn) score += 10;
           if (branch === 'kuzuha' && (d.kind === 'skill' || d.kind === 'power')) score += 4;
           if (d.all) score *= b.enemies.filter((e) => e.hp > 0).length;
+          // Boss 拖局惩罚意识：第 8 回合起优先抢伤害，模拟玩家读到狂暴预告后的提速。
+          if (r.currentNode?.kind === 'boss' && b.turn >= 8 && d.damage) score *= 1.6;
           if (d.special === 'sacrifice') score -= 8;
           if (branch === 'chaos') {
             if (r.stage === 0 && d.burn) score += 10;
@@ -530,7 +535,8 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
       }
       case 'reward': {
         const pool = r.reward!.cards;
-        const fav = favs;
+        // 牌组臃肿后只拿核心牌，其余跳过，模拟真实玩家的薄牌组策略。
+        const fav = r.deck.length > 18 ? favs.slice(0, 6) : favs;
         const pick = fav.find((id) => pool.includes(id));
         action = { type: 'reward', card: pick };
         break;
@@ -560,6 +566,20 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
         };
         break;
       case 'shop': {
+        // 牌组臃肿时优先精简，模拟真实玩家的薄牌组策略。
+        if (!r.shopRemoved && r.gold >= 45 && r.deck.length > 16) {
+          const junk =
+            r.deck.find((c) => c.id === 'taunt' && !c.upgraded) ??
+            r.deck.find((c) => c.id === 'strike' && !c.upgraded) ??
+            r.deck.find((c) => c.id === 'strike') ??
+            (r.deck.filter((x) => x.id === 'guard').length > 3
+              ? r.deck.find((c) => c.id === 'guard' && !c.upgraded)
+              : undefined);
+          if (junk) {
+            action = { type: 'remove', uid: junk.uid };
+            break;
+          }
+        }
         const id = favs.find((id) => r.shopStock!.includes(id) && !r.shopBought.includes(id));
         if (id && r.gold >= 45) {
           action = { type: 'buy', id };
@@ -568,15 +588,6 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
         if (r.potions < 2 && r.gold >= 30 && !r.shopBought.includes('potion')) {
           action = { type: 'buy', id: 'potion' };
           break;
-        }
-        if (!r.shopRemoved && r.gold >= 45 && r.deck.length > 14) {
-          const junk =
-            r.deck.find((c) => c.id === 'taunt' && !c.upgraded) ??
-            r.deck.find((c) => c.id === 'strike');
-          if (junk) {
-            action = { type: 'remove', uid: junk.uid };
-            break;
-          }
         }
         action = { type: 'continue' };
         break;
@@ -1085,5 +1096,58 @@ describe('impmon partner line', () => {
       expect(s.run!.form).toBe(BRANCHES[branch].art);
       expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(BRANCHES[branch].cards);
     }
+  });
+});
+
+describe('enemy pressure', () => {
+  const fight = () => {
+    let s = emptySave();
+    s = reduceGame(s, { type: 'start', partner: 'guilmon', seed: 42 });
+    s = reduceGame(s, { type: 'bless', id: 'guard' });
+    return reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
+  };
+  it('bosses enrage from turn 11, telegraphed in intent damage', () => {
+    const s = fight();
+    const r = s.run!;
+    r.currentNode = { ...r.currentNode!, kind: 'boss' };
+    const e = r.battle!.enemies[0];
+    e.id = 'sinduramon';
+    r.battle!.turn = 9;
+    expect(intent(r, e).damage).toBe(16);
+    r.battle!.turn = 12;
+    expect(intent(r, e).damage).toBe(20);
+    r.battle!.turn = 15;
+    expect(intent(r, e).damage).toBe(24);
+    r.battle!.turn = 18;
+    expect(intent(r, e).damage).toBe(24); // 狂暴封顶＋8
+    r.currentNode = { ...r.currentNode!, kind: 'battle' };
+    expect(intent(r, e).damage).toBe(16);
+  });
+  it('pierce attacks ignore block without consuming it', () => {
+    let s = fight();
+    const r = s.run!;
+    const b = r.battle!;
+    b.enemies = [
+      {
+        uid: 'e1',
+        id: 'lilithmon',
+        hp: 92,
+        maxHp: 92,
+        block: 0,
+        burn: 0,
+        mark: 0,
+        strength: 0,
+        weakened: 0,
+        opening: true,
+        stagger: 0,
+      },
+    ];
+    b.turn = 2;
+    b.block = 20;
+    const hp = r.hp;
+    s = reduceGame(s, { type: 'beginEnemyTurn' });
+    s = reduceGame(s, { type: 'enemyStep' });
+    expect(s.run!.hp).toBe(hp - 10);
+    expect(s.run!.battle!.block).toBe(20);
   });
 });

@@ -131,6 +131,7 @@ export function BattleScreen({
                       {plan.hits > 1 ? `×${plan.hits}` : ''}
                     </b>
                   )}
+                  {plan.pierce && <b>穿透</b>}
                   {plan.shield > 0 && <b>{plan.shield}</b>}
                   {plan.heal && <b>＋{plan.heal}</b>}
                 </span>

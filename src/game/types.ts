@@ -138,6 +138,7 @@ export interface Intent {
   jam?: number;
   strength?: number;
   summon?: string[];
+  pierce?: boolean;
 }
 export interface BattleNumber {
   target: string | 'player';

@@ -205,7 +205,7 @@ export function EvolutionTree({
         <div className="requirement-list">
           <div className={status.stage || status.achieved ? 'met' : ''}>
             <Check size={15} />
-            <span>{stageRequirement(d.stage)}</span>
+            <span>{stageRequirement(d.stage, activeRun?.chapterRows)}</span>
           </div>
           {d.stage > 0 && (
             <div className={status.parent || status.achieved ? 'met' : ''}>
@@ -420,7 +420,7 @@ export function EvolutionTracker({
                       .join(' 或 '),
                   )
                   .join(' · ')
-              : stageRequirement(EVOLUTIONS[id].stage)}
+              : stageRequirement(EVOLUTIONS[id].stage, run.chapterRows)}
           {s.data.some((t) => !t.met) ? ' · 缺少永久资料' : ''}
         </small>
       </span>

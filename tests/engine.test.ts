@@ -464,7 +464,18 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
             (branch === 'megidra'
               ? b.enemies.filter((e) => e.hp > 0).sort((a, b) => b.burn - a.burn || a.hp - b.hp)[0]
               : undefined) ?? b.enemies.filter((e) => e.hp > 0).sort((a, b2) => a.hp - b2.hp)[0]!;
-        if (r.potions > 0 && r.hp <= r.maxHp - 18) {
+        const incoming = b.enemies
+          .filter((e) => e.hp > 0)
+          .reduce((n, e) => {
+            const i = intent(r, e);
+            return n + i.damage * i.hits;
+          }, 0);
+        // 药水留给致命威胁或濒死时刻，模拟真实玩家为 boss 战存药。
+        if (
+          r.potions > 0 &&
+          r.hp <= r.maxHp - 18 &&
+          (incoming >= r.hp || r.hp <= r.maxHp * 0.25)
+        ) {
           action = { type: 'potion' };
           break;
         }
@@ -476,12 +487,6 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
           action = { type: 'burst' };
           break;
         }
-        const incoming = b.enemies
-          .filter((e) => e.hp > 0)
-          .reduce((n, e) => {
-            const i = intent(r, e);
-            return n + i.damage * i.hits;
-          }, 0);
         const candidates = b.hand.filter((c) => cardCost(c) <= b.energy);
         const score = (c: (typeof candidates)[number]) => {
           const d = CARDS[c.id];
@@ -520,6 +525,11 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
           if (d.all) score *= b.enemies.filter((e) => e.hp > 0).length;
           // Boss 拖局惩罚意识：第 8 回合起优先抢伤害，模拟玩家读到狂暴预告后的提速。
           if (r.currentNode?.kind === 'boss' && b.turn >= 8 && d.damage) score *= 1.6;
+          // 狂暴已叠满后进入纯竞速：伤害权重再抬、护驾贬值。
+          if (r.currentNode?.kind === 'boss' && b.turn >= 11) {
+            if (d.damage) score *= 1.4;
+            if (d.shield) score *= 0.5;
+          }
           if (d.special === 'sacrifice') score -= 8;
           if (branch === 'chaos') {
             if (r.stage === 0 && d.burn) score += 10;

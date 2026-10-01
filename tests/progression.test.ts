@@ -29,7 +29,7 @@ function ready(form: string) {
     r = s.run!;
   r.form = d.parents[0];
   r.stage = d.stage - 1;
-  r.bosses = d.stage === 1 ? 0 : d.stage === 2 ? 1 : 3;
+  r.bosses = d.stage === 1 ? 0 : d.stage === 2 ? 2 : 3;
   r.victories = 8;
   r.row = d.stage === 1 ? 3 : d.stage === 2 ? 9 : 29;
   r.currentNode = r.nodes[r.row][0];
@@ -326,12 +326,17 @@ describe('evolution conditions and branching', () => {
     s.run!.form = 'renamon';
     expect(evolutionStatus(s.run!, s.meta, 'blackgrowmon').ready).toBe(false);
   });
-  it('ultimate stage unlocks after the chapter 2 boss', () => {
-    const s = ready('dukemon');
-    s.run!.bosses = 1;
-    expect(evolutionStatus(s.run!, s.meta, 'dukemon').ready).toBe(false);
-    s.run!.bosses = 2;
-    expect(evolutionStatus(s.run!, s.meta, 'dukemon').ready).toBe(true);
+  it('stage gates follow chapter bosses', () => {
+    const ultimate = ready('dukemon');
+    ultimate.run!.bosses = 2;
+    expect(evolutionStatus(ultimate.run!, ultimate.meta, 'dukemon').ready).toBe(false);
+    ultimate.run!.bosses = 3;
+    expect(evolutionStatus(ultimate.run!, ultimate.meta, 'dukemon').ready).toBe(true);
+    const perfect = ready('rapidmon');
+    perfect.run!.bosses = 1;
+    expect(evolutionStatus(perfect.run!, perfect.meta, 'rapidmon').ready).toBe(false);
+    perfect.run!.bosses = 2;
+    expect(evolutionStatus(perfect.run!, perfect.meta, 'rapidmon').ready).toBe(true);
   });
   it('Doumon purification needs data and both behavior conditions', () => {
     const s = ready('sakuyamon');

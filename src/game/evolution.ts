@@ -417,7 +417,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         groups: [
           [
             { metric: 'kills', goal: 25 },
-            { metric: 'devourSpent', goal: 15 },
+            { metric: 'devourSpent', goal: 30 },
           ],
         ],
         slot: 1,

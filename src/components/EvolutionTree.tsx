@@ -252,6 +252,13 @@ export function EvolutionTree({
           <p className="condition-hint">主线成长：满足阶段与前置形态即可进化。</p>
         )}
         <h4>{choose ? '将获得的两张招牌牌' : '招牌卡片'}</h4>
+        {choose && d.signatureUpgrade && (
+          <p className="condition-hint">
+            招牌牌强化：卡组中已有的{' '}
+            {(EVOLUTIONS[d.parents[0]]?.cards ?? []).map((id) => CARDS[id].name).join('、')}{' '}
+            将被强化。
+          </p>
+        )}
         <div className="evolution-new-cards">
           {d.cards.map((id, i) => (
             <GameCard
@@ -263,9 +270,8 @@ export function EvolutionTree({
                 id,
                 upgraded:
                   choose &&
-                  (d.stage < 3
-                    ? !!d.signatureUpgrade
-                    : !!run?.deck.find((c) => c.uid === replacements[i])?.upgraded),
+                  d.stage === 3 &&
+                  !!run?.deck.find((c) => c.uid === replacements[i])?.upgraded,
               }}
             />
           ))}

@@ -281,22 +281,35 @@ describe('evolution conditions and branching', () => {
     expect(s.run!.deck[0].upgraded).toBe(d.stage === 3);
     expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(d.cards);
   });
-  it.each([
-    ['growlmon', true],
-    ['kyubimon', true],
-    ['sorcerymon', true],
-    ['galgomon', false],
-    ['blackgalgomon', false],
-    ['rapidmon', false],
-    ['matadormon', false],
-  ])(
-    'grants %s signature cards upgraded=%s per the signature-upgrade passive',
-    (form, upgraded) => {
+  it.each([['growlmon'], ['kyubimon'], ['sorcerymon'], ['galgomon'], ['matadormon']])(
+    'evolving to %s grants un-upgraded new cards',
+    (form) => {
       const s = ready(form);
       for (const group of EVOLUTIONS[form].groups)
         for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
-      const after = reduceGame(s, { type: 'evolve', form, replace: replacements(s) }).run!;
-      expect(after.deck.slice(0, 2).map((c) => c.upgraded)).toEqual([upgraded, upgraded]);
+      const uids = replacements(s);
+      const after = reduceGame(s, { type: 'evolve', form, replace: uids }).run!;
+      expect(after.deck.filter((c) => uids.includes(c.uid)).map((c) => c.upgraded)).toEqual([
+        false,
+        false,
+      ]);
+    },
+  );
+  it.each([
+    ['growlmon', ['fireball', 'rock']],
+    ['kyubimon', ['leaf', 'talisman']],
+    ['sorcerymon', ['nightfire', 'taunt']],
+  ])(
+    'evolving to %s upgrades existing signature cards instead of the new ones',
+    (form, signature) => {
+      const s = ready(form);
+      for (const group of EVOLUTIONS[form].groups)
+        for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
+      const uids = replacements(s);
+      const after = reduceGame(s, { type: 'evolve', form, replace: uids }).run!;
+      const kept = after.deck.filter((c) => !uids.includes(c.uid) && signature.includes(c.id));
+      expect(kept.length).toBeGreaterThan(0);
+      expect(kept.every((c) => c.upgraded)).toBe(true);
     },
   );
   it('OR alternatives work without also requiring the other option', () => {

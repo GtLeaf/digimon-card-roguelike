@@ -151,11 +151,18 @@ export function evolveAction(s: Save, action: Extract<Action, { type: 'evolve' }
   if (!evolutionStatus(r, meta, form).ready && !legacy) return false;
   const ids = [...new Set(action.replace ?? [])];
   if (ids.length !== 2 || ids.some((uid) => !r.deck.some((c) => c.uid === uid))) return false;
+  const previousForm = r.form;
+  if (d.signatureUpgrade) {
+    const signatureIds = EVOLUTIONS[previousForm]?.cards ?? [];
+    r.deck.forEach((c) => {
+      if (signatureIds.includes(c.id)) c.upgraded = true;
+    });
+  }
   ids.forEach((uid, i) => {
     const c = r.deck.find((x) => x.uid === uid);
     if (c) {
       c.id = d.cards[i];
-      if (d.stage < 3) c.upgraded = !!d.signatureUpgrade;
+      if (d.stage < 3) c.upgraded = false;
     }
   });
   r.form = form;

@@ -487,8 +487,7 @@ export interface EvolutionStatus {
   achieved: boolean;
 }
 export function stageLimit(r: Run): number {
-  const megaGate = r.chapterRows === 8 ? 2 : 3;
-  return r.bosses >= megaGate ? 3 : r.bosses >= 1 ? 2 : r.row >= 3 ? 1 : 0;
+  return r.bosses >= 2 ? 3 : r.bosses >= 1 ? 2 : r.row >= 3 ? 1 : 0;
 }
 export function evolutionStatus(r: Run | null, meta: Meta, id: string): EvolutionStatus {
   const d = EVOLUTIONS[id];
@@ -570,12 +569,12 @@ export function nextEvolutions(r: Run): EvolutionDef[] {
   );
 }
 export const stageName = (stage: number) => ['成长期', '成熟期', '完全体', '究极体'][stage];
-export const stageRequirement = (stage: number, chapterRows = 10) =>
+export const stageRequirement = (stage: number) =>
   [
     '初始搭档',
     '到达第1章第4层；赢得2场战斗',
     '击败第1章首领',
-    chapterRows === 8 ? '击败第2章首领' : '击败第3章首领',
+    '击败第2章首领',
   ][stage];
 export function activityGains(before: Activity, after: Activity): string[] {
   return (Object.keys(METRIC_NAMES) as Metric[])

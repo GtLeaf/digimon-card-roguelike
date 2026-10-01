@@ -326,6 +326,13 @@ describe('evolution conditions and branching', () => {
     s.run!.form = 'renamon';
     expect(evolutionStatus(s.run!, s.meta, 'blackgrowmon').ready).toBe(false);
   });
+  it('ultimate stage unlocks after the chapter 2 boss', () => {
+    const s = ready('dukemon');
+    s.run!.bosses = 1;
+    expect(evolutionStatus(s.run!, s.meta, 'dukemon').ready).toBe(false);
+    s.run!.bosses = 2;
+    expect(evolutionStatus(s.run!, s.meta, 'dukemon').ready).toBe(true);
+  });
   it('Doumon purification needs data and both behavior conditions', () => {
     const s = ready('sakuyamon');
     s.run!.form = 'doumon';

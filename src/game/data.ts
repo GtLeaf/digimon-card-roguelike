@@ -1142,7 +1142,6 @@ export const cardText = (c: { id: string; upgraded: boolean }) => {
   let text = d.text;
   if (d.damage) text = text.replace(/造成 \d+/, `造成 ${d.damage + (d.upgradeDamage ?? 3)}`);
   if (d.shield) text = text.replace(/获得 \d+ (?:点)?护盾/, `获得 ${d.shield + 3} 护盾`);
-  if (!d.damage && !d.shield) text += ` 强化：费用 ${d.cost}→${Math.max(0, d.cost - 1)}。`;
   return text;
 };
 export const needsTarget = (d: CardDef) =>

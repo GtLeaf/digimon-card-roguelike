@@ -536,8 +536,10 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
       case 'reward': {
         const pool = r.reward!.cards;
         // 牌组臃肿后只拿核心牌，其余跳过，模拟真实玩家的薄牌组策略。
-        const fav = r.deck.length > 18 ? favs.slice(0, 6) : favs;
-        const pick = fav.find((id) => pool.includes(id));
+        const fav = r.deck.length > 18 ? favs.slice(0, 3) : favs;
+        const pick = fav.find(
+          (id) => pool.includes(id) && r.deck.filter((x) => x.id === id).length < 2,
+        );
         action = { type: 'reward', card: pick };
         break;
       }
@@ -670,7 +672,7 @@ describe('full journey', () => {
       }),
     ).toBeLessThan(2000);
     expect(save.run!.screen).toBe('result');
-    expect(save.run!.won, `Stopped at row ${save.run!.row}, hp ${save.run!.hp}`).toBe(true);
+    expect(save.run!.won, `Stopped at row ${save.run!.row}, hp ${save.run!.hp}, foes ${JSON.stringify(save.run!.battle?.enemies?.map((e) => `${e.id}:${e.hp}`))}, deck ${JSON.stringify(save.run!.deck.map((c) => c.id + (c.upgraded ? '+' : '')))}, log ${JSON.stringify(save.run!.battle?.log?.slice(-25))}`).toBe(true);
     expect(save.run!.stage, JSON.stringify(save.run!.activity)).toBe(3);
     expect(save.run!.branch).toBe(branch);
     if (branch === 'chaos') {
@@ -816,14 +818,16 @@ describe('zero-cost card upgrades', () => {
     s.run!.battle!.hand[0].upgraded = true;
     return s;
   };
-  it('upgraded battery grants 2 energy instead of 1', () => {
+  it('upgraded battery draws 1 on top of the 1 energy', () => {
     let s = upgradedHand(fight(), 'battery');
     s = reduceGame(s, { type: 'play', uid: 'test0' });
-    expect(s.run!.battle!.energy).toBe(7);
+    expect(s.run!.battle!.energy).toBe(6);
+    expect(s.run!.battle!.hand).toHaveLength(1);
     let t = fight();
     hand(t, ['battery']);
     t = reduceGame(t, { type: 'play', uid: 'test0' });
     expect(t.run!.battle!.energy).toBe(6);
+    expect(t.run!.battle!.hand).toHaveLength(0);
   });
   it('upgraded haste draws two and insight draws three', () => {
     let s = upgradedHand(fight(), 'haste');
@@ -851,7 +855,7 @@ describe('zero-cost card upgrades', () => {
     expect(s.run!.battle!.hand).toHaveLength(2);
   });
   it('cardText shows the upgraded effect instead of an empty cost reduction', () => {
-    expect(cardText({ id: 'battery', upgraded: true })).toBe('获得 2 点行动力。耗竭。');
+    expect(cardText({ id: 'battery', upgraded: true })).toBe('获得 1 点行动力，抽 1 张牌。耗竭。');
     expect(cardText({ id: 'battery', upgraded: false })).toBe('获得 1 点行动力。耗竭。');
     expect(cardText({ id: 'haste', upgraded: true })).toBe('抽 2 张牌。耗竭。');
   });

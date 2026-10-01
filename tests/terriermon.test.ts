@@ -93,7 +93,7 @@ describe('charge and multihit combat rules', () => {
     const hp = s.run!.battle!.enemies[0].hp;
     s = play(s, 2);
     expect(hp - s.run!.battle!.enemies[0].hp).toBe(10);
-    expect(s.run!.battle!.charge).toBe(2);
+    expect(s.run!.battle!.charge).toBe(1);
     s = play(s, 3);
     expect(s.run!.activity.counts.cannonShots).toBe(1);
     expect(s.run!.battle!.charge).toBe(0);
@@ -173,7 +173,7 @@ describe('charge and multihit combat rules', () => {
     hand(s, ['charge']);
     s = play(s, 0);
     s = reduceGame(s, { type: 'endTurn' });
-    expect(s.run!.battle!.charge).toBe(2);
+    expect(s.run!.battle!.charge).toBe(1);
     s.run!.battle!.enemies[0].hp = 1;
     s.run!.battle!.enemies[0].block = 0;
     hand(s, ['strike']);
@@ -341,7 +341,10 @@ function journey(branch: Branch) {
       }
       case 'battle': {
         const b = r.battle!,
-          target = b.enemies.find((e) => e.hp > 0)!;
+          alive = b.enemies.filter((e) => e.hp > 0),
+          // 多场战斗先清低血小怪减少承伤，单体 Boss 战则集火本体。
+          target =
+            alive.length >= 3 ? alive.sort((a, b2) => a.hp - b2.hp)[0] : alive[0];
         if (r.potions && r.hp <= r.maxHp - 18) {
           action = { type: 'potion' };
           break;
@@ -399,14 +402,15 @@ function journey(branch: Branch) {
           ? [
               'blackReload',
               'suppressBarrage',
+              'fortressLoad',
               'gravityField',
               'zoneSuppress',
-              'fortressLoad',
               'blackMissile',
-              'charge',
               'brace',
+              'fortify',
               'mend',
               'ambushUpper',
+              'charge',
             ]
           : ['rapidFire', 'gatling', 'dumUpper', 'brace', 'mend', 'battery', 'blazingShot'];
         action = {
@@ -488,6 +492,9 @@ describe('Terriermon full journeys', () => {
         hp: s.run!.hp,
         counts: s.run!.activity.counts,
         screen: s.run!.screen,
+        log: s.run!.battle?.log?.slice(-25),
+        foes: s.run!.battle?.enemies?.map((e) => `${e.id}:${e.hp}`),
+        deck: s.run!.deck.map((c) => c.id + (c.upgraded ? '+' : '')),
       });
       expect(steps, context).toBeLessThan(2000);
       expect(s.run!.won, context).toBe(true);

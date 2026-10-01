@@ -39,7 +39,8 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
     card('battery', '能量装填', 0, 'skill', 'common', '获得 1 点行动力。耗竭。', 'hagurumon', {
       energy: 1,
       exhaust: true,
-      upgradeText: '获得 2 点行动力。耗竭。',
+      upgradeDraw: 1,
+      upgradeText: '获得 1 点行动力，抽 1 张牌。耗竭。',
     }),
     card('study', '紧急分析', 1, 'skill', 'common', '抽 2 张牌。', 'renamon', { draw: 2 }),
     card(
@@ -65,8 +66,8 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       damage: 4,
       special: 'shieldhit',
     }),
-    card('charge', '蓄能指令', 1, 'power', 'common', '获得 2 蓄能，获得 4 护盾。', 'andromon', {
-      charge: 2,
+    card('charge', '蓄能指令', 1, 'power', 'common', '获得 1 蓄能，获得 4 护盾。', 'andromon', {
+      charge: 1,
       shield: 4,
     }),
     card(
@@ -111,6 +112,7 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
     card('roar', '勇气咆哮', 1, 'power', 'guilmon', '本场攻击每段伤害＋1。耗竭。', 'guilmon', {
       strength: 1,
       exhaust: true,
+      upgradeText: '本场攻击每段伤害＋2。耗竭。',
     }),
     card(
       'heatwave',
@@ -118,9 +120,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'guilmon',
-      '对所有敌人造成 3 伤害，施加 2 灼烧。',
+      '对所有敌人造成 3 伤害，施加 1 灼烧。',
       'growlmon',
-      { damage: 3, burn: 2, all: true },
+      { damage: 3, burn: 1, all: true },
     ),
     card(
       'sacrifice',
@@ -217,8 +219,8 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       damage: 22,
       shield: 8,
     }),
-    card('aegis', '圣盾守护', 1, 'skill', 'duke', '获得 13 护盾，抽 1 张牌。', 'dukemon', {
-      shield: 13,
+    card('aegis', '圣盾守护', 1, 'skill', 'duke', '获得 10 护盾，抽 1 张牌。', 'dukemon', {
+      shield: 10,
       draw: 1,
     }),
     card(
@@ -237,9 +239,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'megidra',
-      '对所有敌人施加 5 灼烧。',
+      '对所有敌人施加 3 灼烧。',
       'megidramon',
-      { burn: 5, all: true },
+      { burn: 3, all: true },
     ),
     card(
       'sacred',
@@ -287,9 +289,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'guilmon',
-      '造成 7 伤害，施加 3 灼烧。',
+      '造成 7 伤害，施加 2 灼烧。',
       'blackgrowmon',
-      { damage: 7, burn: 3, series: 'fireball' },
+      { damage: 7, burn: 2, series: 'fireball' },
     ),
     card(
       'bloodedge',
@@ -342,9 +344,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'common',
-      '造成 8 伤害；若造成生命伤害，回复 3 生命。',
+      '造成 6 伤害；若造成生命伤害，回复 3 生命。',
       'chaosdukemon',
-      { damage: 8, drain: 3 },
+      { damage: 6, drain: 3 },
     ),
     card(
       'chaoslance',
@@ -492,9 +494,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'skill',
       'blacksaint',
-      '获得 12 护盾，获得 2 蓄能。',
+      '获得 10 护盾，获得 2 蓄能。',
       'blacksaintgalgomon',
-      { shield: 12, charge: 2 },
+      { shield: 10, charge: 2 },
     ),
     card(
       'suppressBarrage',
@@ -549,7 +551,7 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
         convert: 5,
       },
     ),
-    card('taunt', '嘲笑', 1, 'skill', 'impmon', '施加 2 虚弱。', 'impmon', { weak: 2 }),
+    card('taunt', '嘲笑', 1, 'skill', 'impmon', '施加 2 虚弱，抽 1 张牌。', 'impmon', { weak: 2, draw: 1 }),
     card('prank', '恶作剧', 0, 'skill', 'impmon', '抽 1 张牌。耗竭。', 'impmon', {
       draw: 1,
       exhaust: true,
@@ -702,9 +704,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'impmon',
-      '造成 5×2 段伤害；此牌每造成 5 点伤害，获得 1 噬能。',
+      '造成 4×2 段伤害；此牌每造成 4 点伤害，获得 1 噬能。',
       'beelzebumon',
-      { damage: 5, hits: 2, convert: 5 },
+      { damage: 4, hits: 2, convert: 4 },
     ),
     card(
       'deathCannon',

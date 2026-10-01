@@ -58,6 +58,8 @@ export interface CardDef {
   chargedDamage?: number;
   upgradeDamage?: number;
   upgradeText?: string;
+  // 强化后额外抽牌（设置后能量强化不再享受默认 +1）
+  upgradeDraw?: number;
   strength?: number;
   all?: boolean;
   exhaust?: boolean;

@@ -180,8 +180,11 @@ export function intent(r: Run, e: Enemy): Intent {
       detail: '本回合已承受 20 点攻击伤害，重击被打断。',
     };
   i = expandedIntent(r, e) ?? i;
-  // Boss 软狂暴：第 11 回合起攻击伤害每回合＋2（至多＋8），数值直接体现在意图预告中。
-  const enrage = r.currentNode?.kind === 'boss' ? Math.min(8, Math.max(0, turn - 10) * 2) : 0;
+  // Boss 软狂暴：第 11 回合起攻击伤害每回合＋2（至多＋8），仅作用于 Boss 本体，召唤物不继承；数值直接体现在意图预告中。
+  const enrage =
+    r.currentNode?.kind === 'boss' && e.summonedTurn === undefined
+      ? Math.min(8, Math.max(0, turn - 10) * 2)
+      : 0;
   if (i.type === 'attack') {
     i.damage = Math.max(0, i.damage + e.strength + enrage - e.weakened);
     if (e.rogue && i.damage > 0) i.damage = Math.max(1, i.damage - 2);
@@ -509,8 +512,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
       b.feedback.push({ target: 'player', kind: 'heal', amount: r.hp - before });
     }
   }
-  if (d.energy) b.energy += d.energy + (c.upgraded && d.upgradeText ? 1 : 0);
-  if (d.strength) b.strength += d.strength;
+  if (d.energy) b.energy += d.energy + (c.upgraded && d.upgradeText && !d.upgradeDraw ? 1 : 0);
+  if (d.strength) b.strength += d.strength + (c.upgraded && d.upgradeText ? 1 : 0);
   if (d.charge) {
     b.charge += d.charge;
     count(r, 'charges');
@@ -642,6 +645,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (d.kind === 'attack') fire(r, (h, cx) => h.onAttackPlayed?.(cx, b.attackPlays));
   if (d.draw) draw(r, d.draw + (c.upgraded && d.upgradeText ? 1 : 0));
+  else if (c.upgraded && d.upgradeDraw) draw(r, d.upgradeDraw);
   if (r.inherit === 'flow' && r.stage > 0 && b.played === 1 && d.kind === 'skill') b.block += 2;
   if (d.exhaust || c.copied || c.temporary) b.exhaust.push(c);
   else b.discard.push(c);

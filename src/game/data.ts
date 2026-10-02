@@ -552,10 +552,10 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       },
     ),
     card('taunt', '嘲笑', 1, 'skill', 'impmon', '施加 2 虚弱，抽 1 张牌。', 'impmon', { weak: 2, draw: 1 }),
-    card('prank', '恶作剧', 0, 'skill', 'impmon', '抽 1 张牌。耗竭。', 'impmon', {
-      draw: 1,
+    card('prank', '恶作剧', 0, 'skill', 'impmon', '获得 1 层噬能。耗竭。', 'impmon', {
+      devour: 1,
       exhaust: true,
-      upgradeText: '抽 2 张牌。耗竭。',
+      upgradeText: '获得 2 层噬能。耗竭。',
     }),
     card(
       'devourTrick',

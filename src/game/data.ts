@@ -31,7 +31,7 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
     card('fortify', '防护屏障', 2, 'skill', 'common', '获得 17 点护盾。', 'andromon', {
       shield: 17,
     }),
-    card('mend', '数据修复', 1, 'skill', 'common', '回复 5 点生命。耗竭。', 'mushmon', {
+    card('mend', '数据修复', 2, 'skill', 'common', '回复 5 点生命。耗竭。', 'mushmon', {
       heal: 5,
       exhaust: true,
       upgradeText: '回复 7 点生命。耗竭。',

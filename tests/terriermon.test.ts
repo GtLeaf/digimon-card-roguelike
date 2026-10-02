@@ -345,7 +345,18 @@ function journey(branch: Branch) {
           // 多场战斗先清低血小怪减少承伤，单体 Boss 战则集火本体。
           target =
             alive.length >= 3 ? alive.sort((a, b2) => a.hp - b2.hp)[0] : alive[0];
-        if (r.potions && r.hp <= r.maxHp - 18) {
+        const incoming = b.enemies
+          .filter((e) => e.hp > 0)
+          .reduce((n, e) => {
+            const i = intent(r, e);
+            return n + i.damage * i.hits;
+          }, 0);
+        // 药水留给致命威胁或濒死时刻，模拟真实玩家为 boss 战存药。
+        if (
+          r.potions &&
+          r.hp <= r.maxHp - 18 &&
+          (incoming >= r.hp || r.hp <= r.maxHp * 0.25)
+        ) {
           action = { type: 'potion' };
           break;
         }
@@ -357,12 +368,6 @@ function journey(branch: Branch) {
           action = { type: 'burst' };
           break;
         }
-        const incoming = b.enemies
-          .filter((e) => e.hp > 0)
-          .reduce((n, e) => {
-            const i = intent(r, e);
-            return n + i.damage * i.hits;
-          }, 0);
         const score = (id: string, upgraded: boolean) => {
           const d = CARDS[id],
             up = upgraded ? 3 : 0;
@@ -389,6 +394,12 @@ function journey(branch: Branch) {
             d.special === 'cannon'
           )
             score -= 25;
+          // Boss 拖局惩罚意识：狂暴叠满后进入纯竞速，与全旅程回归 bot 一致。
+          if (r.currentNode?.kind === 'boss' && b.turn >= 8 && damage) score *= 1.6;
+          if (r.currentNode?.kind === 'boss' && b.turn >= 11) {
+            if (damage) score *= 1.4;
+            if (d.shield) score *= 0.5;
+          }
           return score / Math.max(0.5, cardCost({ id, upgraded, uid: '' }));
         };
         const c = b.hand

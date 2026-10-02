@@ -119,7 +119,7 @@ const bestProducer = (ps: Producer[]) =>
 
 interface ComboRow {
   spender: CardDef;
-  resource: '噬能' | '蓄能';
+  resource: string;
   producerName: string;
   minLayers: number;
   minRatio: number;
@@ -130,41 +130,85 @@ interface ComboRow {
 const comboRows: ComboRow[] = [];
 const checkCombos = (
   spender: CardDef,
-  resource: '噬能' | '蓄能',
+  resource: string,
   producer: Producer,
   minLayers: number,
-  cap: number,
+  cap: number, // 0 = 无满载概念（一次性配对），只校验最小 combo
+  valueAt: (layers: number) => number,
 ) => {
   const pkg = (layers: number) => {
     const prodCount = Math.ceil(layers / producer.layers);
     const cost = prodCount * effCostOf(producer.d) + effCostOf(spender);
-    const v = prodCount * producer.net + (value(spender, false, layers) - 0);
-    return v / (7 * cost); // 1.0 = 与白板等效
+    return (prodCount * producer.net + valueAt(layers)) / (7 * cost); // 1.0 = 与白板等效
   };
   const minRatio = pkg(minLayers),
-    fullRatio = pkg(cap);
+    fullRatio = cap > 0 ? pkg(cap) : minRatio;
   comboRows.push({
     spender,
     resource,
     producerName: producer.d.name,
     minLayers,
     minRatio,
-    fullLayers: cap,
+    fullLayers: cap > 0 ? cap : minLayers,
     fullRatio,
     // 最小 combo 必须 ≥ 白板，满载 combo 应给出 ≥15% 滚雪球奖励
-    flag: minRatio < 1 || fullRatio < 1.15 ? '⚠️' : '',
+    flag: minRatio < 1 || (cap > 0 && fullRatio < 1.15) ? '⚠️' : '',
   });
 };
 const devourBest = bestProducer(devourProducers),
   chargeBest = bestProducer(chargeProducers);
 for (const d of allCards) {
   if (d.special === 'devour' && devourBest)
-    checkCombos(d, '噬能', devourBest, 1, d.devourAll ? 6 : 3);
-  else if ((d.devourShield || d.devourWeak || d.devourHeal || d.devourVuln) && devourBest)
-    checkCombos(d, '噬能', devourBest, 1, 3);
+    checkCombos(d, '噬能', devourBest, 1, d.devourAll ? 6 : 3, (n) => value(d, false, n));
+  else if ((d.devourShield || d.devourWeak || d.devourHeal) && devourBest)
+    checkCombos(d, '噬能', devourBest, 1, 3, (n) => value(d, false, n));
+  else if (d.devourVuln && devourBest)
+    // 噬能侵蚀保底：不足 3 层时不消耗层数，产出的噬能仍在存款里，补回未消耗部分。
+    checkCombos(
+      d,
+      '噬能',
+      devourBest,
+      1,
+      3,
+      (n) => value(d, false, n) + (n < 3 ? n * W.devourGain : 0),
+    );
   else if (d.special === 'cannon' && chargeBest)
-    checkCombos(d, '蓄能', chargeBest, 1, 2);
+    checkCombos(d, '蓄能', chargeBest, 1, 2, (n) => value(d, false, n));
 }
+// 灼烧 → 引爆：灼烧的延迟价值全部折算到引爆端，产出端只计牌面净收益。
+const burnProducers: Producer[] = allCards
+  .filter((d) => d.burn && d.special !== 'detonate')
+  .map((d) => ({ d, layers: d.burn!, net: value(d, false, 0) - d.burn! * W.burn }));
+const burnBest = bestProducer(burnProducers);
+for (const d of allCards.filter((x) => x.special === 'detonate'))
+  if (burnBest) checkCombos(d, '灼烧', burnBest, 1, 3, (n) => (d.damage ?? 0) + n * 3);
+// 符印 → 爆发：同上，符印价值在爆发端结算。
+const markProducers: Producer[] = allCards
+  .filter((d) => d.mark && d.special !== 'markburst')
+  .map((d) => ({ d, layers: d.mark!, net: value(d, false, 0) - d.mark! * W.mark }));
+const markBest = bestProducer(markProducers);
+for (const d of allCards.filter((x) => x.special === 'markburst'))
+  if (markBest)
+    checkCombos(d, '符印', markBest, 1, 3, (n) => (d.damage ?? 0) + n * (d.markPower ?? 5));
+// 护盾 → 盾击：护盾本身是有效防御不剥分，盾击按产出牌护盾量折算追加伤害。
+const shieldBest = bestProducer(
+  allCards
+    .filter((d) => d.shield && d.kind === 'skill' && !d.devourShield)
+    .map((d) => ({ d, layers: 1, net: value(d, false, 0) })),
+);
+for (const d of allCards.filter((x) => x.special === 'shieldhit'))
+  if (shieldBest)
+    checkCombos(d, '护盾', shieldBest, 1, 0, () =>
+      (d.damage ?? 0) + Math.floor((shieldBest.d.shield ?? 0) / 2),
+    );
+// 虚弱 → 引逗：虚弱本身是有效减益不剥分，引逗按命中虚弱目标的追加伤害折算。
+const weakBest = bestProducer(
+  allCards
+    .filter((d) => d.weak && d.special !== 'lure')
+    .map((d) => ({ d, layers: 1, net: value(d, false, 0) })),
+);
+for (const d of allCards.filter((x) => x.special === 'lure'))
+  if (weakBest) checkCombos(d, '虚弱', weakBest, 1, 0, () => (d.damage ?? 0) + 4);
 
 const lines: string[] = [
   '# 卡牌强度审计（基准差值法：1 费 = 7 点价值）',

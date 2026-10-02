@@ -511,6 +511,12 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
           // 全量爆发牌存到 4 层以上再放，除非当前层数已经够斩杀。
           if (d.devourAll && b.devour < 4 && (d.damage ?? 0) + b.devour * 4 < target.hp) score = 0;
           if (d.convert) score += 4;
+          // 噬能逼近上限时优先打出消费牌，避免层数溢出浪费（真人的"不用就亏"意识）。
+          if (
+            b.devour >= 5 &&
+            (d.special === 'devour' || d.devourShield || d.devourWeak || d.devourVuln)
+          )
+            score += 15;
           if (d.devourShield) score += layers * d.devourShield * 1.7;
           if (d.devourWeak) score += layers * d.devourWeak * 3;
           if (d.devourHeal) score += layers * d.devourHeal * (r.hp < r.maxHp * 0.7 ? 2 : 0);
@@ -548,7 +554,7 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
         // 牌组臃肿后只拿核心牌，其余跳过，模拟真实玩家的薄牌组策略。
         const fav = r.deck.length > 18 ? favs.slice(0, 3) : favs;
         const pick = fav.find(
-          (id) => pool.includes(id) && r.deck.filter((x) => x.id === id).length < 2,
+          (id) => pool.includes(id) && r.deck.filter((x) => x.id === id).length < 3,
         );
         action = { type: 'reward', card: pick };
         break;
@@ -971,7 +977,7 @@ describe('impmon partner line', () => {
     s.run!.battle!.devour = 3;
     const hp = e.hp;
     s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
-    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 10);
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 15);
     expect(s.run!.battle!.devour).toBe(0);
     let t = impFight();
     hand(t, ['magicShield']);

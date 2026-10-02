@@ -563,9 +563,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'impmon',
-      '造成 4 伤害；消耗至多 3 层噬能，每层额外 2 伤害。',
+      '造成 6 伤害；消耗至多 3 层噬能，每层额外 3 伤害。',
       'impmon',
-      { damage: 4, special: 'devour', devourPower: 2 },
+      { damage: 6, special: 'devour', devourPower: 3 },
     ),
     card(
       'frostSorcery',

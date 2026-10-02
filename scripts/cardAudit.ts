@@ -85,6 +85,87 @@ const rows = Object.values(CARDS)
   .sort((a, b) => b.up.full - a.up.full);
 
 const fmt = (n: number) => (n >= 0 ? `+${n.toFixed(1)}` : n.toFixed(1));
+
+// ===== Combo 校验：产出牌 + 消费牌的整包价值必须跑赢白板基准（每费 7 分）=====
+// 产出牌只计牌面直接收益（剥掉资源产生分），资源价值全部在消费端结算——避免双层计分。
+const allCards = Object.values(CARDS).filter((d) => d.family !== 'status');
+
+interface Producer {
+  d: CardDef;
+  layers: number;
+  net: number; // 剥掉资源分后的净价值
+}
+const devourProducers: Producer[] = [],
+  chargeProducers: Producer[] = [];
+for (const d of allCards) {
+  const dmg = (d.damage ?? 0) * (d.hits ?? 1);
+  const dv =
+    (d.devour ?? 0) + (d.convert && dmg ? Math.min(2, Math.floor(dmg / d.convert)) : 0);
+  if (dv > 0)
+    devourProducers.push({
+      d,
+      layers: dv,
+      net: value(d, false, 0) - dv * W.devourGain,
+    });
+  if (d.charge)
+    chargeProducers.push({ d, layers: d.charge, net: value(d, false, 0) - d.charge * W.charge });
+}
+// 选费效比最优的产出牌（净价值/费用），模拟真实玩家会带的那张。
+const effCostOf = (d: CardDef) => (d.cost === 0 ? 0.5 : d.cost);
+const bestProducer = (ps: Producer[]) =>
+  ps.length
+    ? ps.reduce((a, b) => (a.net / effCostOf(a.d) > b.net / effCostOf(b.d) ? a : b))
+    : undefined;
+
+interface ComboRow {
+  spender: CardDef;
+  resource: '噬能' | '蓄能';
+  producerName: string;
+  minLayers: number;
+  minRatio: number;
+  fullLayers: number;
+  fullRatio: number;
+  flag: string;
+}
+const comboRows: ComboRow[] = [];
+const checkCombos = (
+  spender: CardDef,
+  resource: '噬能' | '蓄能',
+  producer: Producer,
+  minLayers: number,
+  cap: number,
+) => {
+  const pkg = (layers: number) => {
+    const prodCount = Math.ceil(layers / producer.layers);
+    const cost = prodCount * effCostOf(producer.d) + effCostOf(spender);
+    const v = prodCount * producer.net + (value(spender, false, layers) - 0);
+    return v / (7 * cost); // 1.0 = 与白板等效
+  };
+  const minRatio = pkg(minLayers),
+    fullRatio = pkg(cap);
+  comboRows.push({
+    spender,
+    resource,
+    producerName: producer.d.name,
+    minLayers,
+    minRatio,
+    fullLayers: cap,
+    fullRatio,
+    // 最小 combo 必须 ≥ 白板，满载 combo 应给出 ≥15% 滚雪球奖励
+    flag: minRatio < 1 || fullRatio < 1.15 ? '⚠️' : '',
+  });
+};
+const devourBest = bestProducer(devourProducers),
+  chargeBest = bestProducer(chargeProducers);
+for (const d of allCards) {
+  if (d.special === 'devour' && devourBest)
+    checkCombos(d, '噬能', devourBest, 1, d.devourAll ? 6 : 3);
+  else if ((d.devourShield || d.devourWeak || d.devourHeal || d.devourVuln) && devourBest)
+    checkCombos(d, '噬能', devourBest, 1, 3);
+  else if (d.special === 'cannon' && chargeBest)
+    checkCombos(d, '蓄能', chargeBest, 1, 2);
+}
+
 const lines: string[] = [
   '# 卡牌强度审计（基准差值法：1 费 = 7 点价值）',
   '',
@@ -102,10 +183,30 @@ lines.push('', `## 异常卡（${outliers.length} 张）`, '');
 for (const { d, base, up, flag } of outliers)
   lines.push(`- ${flag} **${d.name}**（${d.family}，${d.cost} 费）：空载 ${fmt(base.base)}，满载 ${fmt(base.full)}，强化满载 ${fmt(up.full)}——${d.text}`);
 
+lines.push(
+  '',
+  '## Combo 校验（产出＋消费整包对白板）',
+  '',
+  '比率 = 整包价值 ÷（7 × 整包费用）。1.00 = 与白板等效；最小 combo 必须 ≥1.00，满载应 ≥1.15。产出牌只计牌面净收益，资源价值在消费端结算。',
+  '',
+  '| 消费牌 | 资源 | 产出牌（最优费效） | 最小 combo | 满载 combo | 异常 |',
+  '| --- | --- | --- | --- | --- | --- |',
+);
+for (const c of comboRows)
+  lines.push(
+    `| ${c.spender.name} | ${c.resource} | ${c.producerName} | ${c.minLayers} 层 ${c.minRatio.toFixed(2)} | ${c.fullLayers} 层 ${c.fullRatio.toFixed(2)} | ${c.flag} |`,
+  );
+
 import { writeFileSync } from 'node:fs';
 writeFileSync('scripts/card-balance.md', lines.join('\n') + '\n');
 console.log(lines.slice(0, 8).join('\n'));
 console.log(`\n共 ${rows.length} 张，异常 ${outliers.length} 张：`);
 for (const { d, base, up } of outliers)
   console.log(`  ${d.name} (${d.family}) 空载 ${fmt(base.base)} 满载 ${fmt(base.full)} 强化 ${fmt(up.full)}`);
+const comboFlags = comboRows.filter((c) => c.flag);
+console.log(`\nCombo 校验 ${comboRows.length} 组，不达标 ${comboFlags.length} 组：`);
+for (const c of comboFlags)
+  console.log(
+    `  ⚠️ ${c.spender.name} × ${c.producerName}：最小 ${c.minRatio.toFixed(2)} / 满载 ${c.fullRatio.toFixed(2)}`,
+  );
 console.log('\n报告已写入 scripts/card-balance.md');

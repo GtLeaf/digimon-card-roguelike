@@ -524,6 +524,13 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
           if (d.special === 'detonate') score += target.burn * (branch === 'megidra' ? 6 : 3);
           if (branch === 'megidra' && d.burn && !target.burn) score += 12;
           if (d.special === 'markburst') score += target.mark * 5;
+          // 符印爆发存到 2 层以上再放，除非当前层数已经够斩杀（与噬能全量爆发同一策略）。
+          if (
+            d.special === 'markburst' &&
+            target.mark < 2 &&
+            (d.damage ?? 0) + target.mark * 5 < target.hp
+          )
+            score = 0;
           if (partner === 'impmon' && d.weak) score += 2;
           if (d.special === 'copy') score = 1;
           if (branch === 'megidra' && d.burn) score += 10;

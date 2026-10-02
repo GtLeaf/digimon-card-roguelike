@@ -278,7 +278,7 @@ describe('evolution conditions and branching', () => {
     s = reduceGame(s, { type: 'evolve', form, replace: replacements(s) });
     expect(s.run!.form).toBe(form);
     expect(s.run!.deck).toHaveLength(10);
-    expect(s.run!.deck[0].upgraded).toBe(d.stage === 3);
+    expect(s.run!.deck[0].upgraded).toBe(false);
     expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(d.cards);
   });
   it.each([['growlmon'], ['kyubimon'], ['sorcerymon'], ['galgomon'], ['matadormon']])(

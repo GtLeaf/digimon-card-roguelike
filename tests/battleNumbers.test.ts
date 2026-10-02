@@ -30,9 +30,33 @@ describe('battle feedback numbers', () => {
     save = reduceGame(save, { type: 'beginEnemyTurn' });
     expect(previewAction(save, { type: 'enemyStep' })).toEqual([
       { target: 'player', kind: 'damage', amount: 0 },
-      { target: 'player', kind: 'damage', amount: 3 },
       { target: 'player', kind: 'damage', amount: 5 },
+      { target: 'player', kind: 'damage', amount: 6 },
     ]);
+  });
+
+  it('beelzebumon charges devour for two turns then fires the death cannon', () => {
+    let save = battle();
+    const r = save.run!;
+    r.battle!.enemies = [r.battle!.enemies[0]];
+    r.battle!.enemies[0].id = 'beelzebumon';
+    // 每次行动后 save 会被整体替换，敌人引用需从最新的 save 重取。
+    const boss = () => save.run!.battle!.enemies[0];
+    const stepWholeTurn = () => {
+      save = reduceGame(save, { type: 'beginEnemyTurn' });
+      save = reduceGame(save, { type: 'enemyStep' });
+      save = reduceGame(save, { type: 'finishEnemyTurn' });
+    };
+    stepWholeTurn();
+    expect(boss().devour).toBe(1);
+    stepWholeTurn();
+    expect(boss().devour).toBe(2);
+    save.run!.hp = save.run!.maxHp;
+    save.run!.battle!.block = 0;
+    const hpBefore = save.run!.hp;
+    stepWholeTurn();
+    expect(boss().devour).toBe(0);
+    expect(hpBefore - save.run!.hp).toBe(18);
   });
 
   it('shows only actual healing for cards, drain, and recovery disks', () => {

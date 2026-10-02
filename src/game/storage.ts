@@ -54,6 +54,7 @@ const enemy = z.object({
   vulnerable: z.number().int().nonnegative().optional(),
   opening: z.boolean(),
   stagger: z.number(),
+  devour: z.number().int().nonnegative().optional(),
   effectiveAttacks: z.number().int().nonnegative().optional(),
   armorBroken: z.boolean().optional(),
   summons: z.number().int().nonnegative().optional(),

@@ -260,20 +260,8 @@ export function EvolutionTree({
           </p>
         )}
         <div className="evolution-new-cards">
-          {d.cards.map((id, i) => (
-            <GameCard
-              run={activeRun}
-              key={id}
-              compact
-              card={{
-                uid: id,
-                id,
-                upgraded:
-                  choose &&
-                  d.stage === 3 &&
-                  !!run?.deck.find((c) => c.uid === replacements[i])?.upgraded,
-              }}
-            />
+          {d.cards.map((id) => (
+            <GameCard run={activeRun} key={id} compact card={{ uid: id, id, upgraded: false }} />
           ))}
         </div>
         <h4>到达此形态后解锁的专属卡池</h4>

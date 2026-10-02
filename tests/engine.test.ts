@@ -309,7 +309,7 @@ describe('progress, scanning and evolution', () => {
     expect(reduceGame(s, { type: 'node', id: s.run!.nodes[7][0].id })).toEqual(s);
   });
   it.each(['duke', 'megidra', 'sakuya', 'kuzuha'] as Branch[])(
-    'evolves %s, swaps two cards without losing upgrades',
+    'evolves %s, swaps two cards and the new ones arrive un-upgraded',
     (branch) => {
       let s = start(BRANCHES[branch].partner);
       const r = s.run!;
@@ -325,7 +325,7 @@ describe('progress, scanning and evolution', () => {
       s = reduceGame(s, { type: 'evolve', branch, replace: uids });
       expect(s.run!.form).toBe(BRANCHES[branch].art);
       expect(s.run!.deck).toHaveLength(10);
-      expect(s.run!.deck[0].upgraded).toBe(true);
+      expect(s.run!.deck[0].upgraded).toBe(false);
       expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(BRANCHES[branch].cards);
       expect(s.run!.screen).toBe('blessing');
       s = reduceGame(s, { type: 'bless', id: 'bond' });
@@ -598,7 +598,12 @@ export function autoplay(partner: Partner, branch: Branch, seed: number) {
             break;
           }
         }
-        const id = favs.find((id) => r.shopStock!.includes(id) && !r.shopBought.includes(id));
+        const id = favs.find(
+          (id) =>
+            r.shopStock!.includes(id) &&
+            !r.shopBought.includes(id) &&
+            r.deck.filter((x) => x.id === id).length < 2,
+        );
         if (id && r.gold >= 45) {
           action = { type: 'buy', id };
           break;
@@ -1040,16 +1045,30 @@ describe('impmon partner line', () => {
     t = reduceGame(t, { type: 'play', uid: 'test0' });
     expect(t.run!.battle!.hand).toHaveLength(1);
   });
-  it('blast branch adds 2 damage per hit from the third attack card onward', () => {
+  it('blast branch adds 1 damage per hit from the third hit of each attack card, not across cards', () => {
     let s = impFight();
     s.run!.branch = 'blast';
-    hand(s, ['strike', 'strike', 'strike']);
+    hand(s, ['strike', 'thousandCuts']);
     const e = s.run!.battle!.enemies[0];
     e.block = 0;
+    let hp = e.hp;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 7); // 单段攻击无加成，且段数不跨牌累计
+    hp = s.run!.battle!.enemies[0].hp;
+    s = reduceGame(s, { type: 'play', uid: 'test1', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 13); // 4×3 段，仅第 3 段 +1
+  });
+  it('gustCannon spends up to 3 devour for extra hits, boosted by the blast passive', () => {
+    let s = impFight();
+    s.run!.branch = 'blast';
+    hand(s, ['gustCannon']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    s.run!.battle!.devour = 3;
     const hp = e.hp;
-    for (const uid of ['test0', 'test1', 'test2'])
-      s = reduceGame(s, { type: 'play', uid, target: e.uid });
-    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 23);
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 23); // 4×5 段，第 3~5 段各 +1
+    expect(s.run!.battle!.devour).toBe(0);
   });
   it('venom branch strengthens weakness and heals on the first application each turn', () => {
     let s = impFight();
@@ -1126,22 +1145,22 @@ describe('enemy pressure', () => {
     s = reduceGame(s, { type: 'bless', id: 'guard' });
     return reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
   };
-  it('bosses enrage from turn 11, telegraphed in intent damage', () => {
+  it('bosses enrage from turn 13, telegraphed in intent damage', () => {
     const s = fight();
     const r = s.run!;
     r.currentNode = { ...r.currentNode!, kind: 'boss' };
     const e = r.battle!.enemies[0];
-    e.id = 'sinduramon';
-    r.battle!.turn = 9;
-    expect(intent(r, e).damage).toBe(16);
+    e.id = 'vajramon';
     r.battle!.turn = 12;
-    expect(intent(r, e).damage).toBe(20);
+    expect(intent(r, e).damage).toBe(6);
+    r.battle!.turn = 13;
+    expect(intent(r, e).damage).toBe(8);
     r.battle!.turn = 15;
-    expect(intent(r, e).damage).toBe(24);
+    expect(intent(r, e).damage).toBe(12); // 狂暴封顶＋6
     r.battle!.turn = 18;
-    expect(intent(r, e).damage).toBe(24); // 狂暴封顶＋8
+    expect(intent(r, e).damage).toBe(12);
     r.currentNode = { ...r.currentNode!, kind: 'battle' };
-    expect(intent(r, e).damage).toBe(16);
+    expect(intent(r, e).damage).toBe(6);
   });
   it('pierce attacks ignore block without consuming it', () => {
     let s = fight();

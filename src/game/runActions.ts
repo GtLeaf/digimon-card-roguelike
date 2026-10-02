@@ -162,7 +162,7 @@ export function evolveAction(s: Save, action: Extract<Action, { type: 'evolve' }
     const c = r.deck.find((x) => x.uid === uid);
     if (c) {
       c.id = d.cards[i];
-      if (d.stage < 3) c.upgraded = false;
+      c.upgraded = false; // 新卡一律未强化，被替换的强化牌视为消耗
     }
   });
   r.form = form;

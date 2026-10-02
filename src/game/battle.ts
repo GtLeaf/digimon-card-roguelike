@@ -124,9 +124,37 @@ export function intent(r: Run, e: Enemy): Intent {
         : {
             ...i,
             name: '连续射击',
-            damage: e.id === 'beelzebumon' ? 5 : 3 + ch,
-            hits: e.id === 'beelzebumon' ? 3 : 2,
+            damage: 3 + ch,
+            hits: 2,
           };
+  // 别西卜兽：连续射击积攒噬能，叠满 2 层后下一动释放死亡加农并重置。
+  if (e.id === 'beelzebumon')
+    i =
+      (e.devour ?? 0) >= 2
+        ? {
+            name: '死亡加农',
+            type: 'attack',
+            damage: 18,
+            hits: 1,
+            shield: 0,
+            detail: '释放全部噬能的重击，随后清空层数。',
+          }
+        : phase === 2
+          ? {
+              name: '重新装填',
+              type: 'block',
+              damage: 0,
+              hits: 0,
+              shield: 12,
+              detail: '重新装填弹药，获得 12 护盾，并积攒 1 层噬能。',
+            }
+          : {
+              ...i,
+              name: '连续射击',
+              damage: 6,
+              hits: 3,
+              detail: '三连射击，并积攒 1 层噬能。',
+            };
   if (style === 'chicken')
     i =
       phase === 0
@@ -180,10 +208,10 @@ export function intent(r: Run, e: Enemy): Intent {
       detail: '本回合已承受 20 点攻击伤害，重击被打断。',
     };
   i = expandedIntent(r, e) ?? i;
-  // Boss 软狂暴：第 11 回合起攻击伤害每回合＋2（至多＋8），仅作用于 Boss 本体，召唤物不继承；数值直接体现在意图预告中。
+  // Boss 软狂暴：第 13 回合起攻击伤害每回合＋2（至多＋6），仅作用于 Boss 本体，召唤物不继承；数值直接体现在意图预告中。
   const enrage =
     r.currentNode?.kind === 'boss' && e.summonedTurn === undefined
-      ? Math.min(8, Math.max(0, turn - 10) * 2)
+      ? Math.min(6, Math.max(0, turn - 12) * 2)
       : 0;
   if (i.type === 'attack') {
     i.damage = Math.max(0, i.damage + e.strength + enrage - e.weakened);
@@ -234,6 +262,7 @@ export function beginBattle(r: Run, node: MapNode) {
         weakened: 0,
         opening: true,
         stagger: 0,
+        devour: 0,
       };
     }),
     hand: [],
@@ -314,13 +343,13 @@ function deathTrigger(r: Run, e: Enemy) {
   count(r, 'kills');
   fire(r, (h, c) => h.onKill?.(c, e));
 }
-function hit(r: Run, e: Enemy, amount: number, attack = true) {
+function hit(r: Run, e: Enemy, amount: number, attack = true, hitIndex?: number) {
   const b = r.battle;
   if (!b || e.hp <= 0) return;
   let damage = Math.max(0, amount);
   if (attack) {
     damage += b.strength + (b.burst > 0 ? 2 : 0);
-    damage += sum(r, (h, c) => h.attackHitBonus?.(c));
+    damage += sum(r, (h, c) => h.attackHitBonus?.(c, hitIndex));
     if (e.vulnerable) damage += e.vulnerable;
     if (r.training === 'attack' && r.stage > 0) damage += 1;
     if (r.relics.includes('cooler') && b.attacks < 3) damage++;
@@ -559,6 +588,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     detonated = false,
     consumedMark = false;
   const devourWeakSpent = d.devourWeak ? spendDevour(r, 3) : 0;
+  // 疾风加农：消耗噬能换额外攻击段数（一次性消耗，对全目标生效）。
+  const devourHitsSpent = d.devourHits ? spendDevour(r, 3) * d.devourHits : 0;
   // 噬能侵蚀：噬能满 3 层才消耗并足额施加易伤，不足则不消耗、保底施加 1 层。
   const devourVulnSpent = d.devourVuln && b.devour >= 3 ? spendDevour(r, 3) : 0;
   const vulnGain = d.devourVuln
@@ -588,8 +619,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
       e.mark = 0;
     }
     if (d.damage)
-      for (let h = 0; h < (d.hits ?? 1) && e.hp > 0; h++) {
-        hit(r, e, d.damage + damageUp + extra + tacticalBonus);
+      for (let h = 0; h < (d.hits ?? 1) + devourHitsSpent && e.hp > 0; h++) {
+        hit(r, e, d.damage + damageUp + extra + tacticalBonus, true, h);
         tacticalBonus = 0;
       }
     if (d.kind === 'attack' && e.hp < hpBefore) e.effectiveAttacks = (e.effectiveAttacks ?? 0) + 1;
@@ -681,6 +712,12 @@ export function enemyStep(r: Run, meta: Meta) {
   }
   if (i.shield) e.block = i.shield;
   if (e.id === 'machinedramon' && (b.turn - 1) % 3 === 0) e.armorBroken = false;
+  // 别西卜兽：每动积攒 1 层噬能；死亡加农出手后清空。
+  if (e.id === 'beelzebumon') {
+    const fired = (e.devour ?? 0) >= 2;
+    e.devour = fired ? 0 : (e.devour ?? 0) + 1;
+    if (fired) log(b, '别西卜兽的噬能已倾泻一空。');
+  }
   if (i.drain && playerHpBefore > r.hp) {
     const healed = Math.min(i.drain, playerHpBefore - r.hp, e.maxHp - e.hp);
     e.hp += healed;
@@ -753,8 +790,8 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   resolve(r, meta);
   if (r.screen !== 'battle') return;
   b.turn++;
-  if (r.currentNode?.kind === 'boss' && b.turn === 11)
-    log(b, '敌方进入狂暴：攻击伤害每回合＋2（至多＋8）。');
+  if (r.currentNode?.kind === 'boss' && b.turn === 13)
+    log(b, '敌方进入狂暴：攻击伤害每回合＋2（至多＋6）。');
   b.energy = 3;
   b.block =
     (r.relics.includes('armor') ? 3 : 0) +

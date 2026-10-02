@@ -33,7 +33,8 @@ const SPECIAL_FLAT: Record<string, number> = {
 function value(d: CardDef, upgraded: boolean, layers: number): number {
   let v = 0;
   const dmg = (d.damage ?? 0) + (upgraded && d.damage ? (d.upgradeDamage ?? 3) : 0);
-  const hits = d.hits ?? 1;
+  // 疾风加农：满载时噬能转化的额外段数一并计入（花存款口径）。
+  const hits = (d.hits ?? 1) + (d.devourHits ? Math.min(layers, 3) * d.devourHits : 0);
   let targetValue = 0;
   if (dmg) targetValue += dmg * hits * (hits > 1 ? W.multiHit : 1);
   if (d.burn) targetValue += d.burn * W.burn;

@@ -74,6 +74,8 @@ export interface CardDef {
   devourShield?: number;
   devourWeak?: number;
   devourHeal?: number;
+  // 消耗至多 3 层噬能，每层增加的攻击段数
+  devourHits?: number;
   devourVuln?: number;
   devourAll?: boolean;
   convert?: number;
@@ -120,6 +122,7 @@ export interface Enemy {
   vulnerable?: number;
   opening: boolean;
   stagger: number;
+  devour?: number;
   effectiveAttacks?: number;
   armorBroken?: boolean;
   summons?: number;

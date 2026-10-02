@@ -14,7 +14,7 @@ export interface HookCtx {
 export interface PassiveHooks {
   battleStart?(c: HookCtx): void;
   onTurnStart?(c: HookCtx): void;
-  attackHitBonus?(c: HookCtx): number;
+  attackHitBonus?(c: HookCtx, hitIndex?: number): number;
   onKill?(c: HookCtx, e: Enemy): void;
   onFirstSelfCost?(c: HookCtx): void;
   firstDefenseShield?(c: HookCtx): number;
@@ -133,7 +133,8 @@ export const PASSIVES: Record<string, PassiveHooks> = {
     drainBonus: () => 2,
   },
   blast: {
-    attackHitBonus: ({ b }) => (b.attackPlays >= 3 ? 2 : 0),
+    // 疾风连射：单张攻击牌的第 3 段及以后（hitIndex 从 0 计），每段伤害＋1。
+    attackHitBonus: (_c, hitIndex) => (hitIndex !== undefined && hitIndex >= 2 ? 1 : 0),
   },
   gluttony: {
     onKill({ r, b, log }) {

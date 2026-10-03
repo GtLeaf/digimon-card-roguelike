@@ -295,15 +295,16 @@ export function beginBattle(r: Run, node: MapNode) {
     log: ['连接建立。先观察敌人的行动意图。'],
     feedback: [],
   };
-  // 进化获得的新卡洗入抽牌堆前半段，确保进化后尽快上手
+  // 进化获得的新卡洗入抽牌堆前半段（抽牌从堆尾 pop，牌堆顶在数组末端），确保进化后尽快上手
   if (r.spotlight?.length) {
     const drawPile = r.battle.draw;
     for (const uid of r.spotlight) {
       const idx = drawPile.findIndex((c) => c.uid === uid);
       if (idx < 0) continue;
       const [c] = drawPile.splice(idx, 1);
-      const early = Math.floor(rand(r) * (drawPile.length / 2 + 1));
-      drawPile.splice(early, 0, c);
+      const front = Math.ceil((drawPile.length + 1) / 2);
+      const p = Math.floor(rand(r) * front); // 抽牌顺序中的位置：0 = 牌堆顶
+      drawPile.splice(drawPile.length - p, 0, c);
     }
     r.spotlight = [];
   }

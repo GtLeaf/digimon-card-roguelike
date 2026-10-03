@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CARDS } from '../src/game/data';
-import { cardPool, skillLabel, skillDescription, skillUnlocked } from '../src/game/cardSkills';
+import { cardPool, skillLabel, skillDescription, skillUnlocked, weightedOffers } from '../src/game/cardSkills';
 import { EVOLUTIONS } from '../src/game/evolution';
 import { emptySave, makeRun, reduceGame } from '../src/game/engine';
 import { parseSave } from '../src/game/storage';
@@ -137,5 +137,24 @@ describe('form skill unlocks', () => {
     expect(cardPool(s.run!)).toContain('guard');
     expect(cardPool(s.run!)).toContain('cannon');
     expect(cardPool(s.run!)).not.toContain('fault');
+  });
+});
+
+describe('weighted offer sampling', () => {
+  it('current-form exclusive cards appear far more often than uniform sampling', () => {
+    let hit = 0,
+      total = 0;
+    for (let seed = 1; seed <= 100; seed++) {
+      const run = makeRun('impmon', seed);
+      const offers = weightedOffers(run, 3);
+      expect(new Set(offers).size).toBe(offers.length); // 无放回
+      for (const id of offers) {
+        expect(skillUnlocked(run, CARDS[id])).toBe(true);
+        if (CARDS[id].unlockForm === run.form) hit++;
+        total++;
+      }
+    }
+    // 小妖兽开局卡池 17 张、专属 4 张：均匀抽样专属占比约 24%，加权后实测约 55%。
+    expect(hit / total).toBeGreaterThan(0.45);
   });
 });

@@ -3,6 +3,7 @@ import { emptySave, makeRun, reduceGame } from '../src/game/engine';
 import { availableNodes } from '../src/game/map';
 import { EVOLUTIONS, evolutionStatus, syncRouteData } from '../src/game/evolution';
 import { parseSave } from '../src/game/storage';
+import { beginBattle } from '../src/game/battle';
 import { CARDS, cardText } from '../src/game/data';
 import type { Partner, Save } from '../src/game/types';
 function start(partner: Partner = 'guilmon') {
@@ -316,6 +317,27 @@ describe('evolution conditions and branching', () => {
     const s = ready('megidramon');
     s.run!.activity.counts = { fire: 32, burnKills: 18 };
     expect(evolutionStatus(s.run!, s.meta, 'megidramon').ready).toBe(true);
+  });
+  it('spotlights new evolution cards into the front half of the draw pile next battle', () => {
+    let s = ready('sorcerymon');
+    for (const group of EVOLUTIONS['sorcerymon'].groups)
+      for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
+    const uids = replacements(s);
+    s = reduceGame(s, { type: 'evolve', form: 'sorcerymon', replace: uids });
+    expect(s.run!.spotlight).toEqual(uids);
+    // 直接开启下一场战斗（真实 beginBattle 路径会应用 spotlight 重排）
+    const node = s.run!.nodes.flat().find((n) => n.kind === 'battle')!;
+    beginBattle(s.run!, node);
+    const b = s.run!.battle!;
+    // 还原完整抽牌顺序：抽牌从堆尾 pop，手牌即牌堆顶部
+    const pile = [...b.hand, ...[...b.draw].reverse()];
+    const half = Math.ceil(pile.length / 2);
+    for (const uid of uids) {
+      const idx = pile.findIndex((c) => c.uid === uid);
+      expect(idx, `新卡 ${uid} 应在牌堆中`).toBeGreaterThanOrEqual(0);
+      expect(idx, `新卡 ${uid} 应位于抽牌顺序前半段`).toBeLessThan(half);
+    }
+    expect(s.run!.spotlight).toEqual([]);
   });
   it('stage and parent restrictions cannot be bypassed with enough counters', () => {
     const s = ready('blackgrowmon');

@@ -724,7 +724,10 @@ describe('full journey', () => {
         })),
       ),
     ).toBeLessThanOrEqual(1);
-    const { save, steps } = runs.find(({ save }) => save.run!.won) ?? runs[0];
+    const { save, steps } =
+      runs.find(({ save }) => save.run!.won && save.run!.stage === 3) ??
+      runs.find(({ save }) => save.run!.won) ??
+      runs[0];
     expect(
       steps,
       JSON.stringify({

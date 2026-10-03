@@ -199,6 +199,7 @@ const run = z
     shopStock: z.array(z.string()),
     shopBought: z.array(z.string()),
     shopRemoved: z.boolean(),
+    spotlight: z.array(z.string()).optional(),
     supportSpent: z.boolean().default(false),
     evolved: z.number(),
     won: z.boolean(),

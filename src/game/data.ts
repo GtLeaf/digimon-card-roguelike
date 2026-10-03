@@ -617,9 +617,10 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       'matadormon',
       { damage: 7, special: 'lure' },
     ),
-    card('thousandCuts', '千羽剑雨', 2, 'attack', 'impmon', '造成 4×3 段伤害。', 'matadormon', {
+    card('thousandCuts', '千羽剑雨', 2, 'attack', 'impmon', '造成 4×4 段伤害。', 'matadormon', {
       damage: 4,
-      hits: 3,
+      hits: 4,
+      upgradeDamage: 1,
     }),
     card(
       'grandFinale',

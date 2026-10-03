@@ -1,9 +1,9 @@
-import { cardPool } from './cardSkills';
+import { weightedOffers } from './cardSkills';
 import { BRANCHES, CARDS, ENEMIES, RELICS, needsTarget } from './data';
 import { emptyActivity, syncRouteData, activityGains } from './evolution';
 import { expandedIntent } from './enemyRules';
 import { DEVOUR_CAP, PASSIVES, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
-import { choose, makeCard, shuffle } from './random';
+import { choose, makeCard, rand, shuffle } from './random';
 import type { Battle, Card, Enemy, Intent, MapNode, Meta, Metric, Run } from './types';
 
 // —— 被动钩子发射 ——
@@ -295,6 +295,18 @@ export function beginBattle(r: Run, node: MapNode) {
     log: ['连接建立。先观察敌人的行动意图。'],
     feedback: [],
   };
+  // 进化获得的新卡洗入抽牌堆前半段，确保进化后尽快上手
+  if (r.spotlight?.length) {
+    const drawPile = r.battle.draw;
+    for (const uid of r.spotlight) {
+      const idx = drawPile.findIndex((c) => c.uid === uid);
+      if (idx < 0) continue;
+      const [c] = drawPile.splice(idx, 1);
+      const early = Math.floor(rand(r) * (drawPile.length / 2 + 1));
+      drawPile.splice(early, 0, c);
+    }
+    r.spotlight = [];
+  }
   const b = r.battle;
   fire(r, (h, c) => h.battleStart?.(c));
   if (r.training === 'defense' && r.stage > 0) b.block += 3;
@@ -413,7 +425,7 @@ function resolve(r: Run, meta: Meta) {
   }
   const relic = node.kind === 'elite' || node.kind === 'boss' ? awardRelic(r) : undefined;
   r.reward = {
-    cards: shuffle(r, cardPool(r)).slice(0, 3),
+    cards: weightedOffers(r, 3),
     gold,
     scans,
     relic,

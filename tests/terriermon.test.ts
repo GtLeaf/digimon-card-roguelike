@@ -467,6 +467,12 @@ function journey(branch: Branch) {
         action = { type: 'event', choice: 'safe' };
         break;
       case 'shop':
+        // 加权抽样后通用治疗牌变稀有，药水补给优先级上调，模拟真人的续航意识。
+        action =
+          r.potions < 2 && r.gold >= 30 && !r.shopBought.includes('potion')
+            ? { type: 'buy', id: 'potion' }
+            : { type: 'continue' };
+        break;
       case 'treasure':
         action = { type: 'continue' };
         break;

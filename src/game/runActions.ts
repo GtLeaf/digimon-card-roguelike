@@ -1,10 +1,10 @@
-import { cardPool, skillUnlocked } from './cardSkills';
+import { skillUnlocked, weightedOffers } from './cardSkills';
 import { awardRelic, afterReward, beginBattle, finishNode } from './battle';
 import { BRANCHES, CARDS, PARTNERS, RELICS, inheritanceOptions } from './data';
 import { EVOLUTIONS, evolutionStatus, stageLimit } from './evolution';
 import { applyEvent, eventFor } from './events';
 import { availableNodes } from './map';
-import { makeCard, shuffle } from './random';
+import { makeCard } from './random';
 import type { Action, Run, Save } from './types';
 
 // 地图/收益/营地/商店/事件/祝福/进化等节点动作体。
@@ -24,7 +24,7 @@ export function nodeAction(s: Save, action: Extract<Action, { type: 'node' }>): 
     }
     if (n.kind === 'camp') r.supportSpent = false;
     if (n.kind === 'shop') {
-      r.shopStock = shuffle(r, cardPool(r)).slice(0, 3);
+      r.shopStock = weightedOffers(r, 3);
       r.shopBought = [];
       r.shopRemoved = false;
     }
@@ -165,6 +165,7 @@ export function evolveAction(s: Save, action: Extract<Action, { type: 'evolve' }
       c.upgraded = false; // 新卡一律未强化，被替换的强化牌视为消耗
     }
   });
+  r.spotlight = [...ids]; // 进化获得的新卡：下一场战斗洗入抽牌堆前半段
   r.form = form;
   r.stage = d.stage;
   r.evolved = d.stage;

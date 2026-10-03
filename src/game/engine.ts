@@ -71,6 +71,7 @@ export function makeRun(partner: Partner, seed: number, tutorial = true): Run {
     shopStock: [],
     shopBought: [],
     shopRemoved: false,
+    spotlight: [],
     supportSpent: false,
     evolved: 0,
     won: false,

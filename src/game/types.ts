@@ -264,6 +264,8 @@ export interface Run {
   shopStock: string[];
   shopBought: string[];
   shopRemoved: boolean;
+  /** 进化后获得的新卡 uid，下一场战斗洗入抽牌堆前半段后清空 */
+  spotlight?: string[];
   supportSpent: boolean;
   evolved: number;
   won: boolean;

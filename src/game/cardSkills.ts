@@ -1,4 +1,5 @@
 import { CARDS, FORM_NAMES } from './data';
+import { rand } from './random';
 import type { CardDef, Run } from './types';
 
 // 解锁只看本局实际经历的形态，持有旧版卡牌不会解锁整条路线。
@@ -10,6 +11,25 @@ export function cardPool(run: Run): string[] {
   return Object.values(CARDS)
     .filter((card) => skillUnlocked(run, card))
     .map((card) => card.id);
+}
+// 奖励/商店抽样：当前形态专属 ×4、本局继承 ×2、通用 ×1，无放回。
+export function weightedOffers(run: Run, n: number): string[] {
+  const pool = Object.values(CARDS)
+    .filter((card) => skillUnlocked(run, card))
+    .map((card) => ({
+      id: card.id,
+      weight: card.unlockForm === run.form ? 4 : card.unlockForm ? 2 : 1,
+    }));
+  const out: string[] = [];
+  while (out.length < n && pool.length) {
+    const total = pool.reduce((s, p) => s + p.weight, 0);
+    let roll = rand(run) * total;
+    let idx = pool.findIndex((p) => (roll -= p.weight) <= 0);
+    if (idx < 0) idx = pool.length - 1;
+    out.push(pool[idx].id);
+    pool.splice(idx, 1);
+  }
+  return out;
 }
 export function skillLabel(card: CardDef, run?: Run | null): string {
   if (!card.unlockForm) return card.family === 'common' ? '通用卡' : '故障卡';

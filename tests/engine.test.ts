@@ -495,7 +495,10 @@ export function autoplay(
           action = { type: 'potion' };
           break;
         }
-        if (!b.supportUsed) {
+        if (
+          !b.supportUsed &&
+          (r.currentNode?.kind !== 'battle' || r.hp < r.maxHp * 0.5 || b.turn >= 4)
+        ) {
           action = { type: 'support', target: target.uid };
           break;
         }
@@ -631,6 +634,10 @@ export function autoplay(
         );
         if (id && r.gold >= 45) {
           action = { type: 'buy', id };
+          break;
+        }
+        if (r.gold >= 80 && !r.shopBought.includes('relic')) {
+          action = { type: 'buy', id: 'relic' };
           break;
         }
         if (r.potions < 2 && r.gold >= 30 && !r.shopBought.includes('potion')) {
@@ -1233,5 +1240,44 @@ describe('enemy pressure', () => {
     s = reduceGame(s, { type: 'enemyStep' });
     expect(s.run!.hp).toBe(hp - 10);
     expect(s.run!.battle!.block).toBe(20);
+  });
+});
+
+describe('resource relics', () => {
+  const fightWith = (relic: string) => {
+    const s = start();
+    s.run!.relics.push(relic);
+    return reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
+  };
+  it('capacitor grants 1 devour at battle start', () => {
+    expect(fightWith('capacitor').run!.battle!.devour).toBe(1);
+  });
+  it('magazine grants 1 charge at battle start', () => {
+    expect(fightWith('magazine').run!.battle!.charge).toBe(1);
+  });
+  it('firebrand adds 1 to the first burn applied each battle', () => {
+    let s = fightWith('firebrand');
+    hand(s, ['darkflame']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].burn).toBe(3); // 暗炎弹 2 ＋火种徽章 1
+  });
+  it('compass adds 1 to only the first mark applied each turn', () => {
+    let s = fightWith('compass');
+    hand(s, ['talisman', 'talisman']);
+    const e = s.run!.battle!.enemies[0];
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    s = reduceGame(s, { type: 'play', uid: 'test1', target: e.uid });
+    expect(s.run!.battle!.enemies[0].mark).toBe(7); // 符咒 3＋罗盘 1，第二次无加成
+  });
+  it('fang adds 1 to drain healing', () => {
+    let s = fightWith('fang');
+    hand(s, ['drain']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    s.run!.hp = 30;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.hp).toBe(34); // 吸血 3＋獠牙 1
   });
 });

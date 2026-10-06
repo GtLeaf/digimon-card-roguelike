@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   BatteryCharging,
   BookOpen,
+  Compass,
   Disc3,
   Flame,
   Heart,
@@ -9,6 +10,7 @@ import {
   Shield,
   Snowflake,
   Sparkles,
+  Syringe,
   Zap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -29,6 +31,11 @@ const relicIcons: Record<string, LucideIcon> = {
   memory: MemoryStick,
   battery: BatteryCharging,
   armor: Shield,
+  capacitor: Zap,
+  magazine: Disc3,
+  firebrand: Sparkles,
+  compass: Compass,
+  fang: Syringe,
 };
 const blessingIcons: Record<string, LucideIcon> = { bond: Zap, guard: Shield, growth: Heart };
 

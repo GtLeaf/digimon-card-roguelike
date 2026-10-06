@@ -204,6 +204,7 @@ export interface Battle {
   marked: boolean;
   defended: boolean;
   weakenedThisTurn: boolean;
+  markedThisTurn: boolean;
   devour: number;
   devourAura: boolean;
   log: string[];

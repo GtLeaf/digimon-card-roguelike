@@ -4,7 +4,7 @@ import { emptyActivity, syncRouteData, activityGains } from './evolution';
 import { expandedIntent } from './enemyRules';
 import { DEVOUR_CAP, PASSIVES, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
 import { choose, makeCard, rand, shuffle } from './random';
-import type { Battle, Card, Enemy, Intent, MapNode, Meta, Metric, Run } from './types';
+import type { Battle, Card, CardDef, Enemy, Intent, MapNode, Meta, Metric, Run } from './types';
 
 // —— 被动钩子发射 ——
 const passiveList = (r: Run) =>
@@ -290,6 +290,7 @@ export function beginBattle(r: Run, node: MapNode) {
     marked: false,
     defended: false,
     weakenedThisTurn: false,
+    markedThisTurn: false,
     devour: 0,
     devourAura: false,
     log: ['连接建立。先观察敌人的行动意图。'],
@@ -310,6 +311,14 @@ export function beginBattle(r: Run, node: MapNode) {
   }
   const b = r.battle;
   fire(r, (h, c) => h.battleStart?.(c));
+  if (r.relics.includes('capacitor')) {
+    gainDevour(b, 1);
+    log(b, `噬能电容器 · 噬能 ＋1（当前 ${b.devour}）`);
+  }
+  if (r.relics.includes('magazine')) {
+    b.charge++;
+    log(b, '过载弹匣 · 蓄能 ＋1');
+  }
   if (r.training === 'defense' && r.stage > 0) b.block += 3;
   if (r.bonuses.includes('holyward')) b.block += 2;
   draw(r, 5 + (r.relics.includes('reader') ? 1 : 0) + (r.bonuses.includes('ritual') ? 1 : 0));
@@ -384,13 +393,26 @@ function hit(r: Run, e: Enemy, amount: number, attack = true, hitIndex?: number)
   b.feedback.push({ target: e.uid, kind: 'damage', amount: actual });
   if (e.hp <= 0) deathTrigger(r, e);
 }
+// 资源系装置只在本局用得上时才进入发放池，避免抽到对牌组零价值的死物。
+const RELIC_RELEVANCE: Record<string, (r: Run, deck: CardDef[]) => boolean> = {
+  capacitor: (r, deck) =>
+    r.partner === 'impmon' || deck.some((d) => d.devour || d.convert || d.special === 'devour'),
+  magazine: (r, deck) =>
+    r.partner === 'terriermon' || deck.some((d) => d.charge || d.special === 'cannon'),
+  firebrand: (r, deck) => deck.some((d) => d.burn) || r.branch === 'megidra',
+  compass: (r, deck) =>
+    deck.some((d) => d.mark) || r.branch === 'sakuya' || r.branch === 'kuzuha',
+  fang: (_r, deck) => deck.some((d) => d.drain),
+};
 export function awardRelic(r: Run) {
   const available = Object.keys(RELICS).filter((id) => !r.relics.includes(id));
   if (!available.length) {
     r.gold += 35;
     return undefined;
   }
-  const id = choose(r, available);
+  const deck = r.deck.map((c) => CARDS[c.id]);
+  const relevant = available.filter((id) => RELIC_RELEVANCE[id]?.(r, deck) ?? true);
+  const id = choose(r, relevant.length ? relevant : available);
   r.relics.push(id);
   return id;
 }
@@ -610,7 +632,9 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     : 0;
   const burnBonus =
     !b.burned && d.burn
-      ? sum(r, (h, cx) => h.firstBurnBonus?.(cx)) + (r.inherit === 'ember' && r.stage > 0 ? 1 : 0)
+      ? sum(r, (h, cx) => h.firstBurnBonus?.(cx)) +
+        (r.inherit === 'ember' && r.stage > 0 ? 1 : 0) +
+        (r.relics.includes('firebrand') ? 1 : 0)
       : 0;
   for (const e of targets) {
     const hpBefore = e.hp;
@@ -644,6 +668,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
         e.mark +=
           d.mark +
           (r.inherit === 'seal' && r.stage > 0 && b.played === 1 ? 1 : 0) +
+          (!b.markedThisTurn && r.relics.includes('compass') ? 1 : 0) +
           sum(r, (h, cx) => h.markBonus?.(cx));
       }
       if (d.weak || devourWeakSpent) {
@@ -656,6 +681,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (appliedMark) {
     count(r, 'marks');
+    b.markedThisTurn = true;
     fire(r, (h, cx) => h.onMarkApplied?.(cx));
   }
   if (appliedWeak) {
@@ -677,7 +703,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (d.drain && r.damageDealt > beforeDamage && r.hp < r.maxHp) {
     const before = r.hp;
-    r.hp = Math.min(r.maxHp, r.hp + d.drain + sum(r, (h, cx) => h.drainBonus?.(cx)));
+    r.hp = Math.min(
+      r.maxHp,
+      r.hp + d.drain + sum(r, (h, cx) => h.drainBonus?.(cx)) + (r.relics.includes('fang') ? 1 : 0),
+    );
     b.feedback.push({ target: 'player', kind: 'heal', amount: r.hp - before });
     count(r, 'heals');
   }
@@ -822,6 +851,7 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   b.marked = false;
   b.defended = false;
   b.weakenedThisTurn = false;
+  b.markedThisTurn = false;
   fire(r, (h, c) => h.onTurnStart?.(c));
   b.burst = Math.max(0, b.burst - 1);
   for (const e of b.enemies) {

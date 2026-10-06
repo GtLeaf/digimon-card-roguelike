@@ -1120,6 +1120,11 @@ export const RELICS: Record<string, { name: string; text: string }> = {
   memory: { name: '记忆晶片', text: '战斗胜利后回复 3 生命。' },
   battery: { name: '应急电池', text: '每场首回合额外获得 1 行动力。' },
   armor: { name: '合金装甲', text: '每回合开始时获得 3 护盾。' },
+  capacitor: { name: '噬能电容器', text: '每场战斗开始时获得 1 噬能。' },
+  magazine: { name: '过载弹匣', text: '每场战斗开始时获得 1 蓄能。' },
+  firebrand: { name: '火种徽章', text: '每场战斗首次施加灼烧，额外增加 1 层。' },
+  compass: { name: '咒术罗盘', text: '每回合首次施加符印，额外增加 1 层。' },
+  fang: { name: '吸血獠牙', text: '吸血卡的回复量＋1。' },
 };
 export const BLESSINGS: Record<string, { name: string; text: string }> = {
   bond: { name: '羁绊共鸣', text: '每场战斗开始时获得 2 同步值。' },

@@ -119,6 +119,7 @@ const battle = z.object({
   marked: z.boolean(),
   defended: z.boolean(),
   weakenedThisTurn: z.boolean().default(false),
+  markedThisTurn: z.boolean().default(false),
   devour: z.number().int().nonnegative().default(0),
   devourAura: z.boolean().default(false),
   log: z.array(z.string()),

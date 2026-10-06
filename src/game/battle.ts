@@ -703,9 +703,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (d.drain && r.damageDealt > beforeDamage && r.hp < r.maxHp) {
     const before = r.hp;
+    const drainAmount = c.upgraded && d.upgradeDrain ? d.upgradeDrain : d.drain;
     r.hp = Math.min(
       r.maxHp,
-      r.hp + d.drain + sum(r, (h, cx) => h.drainBonus?.(cx)) + (r.relics.includes('fang') ? 1 : 0),
+      r.hp + drainAmount + sum(r, (h, cx) => h.drainBonus?.(cx)) + (r.relics.includes('fang') ? 1 : 0),
     );
     b.feedback.push({ target: 'player', kind: 'heal', amount: r.hp - before });
     count(r, 'heals');

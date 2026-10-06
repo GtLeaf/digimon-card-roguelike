@@ -1156,6 +1156,27 @@ describe('impmon partner line', () => {
     t = reduceGame(t, { type: 'play', uid: 'test0', target: e.uid });
     expect(t.run!.hp).toBe(64);
   });
+  it('bloodClaw upgrade raises damage to 10 and drain to 3', () => {
+    const base = impFight();
+    hand(base, ['bloodClaw']);
+    base.run!.hp = 60;
+    const e = base.run!.battle!.enemies[0];
+    e.block = 0;
+    const hp = e.hp;
+    const after = reduceGame(base, { type: 'play', uid: 'test0', target: e.uid });
+    expect(after.run!.battle!.enemies[0].hp).toBe(hp - 8);
+    expect(after.run!.hp).toBe(62);
+    const up = impFight();
+    hand(up, ['bloodClaw']);
+    up.run!.battle!.hand[0].upgraded = true;
+    up.run!.hp = 60;
+    const e2 = up.run!.battle!.enemies[0];
+    e2.block = 0;
+    const hp2 = e2.hp;
+    const afterUp = reduceGame(up, { type: 'play', uid: 'test0', target: e2.uid });
+    expect(afterUp.run!.battle!.enemies[0].hp).toBe(hp2 - 10);
+    expect(afterUp.run!.hp).toBe(63);
+  });
   it('lure dance deals bonus damage to weakened targets and taunt needs a target', () => {
     let s = impFight();
     hand(s, ['lureDance']);

@@ -640,7 +640,13 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       'impmon',
       '造成 8 伤害；若造成生命伤害，回复 2 生命。',
       'devimon',
-      { damage: 8, drain: 2 },
+      {
+        damage: 8,
+        drain: 2,
+        upgradeDamage: 2,
+        upgradeDrain: 3,
+        upgradeText: '造成 10 伤害；若造成生命伤害，回复 3 生命。',
+      },
     ),
     card(
       'nightmareWave',

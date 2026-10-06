@@ -75,7 +75,7 @@ describe('battle feedback numbers', () => {
     expect(previewAction(save, { type: 'play', uid: 'drain' }).at(-1)).toEqual({
       target: 'player',
       kind: 'heal',
-      amount: 3,
+      amount: 2,
     });
     save = reduceGame(save, { type: 'play', uid: 'drain' });
     save.run!.hp = save.run!.maxHp - 1;

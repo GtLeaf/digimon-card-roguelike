@@ -1278,6 +1278,6 @@ describe('resource relics', () => {
     e.block = 0;
     s.run!.hp = 30;
     s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
-    expect(s.run!.hp).toBe(34); // 吸血 3＋獠牙 1
+    expect(s.run!.hp).toBe(33); // 吸血 2＋獠牙 1
   });
 });

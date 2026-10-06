@@ -344,9 +344,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'common',
-      '造成 6 伤害；若造成生命伤害，回复 3 生命。',
+      '造成 6 伤害；若造成生命伤害，回复 2 生命。',
       'chaosdukemon',
-      { damage: 6, drain: 3 },
+      { damage: 6, drain: 2 },
     ),
     card(
       'chaoslance',

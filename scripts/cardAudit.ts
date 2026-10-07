@@ -28,6 +28,7 @@ const SPECIAL_FLAT: Record<string, number> = {
   lure: 2,
   devouraura: 7,
   spinstep: 5,
+  windup: 6,
   sacrifice: -4.5,
 };
 
@@ -35,7 +36,7 @@ function value(d: CardDef, upgraded: boolean, layers: number): number {
   let v = 0;
   const dmg = (d.damage ?? 0) + (upgraded && d.damage ? (d.upgradeDamage ?? 3) : 0);
   // 疾风加农：满载时噬能转化的额外段数一并计入（花存款口径）。
-  const hits = (d.hits ?? 1) + (d.devourHits ? Math.min(layers, 3) * d.devourHits : 0);
+  const hits = (d.hits ?? 1) + (d.devourHits ? Math.min(layers, d.devourHitsCap ?? 3) * d.devourHits : 0);
   let targetValue = 0;
   if (dmg) targetValue += dmg * hits * (hits > 1 ? W.multiHit : 1);
   if (d.burn) targetValue += d.burn * W.burn;
@@ -69,6 +70,11 @@ function value(d: CardDef, upgraded: boolean, layers: number): number {
   if (d.devourHeal) v += layers * d.devourHeal * W.heal;
   if (d.devourVuln) v += (layers >= 3 ? d.devourVuln : 1) * W.vuln + (upgraded ? W.vuln : 0);
   if (d.special === 'devour') v += layers * (d.devourPower ?? 4);
+  // 击败奖励按约 1/3 出牌能收头的期望折算。
+  if (d.killDevour || d.killDraw)
+    v += ((d.killDevour ?? 0) * W.devourGain + (d.killDraw ?? 0) * W.draw) * 0.35;
+  // 处决加成按目标半血命中率约一半折算。
+  if (d.executeBonus) v += hits * d.executeBonus * 0.5;
   if (d.special === 'cannon') v += Math.min(layers, 2) * (d.chargeMultiplier ?? 4); // 蓄能期望 2 层
   v += SPECIAL_FLAT[d.special ?? ''] ?? 0;
   return v;

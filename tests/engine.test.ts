@@ -382,10 +382,14 @@ export function autoplay(
     partner === 'impmon'
       ? [
           'deathCannon',
+          'gluttonyFeast',
+          'despairReap',
           'twinClaw',
           'gustCannon',
           'bloodFeast',
           'venomFog',
+          'windPressure',
+          'venomEmbrace',
           'shiningWing',
           'darkDisaster',
           'despairHowl',
@@ -540,6 +544,18 @@ export function autoplay(
           if (d.devourShield) score += layers * d.devourShield * 1.7;
           if (d.devourWeak) score += layers * d.devourWeak * 3;
           if (d.devourHeal) score += layers * d.devourHeal * (r.hp < r.maxHp * 0.7 ? 2 : 0);
+          // 噬能换段数：按当前存款折算额外伤害，没存款时不该优先打出。
+          if (d.devourHits)
+            score += Math.min(b.devour, d.devourHitsCap ?? 3) * d.devourHits * (d.damage ?? 0);
+          // 暴食掠宴：目标血量可被此牌收头时价值最高，否则仅小额溢价。
+          if (d.killDevour || d.killDraw)
+            score += (d.damage ?? 0) * (d.hits ?? 1) >= target.hp ? 8 : 2;
+          // 风压推进：手里有高段数攻击牌时价值高，否则一般。
+          if (d.windupHits)
+            score += b.hand.some((x) => (CARDS[x.id].hits ?? 1) >= 3 && CARDS[x.id].damage) ? 8 : 3;
+          // 绝望收束：目标半血以下每段吃满处决加成，半血以上打折扣。
+          if (d.executeBonus)
+            score += (d.hits ?? 1) * d.executeBonus * (target.hp * 2 < target.maxHp ? 1 : 0.4);
           if (d.devourVuln) score += b.devour >= 3 ? d.devourVuln * 4 : 2;
           // 噬能换力量/上限：按当前层数折现，没存款不打。
           if (d.devourStrength) score += Math.floor(b.devour / d.devourStrength) * 7;
@@ -1142,6 +1158,81 @@ describe('impmon partner line', () => {
         (c) => c.id === 'flamencoSlash' && c.upgraded,
       ),
     ).toBe(true);
+  });
+  it('gluttony feast grants devour and a draw only when it lands the kill', () => {
+    let s = impFight();
+    hand(s, ['gluttonyFeast']);
+    const e = s.run!.battle!.enemies[0];
+    e.hp = 5;
+    e.block = 0;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(0);
+    expect(s.run!.battle!.devour).toBe(3); // 击败 ＋1，暴食掠宴 ＋2
+    expect(s.run!.battle!.hand.length).toBe(1); // 击败抽 1
+    let t = impFight();
+    hand(t, ['gluttonyFeast']);
+    const w = t.run!.battle!.enemies[0];
+    w.hp = 50;
+    w.block = 0;
+    t = reduceGame(t, { type: 'play', uid: 'test0', target: w.uid });
+    expect(t.run!.battle!.enemies[0].hp).toBe(43);
+    expect(t.run!.battle!.devour).toBe(0);
+    expect(t.run!.battle!.hand.length).toBe(0);
+  });
+  it('wind pressure adds hits to the next attack and draws when it reaches four', () => {
+    let s = impFight();
+    hand(s, ['windPressure', 'thousandCuts']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    e.hp = 200;
+    e.maxHp = 200;
+    s = reduceGame(s, { type: 'play', uid: 'test0' });
+    expect(s.run!.battle!.nextAttackHits).toBe(1);
+    s = reduceGame(s, { type: 'play', uid: 'test1', target: e.uid });
+    expect(s.run!.battle!.nextAttackHits).toBe(0);
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 4 * 5); // 4 段 ＋ 风压 1 段
+    expect(s.run!.battle!.hand.length).toBe(1); // 5 段 ≥ 4，抽 1
+    let t = impFight();
+    hand(t, ['windPressure', 'strike']);
+    const w = t.run!.battle!.enemies[0];
+    w.block = 0;
+    w.hp = 200;
+    w.maxHp = 200;
+    t = reduceGame(t, { type: 'play', uid: 'test0' });
+    t = reduceGame(t, { type: 'play', uid: 'test1', target: w.uid });
+    expect(t.run!.battle!.enemies[0].hp).toBe(200 - 7 * 2);
+    expect(t.run!.battle!.hand.length).toBe(0); // 仅 2 段，不抽
+  });
+  it('despair reap converts up to two devour into hits and executes weakened targets', () => {
+    let s = impFight();
+    hand(s, ['despairReap']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    e.hp = 200;
+    e.maxHp = 200;
+    s.run!.battle!.devour = 2;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 5 * 4); // 2 段 ＋ 噬能 2 段，满血无处决加成
+    expect(s.run!.battle!.devour).toBe(0);
+    let t = impFight();
+    hand(t, ['despairReap']);
+    const w = t.run!.battle!.enemies[0];
+    w.block = 0;
+    w.hp = 40;
+    w.maxHp = 100;
+    t = reduceGame(t, { type: 'play', uid: 'test0', target: w.uid });
+    expect(t.run!.battle!.enemies[0].hp).toBe(40 - (5 + 2) * 2); // 半血以下每段＋2
+  });
+  it('venom embrace weakens the target and heals per devour layer spent', () => {
+    let s = impFight();
+    hand(s, ['venomEmbrace']);
+    s.run!.hp = 50;
+    s.run!.battle!.devour = 3;
+    const e = s.run!.battle!.enemies[0];
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].weakened).toBe(2);
+    expect(s.run!.hp).toBe(56);
+    expect(s.run!.battle!.devour).toBe(0);
   });
   it('belial branch adds 2 damage per devour layer and draws on kill', () => {
     let s = impFight();

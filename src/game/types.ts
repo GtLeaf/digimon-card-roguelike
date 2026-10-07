@@ -37,7 +37,8 @@ export type Special =
   | 'devour'
   | 'devouraura'
   | 'lure'
-  | 'spinstep';
+  | 'spinstep'
+  | 'windup';
 export interface CardDef {
   id: string;
   name: string;
@@ -82,6 +83,16 @@ export interface CardDef {
   devourHeal?: number;
   // 消耗至多 3 层噬能，每层增加的攻击段数
   devourHits?: number;
+  // devourHits 消耗噬能的上限（不设默认 3）
+  devourHitsCap?: number;
+  // 此牌击败敌人时获得噬能
+  killDevour?: number;
+  // 此牌击败敌人时抽牌
+  killDraw?: number;
+  // 风压推进：本回合下一张攻击牌增加段数
+  windupHits?: number;
+  // 目标生命低于一半时每段额外伤害
+  executeBonus?: number;
   devourVuln?: number;
   // 消耗全部噬能，每 N 层获得 1 力量
   devourStrength?: number;
@@ -207,6 +218,7 @@ export interface Battle {
   attacks: number;
   attackPlays: number;
   nextAttackBonus: number;
+  nextAttackHits: number;
   cannonGuardUsed: boolean;
   burned: boolean;
   marked: boolean;

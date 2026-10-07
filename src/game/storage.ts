@@ -114,6 +114,7 @@ const battle = z.object({
   attacks: z.number(),
   attackPlays: z.number().int().nonnegative().default(0),
   nextAttackBonus: z.number().nonnegative().default(0),
+  nextAttackHits: z.number().int().nonnegative().default(0),
   cannonGuardUsed: z.boolean().default(false),
   burned: z.boolean(),
   marked: z.boolean(),

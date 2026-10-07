@@ -297,6 +297,7 @@ export function beginBattle(r: Run, node: MapNode) {
     attacks: 0,
     attackPlays: 0,
     nextAttackBonus: 0,
+    nextAttackHits: 0,
     cannonGuardUsed: false,
     burned: false,
     marked: false,
@@ -546,6 +547,9 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     damageUp = c.upgraded ? (d.upgradeDamage ?? 3) : 0;
   let tacticalBonus = d.kind === 'attack' && d.damage ? b.nextAttackBonus : 0;
   if (tacticalBonus) b.nextAttackBonus = 0;
+  // 风压推进：本回合下一张攻击牌增加段数，使用后消耗。
+  const windupSpent = d.kind === 'attack' && d.damage ? b.nextAttackHits : 0;
+  if (windupSpent) b.nextAttackHits = 0;
   if (d.special === 'sacrifice') {
     const before = r.hp;
     r.hp = Math.max(0, r.hp - 3);
@@ -584,7 +588,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     const spent = spendDevour(r, 3);
     if (spent) {
       const before = r.hp;
-      r.hp = Math.min(r.maxHp, r.hp + spent * d.devourHeal);
+      r.hp = Math.min(
+        r.maxHp,
+        r.hp + spent * (d.devourHeal + (c.upgraded && d.upgradeText ? 1 : 0)),
+      );
       b.feedback.push({ target: 'player', kind: 'heal', amount: r.hp - before });
     }
   }
@@ -618,6 +625,12 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     b.energy++;
     log(b, '谢幕回旋 · 行动力＋1');
   }
+  // 风压推进：本回合下一张攻击牌段数增加。
+  if (d.windupHits) {
+    const n = d.windupHits + (c.upgraded && d.upgradeText ? 1 : 0);
+    b.nextAttackHits += n;
+    log(b, `${d.name} · 本回合下一张攻击牌段数＋${n}`);
+  }
   let bonus = b.charge > 0 ? (d.chargedDamage ?? 0) : 0;
   if (d.special === 'shieldhit') bonus += Math.floor(b.block / 2);
   if (d.special === 'cannon') {
@@ -650,7 +663,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     consumedMark = false;
   const devourWeakSpent = d.devourWeak ? spendDevour(r, 3) : 0;
   // 疾风加农：消耗噬能换额外攻击段数（一次性消耗，对全目标生效）。
-  const devourHitsSpent = d.devourHits ? spendDevour(r, 3) * d.devourHits : 0;
+  const devourHitsSpent = d.devourHits ? spendDevour(r, d.devourHitsCap ?? 3) * d.devourHits : 0;
   // 噬能侵蚀：噬能满 3 层才消耗并足额施加易伤，不足则不消耗、保底施加 1 层。
   const devourVulnSpent = d.devourVuln && b.devour >= 3 ? spendDevour(r, 3) : 0;
   const vulnGain = d.devourVuln
@@ -682,8 +695,18 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
       e.mark = 0;
     }
     if (d.damage)
-      for (let h = 0; h < (d.hits ?? 1) + devourHitsSpent && e.hp > 0; h++) {
-        hit(r, e, d.damage + damageUp + extra + tacticalBonus, true, h);
+      for (let h = 0; h < (d.hits ?? 1) + devourHitsSpent + windupSpent && e.hp > 0; h++) {
+        hit(
+          r,
+          e,
+          d.damage +
+            damageUp +
+            extra +
+            tacticalBonus +
+            (d.executeBonus && e.hp * 2 < e.maxHp ? d.executeBonus : 0),
+          true,
+          h,
+        );
         tacticalBonus = 0;
       }
     if (d.kind === 'attack' && e.hp < hpBefore) e.effectiveAttacks = (e.effectiveAttacks ?? 0) + 1;
@@ -704,6 +727,17 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
       }
       if (vulnGain) e.vulnerable = (e.vulnerable ?? 0) + vulnGain;
     }
+  }
+  // 风压推进：加成后的攻击牌达到至少 4 段则抽 1 张。
+  const totalHits = (d.hits ?? 1) + devourHitsSpent + windupSpent;
+  if (windupSpent && totalHits >= 4) draw(r, 1);
+  // 暴食掠宴：此牌击败敌人获得噬能并抽牌。
+  if ((d.killDevour || d.killDraw) && targets.some((e) => e.hp <= 0)) {
+    if (d.killDevour) {
+      gainDevour(b, d.killDevour);
+      log(b, `${d.name} · 击败敌人，噬能 ＋${d.killDevour}`);
+    }
+    if (d.killDraw) draw(r, d.killDraw);
   }
   if (appliedMark) {
     count(r, 'marks');
@@ -881,6 +915,7 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   b.attacks = 0;
   b.attackPlays = 0;
   b.nextAttackBonus = 0;
+  b.nextAttackHits = 0;
   b.cannonGuardUsed = false;
   b.burned = false;
   b.marked = false;

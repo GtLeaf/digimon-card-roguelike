@@ -1,7 +1,7 @@
 import { skillLabel, skillDescription } from '../game/cardSkills';
 import { Flame, Shield, Sparkles, Swords, Zap, Lock } from 'lucide-react';
 import { CARDS, asset, cardText } from '../game/data';
-import { cardCost } from '../game/engine';
+import { playCost } from '../game/engine';
 import type { Card, Run } from '../game/types';
 const icons = { attack: Swords, skill: Shield, power: Sparkles, status: Lock };
 export function GameCard({
@@ -28,10 +28,10 @@ export function GameCard({
       className={`game-card ${d.kind} ${selected ? 'selected' : ''} ${compact ? 'compact' : ''}`}
       disabled={disabled}
       onClick={onClick}
-      aria-label={`${d.name}${card.upgraded ? '强化' : ''}，${cardCost(card)}费`}
+      aria-label={`${d.name}${card.upgraded ? '强化' : ''}，${playCost(run, card)}费`}
       aria-pressed={selected}
     >
-      <span className="card-cost">{cardCost(card)}</span>
+      <span className="card-cost">{playCost(run, card)}</span>
       <span className="card-category">
         <Icon size={13} />
         {d.kind === 'attack'

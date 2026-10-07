@@ -26,7 +26,7 @@ import { makeCard, rand } from './random';
 import { generateWorld } from './world';
 import type { Action, BattleNumber, Partner, Run, Save } from './types';
 
-export { cardCost, intent } from './battle';
+export { cardCost, playCost, intent } from './battle';
 
 export const emptySave = (): Save => ({
   version: 3,
@@ -203,7 +203,7 @@ function runAction(state: Save, action: Action): Save {
     r.screen === 'battle' &&
     r.battle &&
     r.battle.enemyTurnIndex === null &&
-    r.branch
+    (r.branch || EVOLUTIONS[r.form]?.endpoint)
   )
     applyBurst(r);
   if (action.type === 'reward' && r.screen === 'reward' && r.reward) {

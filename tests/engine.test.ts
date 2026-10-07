@@ -1098,6 +1098,51 @@ describe('impmon partner line', () => {
     t = reduceGame(t, { type: 'endTurn' });
     expect(t.run!.battle!.enemies[0].vulnerable).toBe(0);
   });
+  it('awakened matadormon: second attack each turn is free, drain gains +1, spinstep refunds energy after an attack', () => {
+    let s = impFight();
+    s.run!.form = 'matadormonAwakened';
+    hand(s, ['strike', 'strike', 'strike']);
+    const energy = s.run!.battle!.energy;
+    s = reduceGame(s, { type: 'play', uid: 'test0' });
+    expect(s.run!.battle!.energy).toBe(energy - 1);
+    s = reduceGame(s, { type: 'play', uid: 'test1' });
+    expect(s.run!.battle!.energy).toBe(energy - 1);
+    s = reduceGame(s, { type: 'play', uid: 'test2' });
+    expect(s.run!.battle!.energy).toBe(energy - 2);
+    let t = impFight();
+    t.run!.form = 'matadormonAwakened';
+    t.run!.hp = 60;
+    hand(t, ['bloodClaw']);
+    t.run!.battle!.enemies[0].block = 0;
+    t = reduceGame(t, { type: 'play', uid: 'test0', target: t.run!.battle!.enemies[0].uid });
+    expect(t.run!.hp).toBe(63); // 8÷4=2，觉醒被动＋1
+    let u = impFight();
+    hand(u, ['curtainSpin', 'strike']);
+    const e0 = u.run!.battle!.energy;
+    u = reduceGame(u, { type: 'play', uid: 'test0' });
+    expect(u.run!.battle!.energy).toBe(e0 - 1); // 未打出攻击牌，不返还
+    u = reduceGame(u, { type: 'play', uid: 'test1' });
+    expect(u.run!.battle!.energy).toBe(e0 - 2); // 回旋先于攻击打出，不返还
+    let v = impFight();
+    hand(v, ['strike', 'curtainSpin']);
+    const e1 = v.run!.battle!.energy;
+    v = reduceGame(v, { type: 'play', uid: 'test0' });
+    v = reduceGame(v, { type: 'play', uid: 'test1' });
+    expect(v.run!.battle!.energy).toBe(e1 - 1); // 攻击 1 费＋回旋 1 费－返还 1
+  });
+  it('awakened matadormon can sync-burst without a branch and gains an upgraded signature', () => {
+    let s = impFight();
+    s.run!.form = 'matadormonAwakened';
+    s.run!.branch = null;
+    s.run!.battle!.sync = 6;
+    s = reduceGame(s, { type: 'burst' });
+    expect(s.run!.battle!.burst).toBe(3);
+    expect(
+      [...s.run!.battle!.hand, ...s.run!.battle!.draw].some(
+        (c) => c.id === 'flamencoSlash' && c.upgraded,
+      ),
+    ).toBe(true);
+  });
   it('belial branch adds 2 damage per devour layer and draws on kill', () => {
     let s = impFight();
     s.run!.branch = 'belial';

@@ -132,6 +132,9 @@ export const PASSIVES: Record<string, PassiveHooks> = {
   vamdemon: {
     drainBonus: () => 2,
   },
+  matadormonAwakened: {
+    drainBonus: () => 1,
+  },
   blast: {
     // 疾风连射：单张攻击牌的第 3 段及以后（hitIndex 从 0 计），每段伤害＋1。
     attackHitBonus: (_c, hitIndex) => (hitIndex !== undefined && hitIndex >= 2 ? 1 : 0),

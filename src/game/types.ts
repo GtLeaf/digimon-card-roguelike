@@ -36,7 +36,8 @@ export type Special =
   | 'sacrifice'
   | 'devour'
   | 'devouraura'
-  | 'lure';
+  | 'lure'
+  | 'spinstep';
 export interface CardDef {
   id: string;
   name: string;

@@ -1,6 +1,6 @@
 import { weightedOffers } from './cardSkills';
 import { BRANCHES, CARDS, ENEMIES, RELICS, needsTarget } from './data';
-import { emptyActivity, syncRouteData, activityGains, relevantMetrics } from './evolution';
+import { EVOLUTIONS, emptyActivity, syncRouteData, activityGains, relevantMetrics } from './evolution';
 import { expandedIntent } from './enemyRules';
 import { PASSIVES, devourCap, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
 import { choose, makeCard, rand, shuffle } from './random';
@@ -41,6 +41,18 @@ const ctx = (r: Run, b: Battle, meta?: Meta): HookCtx => ({
 export function cardCost(c: Card): number {
   const d = CARDS[c.id];
   return Math.max(0, d.cost - (c.upgraded && !d.damage && !d.shield ? 1 : 0));
+}
+// 斗牛士兽 · 觉醒被动：每回合第二张攻击牌不消耗行动力。
+export function playCost(r: Run | null | undefined, c: Card): number {
+  const b = r?.battle;
+  if (
+    b &&
+    r!.form === 'matadormonAwakened' &&
+    CARDS[c.id].kind === 'attack' &&
+    b.attackPlays === 1
+  )
+    return 0;
+  return cardCost(c);
 }
 export function intent(r: Run, e: Enemy): Intent {
   const b = r.battle;
@@ -495,7 +507,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   if (index < 0) return;
   const c = b.hand[index],
     d = CARDS[c.id];
-  const cost = cardCost(c);
+  const cost = playCost(r, c);
   if (cost > b.energy) return;
   const chosen0 =
     b.enemies.find((e) => e.uid === target && e.hp > 0) ?? b.enemies.find((e) => e.hp > 0);
@@ -600,6 +612,11 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     const faults = b.hand.filter((x) => CARDS[x.id].kind === 'status');
     b.hand = b.hand.filter((x) => CARDS[x.id].kind !== 'status');
     b.exhaust.push(...faults);
+  }
+  // 谢幕回旋：本回合已打出攻击牌则返还 1 行动力。
+  if (d.special === 'spinstep' && b.attackPlays > 0) {
+    b.energy++;
+    log(b, '谢幕回旋 · 行动力＋1');
   }
   let bonus = b.charge > 0 ? (d.chargedDamage ?? 0) : 0;
   if (d.special === 'shieldhit') bonus += Math.floor(b.block / 2);
@@ -937,12 +954,19 @@ export function applySupport(r: Run, meta: Meta, targetUid?: string) {
 }
 export function applyBurst(r: Run) {
   const b = r.battle;
-  if (!b || !r.branch) return;
+  if (!b) return;
+  // 分支形态用分支必杀牌；止步觉醒（如觉醒斗牛士兽）用自己的招牌牌。
+  const signatureId = r.branch
+    ? BRANCHES[r.branch].cards[0]
+    : EVOLUTIONS[r.form]?.endpoint
+      ? EVOLUTIONS[r.form].cards[0]
+      : undefined;
+  if (!signatureId) return;
   if (b.sync >= 6 && !b.burstUsed) {
     b.sync -= 6;
     b.burstUsed = true;
     b.burst = 3;
-    const signature = makeCard(r, BRANCHES[r.branch].cards[0], true, true);
+    const signature = makeCard(r, signatureId, true, true);
     if (b.hand.length < 8) b.hand.push(signature);
     else b.draw.push(signature);
     log(b, '同步爆发！本回合起三回合攻击每段＋2，获得强化必杀牌。');

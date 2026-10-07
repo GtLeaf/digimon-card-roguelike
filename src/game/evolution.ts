@@ -62,6 +62,8 @@ export interface EvolutionDef {
   /** 进化时给强化版招牌牌 */
   signatureUpgrade?: boolean;
   branch?: Branch;
+  /** 止步觉醒：不升阶段的终点形态（如觉醒斗牛士兽），可同步爆发 */
+  endpoint?: boolean;
   groups: Term[][];
   slot: number;
 }
@@ -468,6 +470,24 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
           ],
         ],
         slot: 2,
+      },
+      {
+        id: 'matadormonAwakened',
+        partner: 'impmon',
+        stage: 3,
+        parents: ['matadormon'],
+        tag: '止步觉醒',
+        passive: '每回合打出的第二张攻击牌不消耗行动力；吸血效果额外回复 1 生命。',
+        cards: ['flamencoSlash', 'curtainSpin'],
+        endpoint: true,
+        groups: [
+          [{ metric: 'attacks', goal: 40 }],
+          [
+            { metric: 'kills', goal: 15 },
+            { metric: 'bigTurns', goal: 3 },
+          ],
+        ],
+        slot: 3,
       },
     ] satisfies EvolutionDef[]
   ).map((d) => [d.id, d]),

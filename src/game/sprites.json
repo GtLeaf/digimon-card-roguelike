@@ -373,5 +373,10 @@
     "frames": 4,
     "duration": 1000,
     "source": "original-procedural-art"
+  },
+  "matadormonAwakened": {
+    "frames": 4,
+    "duration": 600,
+    "source": "assets/vendor/digimon-ds/original/ultimate/Matadormon.gif"
   }
 }

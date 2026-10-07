@@ -40,6 +40,26 @@ function ready(form: string) {
 }
 const replacements = (s: Save) => s.run!.deck.slice(0, 2).map((c) => c.uid);
 
+describe('endpoint awakening', () => {
+  it('matadormon awakening needs its activity goals, swaps signature cards, stays branchless', () => {
+    let s = ready('matadormonAwakened');
+    expect(evolutionStatus(s.run!, s.meta, 'matadormonAwakened').ready).toBe(false);
+    expect(reduceGame(s, { type: 'evolve', form: 'matadormonAwakened', replace: replacements(s) })).toEqual(s);
+    s.run!.activity.counts.attacks = 40;
+    expect(evolutionStatus(s.run!, s.meta, 'matadormonAwakened').ready).toBe(false); // 第二组未满足
+    s.run!.activity.counts.kills = 15;
+    expect(evolutionStatus(s.run!, s.meta, 'matadormonAwakened').ready).toBe(true);
+    s = reduceGame(s, { type: 'evolve', form: 'matadormonAwakened', replace: replacements(s) });
+    const r = s.run!;
+    expect(r.form).toBe('matadormonAwakened');
+    expect(r.stage).toBe(3);
+    expect(r.branch).toBeNull();
+    expect(r.deck.map((c) => c.id)).toContain('flamencoSlash');
+    expect(r.deck.map((c) => c.id)).toContain('curtainSpin');
+    expect(EVOLUTIONS.matadormonAwakened.endpoint).toBe(true);
+  });
+});
+
 describe('real connected routes', () => {
   it('all generated nodes lead forward and all paths reach the final boss', () => {
     for (const seed of [1, 42, 984]) {

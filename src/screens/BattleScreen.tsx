@@ -12,7 +12,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { CARDS, ENEMIES, FORM_NAMES, BRANCHES } from '../game/data';
-import { cardCost, intent } from '../game/engine';
+import { playCost, intent } from '../game/engine';
+import { EVOLUTIONS } from '../game/evolution';
 import type { Action, Battle, Run } from '../game/types';
 import type { Pile } from '../components/DeckViewer';
 import { GameCard } from '../components/GameCard';
@@ -76,7 +77,7 @@ export function BattleScreen({
     b.enemies.find((e) => e.uid === target && e.hp > 0) ?? b.enemies.find((e) => e.hp > 0);
   const battleLocked = battleBusy || b.enemyTurnIndex !== null;
   function playSelectedCard() {
-    if (!activeCard || battleLocked || cardCost(activeCard) > b.energy) return;
+    if (!activeCard || battleLocked || playCost(r, activeCard) > b.energy) return;
     const definition = CARDS[activeCard.id];
     const canHit =
       !!definition.damage ||
@@ -190,14 +191,19 @@ export function BattleScreen({
             </div>
             <span>同步率</span>
             <button
-              disabled={battleLocked || !r.branch || b.sync < 6 || b.burstUsed}
+              disabled={
+                battleLocked ||
+                !(r.branch || EVOLUTIONS[r.form]?.endpoint) ||
+                b.sync < 6 ||
+                b.burstUsed
+              }
               onClick={() => dispatchAction({ type: 'burst' })}
             >
               {b.burst > 0
                 ? `爆发 · ${b.burst} 回合`
                 : b.burstUsed
                   ? '本场已爆发'
-                  : r.branch
+                  : r.branch || EVOLUTIONS[r.form]?.endpoint
                     ? '同步爆发'
                     : '究极体解锁'}
             </button>
@@ -298,7 +304,7 @@ export function BattleScreen({
         <div className="turn-buttons">
           <button
             className="secondary use-card"
-            disabled={!activeCard || battleLocked || cardCost(activeCard) > b.energy}
+            disabled={!activeCard || battleLocked || playCost(r, activeCard) > b.energy}
             onClick={playSelectedCard}
             aria-label={activeCard ? `使用 ${CARDS[activeCard.id].name}` : '选择卡片后使用'}
           >

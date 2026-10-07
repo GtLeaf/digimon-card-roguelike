@@ -27,6 +27,7 @@ const SPECIAL_FLAT: Record<string, number> = {
   purge: 4,
   lure: 2,
   devouraura: 7,
+  spinstep: 5,
   sacrifice: -4.5,
 };
 

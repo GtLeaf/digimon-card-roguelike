@@ -26,7 +26,7 @@ const SPECIAL_FLAT: Record<string, number> = {
   copy: 6,
   purge: 4,
   lure: 2,
-  devouraura: 6,
+  devouraura: 7,
   sacrifice: -4.5,
 };
 
@@ -45,6 +45,15 @@ function value(d: CardDef, upgraded: boolean, layers: number): number {
   if (d.shield) v += (d.shield + (upgraded ? 3 : 0)) * W.shield;
   if (d.heal) v += (d.heal + (upgraded && d.upgradeText ? 2 : 0)) * W.heal;
   if (d.drain) v += d.drain * W.heal;
+  // 比例吸血：按本牌期望生命伤害折算回复量。
+  if (d.drainRatio && dmg)
+    v +=
+      Math.floor(
+        (dmg * hits * (d.all ? W.all : 1)) /
+          (upgraded && d.upgradeDrainRatio ? d.upgradeDrainRatio : d.drainRatio),
+      ) * W.heal;
+  // 噬能换力量：消耗全部层数（满 6 层口径），每 N 层 1 力量。
+  if (d.devourStrength) v += Math.floor(6 / d.devourStrength) * W.strength;
   if (d.draw) v += (d.draw + (upgraded && d.upgradeText ? 1 : 0)) * W.draw;
   else if (upgraded && d.upgradeDraw) v += d.upgradeDraw * W.draw;
   if (d.energy) v += (d.energy + (upgraded && d.upgradeText && !d.upgradeDraw ? 1 : 0)) * W.energy;

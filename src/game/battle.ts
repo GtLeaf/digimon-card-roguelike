@@ -2,7 +2,7 @@ import { weightedOffers } from './cardSkills';
 import { BRANCHES, CARDS, ENEMIES, RELICS, needsTarget } from './data';
 import { emptyActivity, syncRouteData, activityGains, relevantMetrics } from './evolution';
 import { expandedIntent } from './enemyRules';
-import { DEVOUR_CAP, PASSIVES, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
+import { PASSIVES, devourCap, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
 import { choose, makeCard, rand, shuffle } from './random';
 import type { Battle, Card, CardDef, Enemy, Intent, MapNode, Meta, Metric, Run } from './types';
 
@@ -292,7 +292,7 @@ export function beginBattle(r: Run, node: MapNode) {
     weakenedThisTurn: false,
     markedThisTurn: false,
     devour: 0,
-    devourAura: false,
+    devourCapBonus: 0,
     log: ['连接建立。先观察敌人的行动意图。'],
     feedback: [],
   };
@@ -402,7 +402,7 @@ const RELIC_RELEVANCE: Record<string, (r: Run, deck: CardDef[]) => boolean> = {
   firebrand: (r, deck) => deck.some((d) => d.burn) || r.branch === 'megidra',
   compass: (r, deck) =>
     deck.some((d) => d.mark) || r.branch === 'sakuya' || r.branch === 'kuzuha',
-  fang: (_r, deck) => deck.some((d) => d.drain),
+  fang: (_r, deck) => deck.some((d) => d.drain || d.drainRatio),
 };
 export function awardRelic(r: Run) {
   const available = Object.keys(RELICS).filter((id) => !r.relics.includes(id));
@@ -584,8 +584,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (d.devour) gainDevour(b, d.devour);
   if (d.special === 'devouraura') {
-    b.devourAura = true;
-    log(b, '噬能光环 · 本场击败敌人额外＋1 噬能');
+    b.devourCapBonus += 2;
+    const gain = 2 + (c.upgraded && d.upgradeText ? 1 : 0);
+    gainDevour(b, gain);
+    log(b, `噬能光环 · 噬能上限＋2，噬能 ＋${gain}（当前 ${b.devour}）`);
   }
   if (d.special === 'copy') {
     const original = b.hand.find(
@@ -614,8 +616,15 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   if (d.special === 'devour')
     bonus +=
-      spendDevour(r, d.devourAll ? DEVOUR_CAP : 3) *
+      spendDevour(r, d.devourAll ? devourCap(b) : 3) *
       ((d.devourPower ?? 4) + sum(r, (h, cx) => h.devourPowerBonus?.(cx)));
+  // 恶梦冲击波：消耗全部噬能，每 N 层换 1 力量。
+  if (d.devourStrength) {
+    const spent = spendDevour(r, devourCap(b));
+    const gain = Math.floor(spent / d.devourStrength);
+    b.strength += gain;
+    log(b, `${d.name} · 消耗 ${spent} 噬能，力量 ＋${gain}`);
+  }
   const targets = d.all ? b.enemies.filter((e) => e.hp > 0) : chosen ? [chosen] : [];
   const beforeDamage = r.damageDealt;
   let appliedMark = false,
@@ -701,9 +710,17 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
       log(b, `噬能 ＋${gain}（转化 · 当前 ${b.devour}）`);
     }
   }
-  if (d.drain && r.damageDealt > beforeDamage && r.hp < r.maxHp) {
+  if ((d.drain || d.drainRatio) && r.damageDealt > beforeDamage && r.hp < r.maxHp) {
     const before = r.hp;
-    const drainAmount = c.upgraded && d.upgradeDrain ? d.upgradeDrain : d.drain;
+    // 比例吸血：按本牌实际生命伤害折算；固定吸血维持原值。
+    const drainAmount = d.drainRatio
+      ? Math.floor(
+          (r.damageDealt - beforeDamage) /
+            (c.upgraded && d.upgradeDrainRatio ? d.upgradeDrainRatio : d.drainRatio),
+        )
+      : c.upgraded && d.upgradeDrain
+        ? d.upgradeDrain
+        : d.drain!;
     r.hp = Math.min(
       r.maxHp,
       r.hp + drainAmount + sum(r, (h, cx) => h.drainBonus?.(cx)) + (r.relics.includes('fang') ? 1 : 0),

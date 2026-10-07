@@ -71,6 +71,9 @@ export interface CardDef {
   series?: string;
   weak?: number;
   drain?: number;
+  // 比例吸血：每造成 N 点生命伤害回复 1 生命（与 drain 二选一）
+  drainRatio?: number;
+  upgradeDrainRatio?: number;
   devour?: number;
   devourPower?: number;
   devourShield?: number;
@@ -79,6 +82,8 @@ export interface CardDef {
   // 消耗至多 3 层噬能，每层增加的攻击段数
   devourHits?: number;
   devourVuln?: number;
+  // 消耗全部噬能，每 N 层获得 1 力量
+  devourStrength?: number;
   devourAll?: boolean;
   convert?: number;
 }
@@ -208,7 +213,8 @@ export interface Battle {
   weakenedThisTurn: boolean;
   markedThisTurn: boolean;
   devour: number;
-  devourAura: boolean;
+  // 噬能光环提供的上限加成（基础上限 6）
+  devourCapBonus: number;
   log: string[];
   feedback: BattleNumber[];
 }

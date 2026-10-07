@@ -35,21 +35,21 @@ export interface PassiveHooks {
 
 // 键为搭档/形态/分支 id；一场战斗中按 [partner, form, branch] 顺序触发。
 export const DEVOUR_CAP = 6;
+export const devourCap = (b: Battle) => DEVOUR_CAP + b.devourCapBonus;
 export const gainDevour = (b: Battle, n: number) => {
-  b.devour = Math.min(DEVOUR_CAP, b.devour + n);
+  b.devour = Math.min(devourCap(b), b.devour + n);
 };
 export const PASSIVES: Record<string, PassiveHooks> = {
   impmon: {
     onTurnStart({ b, log }) {
-      if (b.devour >= DEVOUR_CAP) return;
+      if (b.devour >= devourCap(b)) return;
       gainDevour(b, 1);
       log(`噬能 ＋1（回合 · 当前 ${b.devour}）`);
     },
     onKill({ b, log }) {
-      if (b.devour >= DEVOUR_CAP) return;
-      const gain = 1 + (b.devourAura ? 1 : 0);
-      gainDevour(b, gain);
-      log(`噬能 ＋${gain}（击败 · 当前 ${b.devour}）`);
+      if (b.devour >= devourCap(b)) return;
+      gainDevour(b, 1);
+      log(`噬能 ＋1（击败 · 当前 ${b.devour}）`);
     },
   },
   wargrowlmon: {

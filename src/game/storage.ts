@@ -121,7 +121,7 @@ const battle = z.object({
   weakenedThisTurn: z.boolean().default(false),
   markedThisTurn: z.boolean().default(false),
   devour: z.number().int().nonnegative().default(0),
-  devourAura: z.boolean().default(false),
+  devourCapBonus: z.number().int().nonnegative().default(0),
   log: z.array(z.string()),
   feedback: z
     .array(

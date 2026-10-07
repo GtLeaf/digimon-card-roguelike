@@ -631,8 +631,13 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     b.nextAttackHits += n;
     log(b, `${d.name} · 本回合下一张攻击牌段数＋${n}`);
   }
+  // 式神·饭纲：本回合式神已苏醒（第二张技能牌起）则再抽 1 张。
+  if (d.special === 'izuna' && b.skillsPlayed >= 2) {
+    draw(r, 1);
+    log(b, '式神·饭纲 · 式神呼应，再抽 1 张牌');
+  }
   let bonus = b.charge > 0 ? (d.chargedDamage ?? 0) : 0;
-  if (d.special === 'shieldhit') bonus += Math.floor(b.block / 2);
+  if (d.special === 'shieldhit') bonus += Math.floor(b.block / (d.shieldDiv ?? 2));
   if (d.special === 'cannon') {
     if (b.charge > 0) {
       count(r, 'cannonShots');
@@ -689,6 +694,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
       if (e.burn > 0) detonated = true;
       e.burn = 0;
     }
+    // 末日审判：灼烧追加伤害但不消耗灼烧层数。
+    if (d.special === 'pyre') extra += e.burn * (d.burnPower ?? 3);
     if (d.special === 'lure' && e.weakened > 0) extra += 4;
     if (d.special === 'markburst') {
       extra += e.mark * (d.markPower ?? 5);

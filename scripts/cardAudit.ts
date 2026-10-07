@@ -30,6 +30,7 @@ const SPECIAL_FLAT: Record<string, number> = {
   devouraura: 7,
   spinstep: 5,
   windup: 6,
+  izuna: 3,
   sacrifice: -4.5,
 };
 
@@ -200,6 +201,10 @@ const burnProducers: Producer[] = allCards
 const burnBest = bestProducer(burnProducers);
 for (const d of allCards.filter((x) => x.special === 'detonate'))
   if (burnBest) checkCombos(d, '灼烧', burnBest, 1, 3, (n) => (d.damage ?? 0) + n * 3);
+// 灼烧 → 末日审判：不消耗灼烧，追加伤害可反复变现，按灼烧常驻 3 层估值。
+for (const d of allCards.filter((x) => x.special === 'pyre'))
+  if (burnBest)
+    checkCombos(d, '灼烧', burnBest, 1, 3, (n) => (d.damage ?? 0) + n * (d.burnPower ?? 3));
 // 符印 → 爆发：同上，符印价值在爆发端结算。
 const markProducers: Producer[] = allCards
   .filter((d) => d.mark && d.special !== 'markburst')
@@ -217,7 +222,7 @@ const shieldBest = bestProducer(
 for (const d of allCards.filter((x) => x.special === 'shieldhit'))
   if (shieldBest)
     checkCombos(d, '护盾', shieldBest, 1, 0, () =>
-      (d.damage ?? 0) + Math.floor((shieldBest.d.shield ?? 0) / 2),
+      (d.damage ?? 0) + Math.floor((shieldBest.d.shield ?? 0) / (d.shieldDiv ?? 2)),
     );
 // 虚弱 → 引逗：虚弱本身是有效减益不剥分，引逗按命中虚弱目标的追加伤害折算。
 const weakBest = bestProducer(

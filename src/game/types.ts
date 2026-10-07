@@ -38,7 +38,9 @@ export type Special =
   | 'devouraura'
   | 'lure'
   | 'spinstep'
-  | 'windup';
+  | 'windup'
+  | 'pyre'
+  | 'izuna';
 export interface CardDef {
   id: string;
   name: string;
@@ -93,6 +95,10 @@ export interface CardDef {
   windupHits?: number;
   // 目标生命低于一半时每段额外伤害
   executeBonus?: number;
+  // 盾击类：当前护盾每 N 点追加 1 伤害（默认 2）
+  shieldDiv?: number;
+  // 末日审判：灼烧每层追加伤害但不消耗灼烧
+  burnPower?: number;
   devourVuln?: number;
   // 消耗全部噬能，每 N 层获得 1 力量
   devourStrength?: number;

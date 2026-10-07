@@ -425,11 +425,11 @@ export function autoplay(
               'fireball',
             ]
           : branch === 'megidra'
-            ? ['ignite', 'fireball', 'heatwave', 'flare', 'roar', 'brace', 'mend']
-            : ['roar', 'fireball', 'brace', 'fortify', 'doublecut', 'inferno', 'mend']
+            ? ['judgment', 'ignite', 'fireball', 'heatwave', 'flare', 'roar', 'brace', 'mend']
+            : ['gramLance', 'roar', 'fireball', 'brace', 'fortify', 'doublecut', 'inferno', 'mend']
         : branch === 'kuzuha'
-          ? ['barrier', 'brace', 'talisman', 'ritual', 'mend', 'insight', 'leaf']
-          : ['leaf', 'seal', 'barrier', 'brace', 'ritual', 'fortify', 'mend'];
+          ? ['izuna', 'barrier', 'brace', 'talisman', 'ritual', 'mend', 'insight', 'leaf']
+          : ['fullSalvo', 'leaf', 'seal', 'barrier', 'brace', 'ritual', 'fortify', 'mend'];
   while (s.run!.screen !== 'result' && steps++ < 2000) {
     const r = s.run!;
     let action: Action;
@@ -561,6 +561,12 @@ export function autoplay(
           if (d.devourStrength) score += Math.floor(b.devour / d.devourStrength) * 7;
           if (d.special === 'devouraura') score += 7;
           if (d.special === 'detonate') score += target.burn * (branch === 'megidra' ? 6 : 3);
+          // 末日审判：不耗灼烧，按目标当前灼烧层数直接估伤害。
+          if (d.special === 'pyre') score += target.burn * (d.burnPower ?? 3) * 1.5;
+          // 蓄能炮：按当前蓄能折算爆发伤害。
+          if (d.special === 'cannon') score += b.charge * (d.chargeMultiplier ?? 4);
+          // 盾击类：按当前护盾折算追加伤害。
+          if (d.special === 'shieldhit') score += Math.floor(b.block / (d.shieldDiv ?? 2));
           if (branch === 'megidra' && d.burn && !target.burn) score += 12;
           if (d.special === 'markburst') score += target.mark * 5;
           // 符印爆发存到 2 层以上再放，除非当前层数已经够斩杀（与噬能全量爆发同一策略）。
@@ -1398,6 +1404,66 @@ describe('impmon partner line', () => {
       expect(s.run!.form).toBe(BRANCHES[branch].art);
       expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(BRANCHES[branch].cards);
     }
+  });
+});
+
+describe('ultimate third cards', () => {
+  const partnerFight = (partner: Partner) => {
+    const s = start(partner);
+    return reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
+  };
+  it('gram lance converts block into bonus damage at three to one', () => {
+    let s = partnerFight('guilmon');
+    hand(s, ['gramLance']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    e.hp = 200;
+    e.maxHp = 200;
+    s.run!.battle!.block = 9;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 15); // 12＋9÷3
+  });
+  it('judgment adds burn stacks as damage without consuming them', () => {
+    let s = partnerFight('guilmon');
+    s.run!.branch = 'megidra';
+    hand(s, ['judgment']);
+    s.run!.battle!.enemies.forEach((e) => {
+      e.block = 0;
+      e.hp = 200;
+      e.maxHp = 200;
+      e.burn = 4;
+    });
+    s = reduceGame(s, { type: 'play', uid: 'test0' });
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 18); // 6＋4×3
+    expect(s.run!.battle!.enemies[0].burn).toBe(4); // 灼烧保留
+  });
+  it('izuna draws a second card once the shikigami is awake', () => {
+    let s = partnerFight('renamon');
+    s.run!.branch = 'kuzuha';
+    hand(s, ['izuna']);
+    s = reduceGame(s, { type: 'play', uid: 'test0' });
+    // 本回合第一张技能牌：式神未醒，仅抽 1
+    expect(s.run!.battle!.hand.length).toBe(1);
+    let t = partnerFight('renamon');
+    t.run!.branch = 'kuzuha';
+    hand(t, ['barrier', 'izuna']);
+    t = reduceGame(t, { type: 'play', uid: 'test0' });
+    t = reduceGame(t, { type: 'play', uid: 'test1' });
+    // 第二张技能牌触发式神，饭纲抽 2（打出手牌归零后抽回 2 张）
+    expect(t.run!.battle!.hand.length).toBe(2);
+  });
+  it('full salvo spends all charge for bonus damage', () => {
+    let s = partnerFight('terriermon');
+    s.run!.branch = 'saint';
+    hand(s, ['fullSalvo']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    e.hp = 200;
+    e.maxHp = 200;
+    s.run!.battle!.charge = 3;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 15); // 6＋3×3
+    expect(s.run!.battle!.charge).toBe(0);
   });
 });
 

@@ -449,7 +449,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         cards: BRANCHES.venom.cards,
         branch: 'venom',
         groups: [[{ metric: 'weakens', goal: 25 }], [{ metric: 'heals', goal: 15 }]],
-        slot: 2,
+        slot: 3,
       },
       {
         id: 'belialvamdemon',

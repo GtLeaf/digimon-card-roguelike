@@ -3253,12 +3253,12 @@ progress::-moz-progress-bar {
 .tree-canvas {
   position: relative;
   width: 920px;
-  height: 510px;
+  height: 700px;
 }
 .tree-edges {
   position: absolute;
   width: 920px;
-  height: 510px;
+  height: 700px;
   pointer-events: none;
 }
 .tree-edges path {
@@ -3727,7 +3727,7 @@ progress::-moz-progress-bar {
     width: calc(100% - 20px);
   }
   .tree-canvas {
-    height: 510px;
+    height: 700px;
   }
   .tree-scroll {
     max-height: none;

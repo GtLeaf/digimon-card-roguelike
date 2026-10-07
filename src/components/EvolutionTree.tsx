@@ -104,7 +104,7 @@ export function EvolutionTree({
       </p>
       <div className="tree-scroll" ref={scroll} aria-label="横向进化树">
         <div className="tree-canvas">
-          <svg className="tree-edges" viewBox="0 0 920 510" aria-hidden="true">
+          <svg className="tree-edges" viewBox="0 0 920 700" aria-hidden="true">
             {nodes.flatMap((node) =>
               node.parents.map((parent) => {
                 const special =

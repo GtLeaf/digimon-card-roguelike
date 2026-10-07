@@ -3235,6 +3235,8 @@ progress::-moz-progress-bar {
 .tree-scroll {
   width: 100%;
   overflow: auto;
+  /* 只接管水平滑动；垂直手势让给页面滚动（内部无垂直滚动空间，容器会白吃事件） */
+  touch-action: pan-x pinch-zoom;
   overscroll-behavior: contain;
   border: 1px solid #466255;
   border-radius: 7px;

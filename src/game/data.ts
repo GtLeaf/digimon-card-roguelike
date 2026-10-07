@@ -706,6 +706,21 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       { devourHeal: 3 },
     ),
     card(
+      'bloodPact',
+      '血之契约',
+      1,
+      'skill',
+      'impmon',
+      '失去 3 生命，获得 3 噬能，抽 1 张牌。',
+      'vamdemon',
+      {
+        special: 'sacrifice',
+        devour: 3,
+        draw: 1,
+        upgradeText: '失去 3 生命，获得 3 噬能，抽 2 张牌。',
+      },
+    ),
+    card(
       'twinClaw',
       '双重爪击',
       1,

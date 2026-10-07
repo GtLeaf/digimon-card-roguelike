@@ -663,7 +663,12 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     consumedMark = false;
   const devourWeakSpent = d.devourWeak ? spendDevour(r, 3) : 0;
   // 疾风加农：消耗噬能换额外攻击段数（一次性消耗，对全目标生效）。
-  const devourHitsSpent = d.devourHits ? spendDevour(r, d.devourHitsCap ?? 3) * d.devourHits : 0;
+  const devourHitsLayers = d.devourHits ? spendDevour(r, d.devourHitsCap ?? 3) : 0;
+  const devourHitsSpent = devourHitsLayers * (d.devourHits ?? 0);
+  // 贝利亚吸血魔兽被动「消耗噬能每层＋2 伤害」同样覆盖噬能换段：
+  // 换段的层数不直接加伤，折算为首段额外伤害（devourPowerBonus 通用钩子，其他路线为 0）。
+  if (devourHitsLayers)
+    tacticalBonus += devourHitsLayers * sum(r, (h, cx) => h.devourPowerBonus?.(cx));
   // 噬能侵蚀：噬能满 3 层才消耗并足额施加易伤，不足则不消耗、保底施加 1 层。
   const devourVulnSpent = d.devourVuln && b.devour >= 3 ? spendDevour(r, 3) : 0;
   const vulnGain = d.devourVuln

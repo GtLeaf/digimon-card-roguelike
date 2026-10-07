@@ -1,4 +1,5 @@
 import { CARDS } from '../src/game/data';
+import { EVOLUTIONS } from '../src/game/evolution';
 import type { CardDef } from '../src/game/types';
 
 // 权重：以攻击指令/防御插件（1 费 = 7 点价值）为基准锚点。
@@ -227,6 +228,17 @@ const weakBest = bestProducer(
 for (const d of allCards.filter((x) => x.special === 'lure'))
   if (weakBest) checkCombos(d, '虚弱', weakBest, 1, 0, () => (d.damage ?? 0) + 4);
 
+// ===== 形态覆盖校验：每个究极体（stage 3）至少 3 张技能卡，保证机制闭环空间 =====
+// 设计规则：每个进化阶段的卡都要能实现机制闭环；究极体卡数 < 3 时告警。
+const coverRows = Object.values(EVOLUTIONS)
+  .filter((e) => e.stage === 3)
+  .map((e) => {
+    const cards = allCards.filter((d) => d.unlockForm === e.id);
+    return { id: e.id, count: cards.length, names: cards.map((d) => d.name), flag: cards.length < 3 ? '⚠️' : '' };
+  })
+  .sort((a, b) => a.count - b.count);
+const coverFlags = coverRows.filter((c) => c.flag);
+
 const lines: string[] = [
   '# 卡牌强度审计（基准差值法：1 费 = 7 点价值）',
   '',
@@ -258,6 +270,16 @@ for (const c of comboRows)
     `| ${c.spender.name} | ${c.resource} | ${c.producerName} | ${c.minLayers} 层 ${c.minRatio.toFixed(2)} | ${c.fullLayers} 层 ${c.fullRatio.toFixed(2)} | ${c.flag} |`,
   );
 
+lines.push(
+  '',
+  '## 究极体覆盖校验（设计规则：每阶段卡牌机制闭环；究极体 ≥3 张技能卡）',
+  '',
+  '| 形态 | 卡数 | 卡牌 | 异常 |',
+  '| --- | --- | --- | --- |',
+);
+for (const c of coverRows)
+  lines.push(`| ${c.id} | ${c.count} | ${c.names.join('、')} | ${c.flag} |`);
+
 import { writeFileSync } from 'node:fs';
 writeFileSync('scripts/card-balance.md', lines.join('\n') + '\n');
 console.log(lines.slice(0, 8).join('\n'));
@@ -270,4 +292,6 @@ for (const c of comboFlags)
   console.log(
     `  ⚠️ ${c.spender.name} × ${c.producerName}：最小 ${c.minRatio.toFixed(2)} / 满载 ${c.fullRatio.toFixed(2)}`,
   );
+console.log(`\n究极体覆盖校验 ${coverRows.length} 个形态，不达标 ${coverFlags.length} 个：`);
+for (const c of coverFlags) console.log(`  ⚠️ ${c.id}：仅 ${c.count} 张卡（${c.names.join('、')}）`);
 console.log('\n报告已写入 scripts/card-balance.md');

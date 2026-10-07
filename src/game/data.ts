@@ -828,9 +828,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       2,
       'skill',
       'impmon',
-      '对所有敌人施加 2 虚弱，获得 6 护盾。',
+      '对所有敌人施加 2 虚弱，获得 6 护盾；消耗至多 3 层噬能，每层额外施加 1 虚弱。',
       'venommyotismon',
-      { weak: 2, shield: 6, all: true },
+      { weak: 2, shield: 6, all: true, devourWeak: 1 },
     ),
     card(
       'bloodFeast',

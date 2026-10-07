@@ -1234,6 +1234,42 @@ describe('impmon partner line', () => {
     expect(s.run!.hp).toBe(56);
     expect(s.run!.battle!.devour).toBe(0);
   });
+  it('belial passive adds 2 damage per devour layer spent on devour-for-hits cards', () => {
+    let s = impFight();
+    s.run!.branch = 'belial';
+    hand(s, ['despairReap']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    e.hp = 200;
+    e.maxHp = 200;
+    s.run!.battle!.devour = 2;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    // 4 段：首段 5＋2×2＝9，后三段各 5，共 24。
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 24);
+    let t = impFight();
+    t.run!.branch = 'blast';
+    hand(t, ['gustCannon']);
+    t.run!.battle!.enemies.forEach((x) => {
+      x.block = 0;
+      x.hp = 200;
+      x.maxHp = 200;
+    });
+    t.run!.battle!.devour = 2;
+    t = reduceGame(t, { type: 'play', uid: 'test0' });
+    // 疾风路线无该钩子：4 段各 4，第 3 段起被动每段＋1，共 18。
+    expect(t.run!.battle!.enemies[0].hp).toBe(200 - 18);
+  });
+  it('venom fog converts devour layers into extra weakness', () => {
+    let s = impFight();
+    s.run!.branch = 'venom';
+    hand(s, ['venomFog']);
+    s.run!.battle!.devour = 3;
+    s = reduceGame(s, { type: 'play', uid: 'test0' });
+    // 基础 2＋噬能 3 层＋剧毒被动 1＝6 虚弱；首次施虚弱回复 3。
+    expect(s.run!.battle!.enemies[0].weakened).toBe(6);
+    expect(s.run!.battle!.devour).toBe(0);
+    expect(s.run!.battle!.block).toBe(9); // 6＋守护祝福首防 3
+  });
   it('belial branch adds 2 damage per devour layer and draws on kill', () => {
     let s = impFight();
     s.run!.branch = 'belial';

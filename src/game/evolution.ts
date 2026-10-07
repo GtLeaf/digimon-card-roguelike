@@ -583,9 +583,34 @@ export const stageRequirement = (stage: number, chapterRows = 10) =>
     chapterRows === 8 ? '击败第1章首领' : '击败第2章首领',
     chapterRows === 8 ? '击败第2章首领' : '击败第3章首领',
   ][stage];
-export function activityGains(before: Activity, after: Activity): string[] {
+// 当前形态仍可企及的进化形态所需的行为指标：沿进化图向后遍历，只收集目标形态
+// 条件中出现的指标，战后结算只展示这些，避免无关计数刷屏。咲耶兽/公爵兽的
+// 额外继承条件不在 groups 里，单独补上。
+export function relevantMetrics(r: Run): Set<Metric> {
+  const reachable = new Set<string>();
+  const queue = [r.form];
+  while (queue.length) {
+    const cur = queue.pop()!;
+    for (const d of Object.values(EVOLUTIONS))
+      if (d.partner === r.partner && d.parents.includes(cur) && !reachable.has(d.id)) {
+        reachable.add(d.id);
+        queue.push(d.id);
+      }
+  }
+  const metrics = new Set<Metric>();
+  for (const id of reachable)
+    for (const group of EVOLUTIONS[id].groups)
+      for (const t of group) if (t.metric) metrics.add(t.metric);
+  if (reachable.has('sakuyamon')) metrics.add('defenses').add('markBursts');
+  if (reachable.has('dukemon')) metrics.add('defenses');
+  return metrics;
+}
+export function activityGains(before: Activity, after: Activity, relevant?: Set<Metric>): string[] {
   return (Object.keys(METRIC_NAMES) as Metric[])
-    .filter((k) => (after.counts[k] ?? 0) > (before.counts[k] ?? 0))
+    .filter(
+      (k) =>
+        (after.counts[k] ?? 0) > (before.counts[k] ?? 0) && (!relevant || relevant.has(k)),
+    )
     .map((k) => `${METRIC_NAMES[k]} +${(after.counts[k] ?? 0) - (before.counts[k] ?? 0)}`);
 }
 export const formName = (id: string) => FORM_NAMES[id] ?? id;

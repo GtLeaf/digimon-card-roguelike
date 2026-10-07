@@ -1,6 +1,6 @@
 import { weightedOffers } from './cardSkills';
 import { BRANCHES, CARDS, ENEMIES, RELICS, needsTarget } from './data';
-import { emptyActivity, syncRouteData, activityGains } from './evolution';
+import { emptyActivity, syncRouteData, activityGains, relevantMetrics } from './evolution';
 import { expandedIntent } from './enemyRules';
 import { DEVOUR_CAP, PASSIVES, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
 import { choose, makeCard, rand, shuffle } from './random';
@@ -452,7 +452,7 @@ function resolve(r: Run, meta: Meta) {
     gold,
     scans,
     relic,
-    gains: activityGains(b.startActivity, r.activity),
+    gains: activityGains(b.startActivity, r.activity, relevantMetrics(r)),
     unlocks,
   };
   r.screen = 'reward';

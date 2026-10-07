@@ -65,7 +65,7 @@ export function EvolutionTree({
     const el = scroll.current;
     if (el) el.scrollLeft = Math.max(0, (activeRun?.stage ?? 0) * 230 - 40);
   }, [activeRun?.stage, partner]);
-  const x = (id: string) => EVOLUTIONS[id].stage * 230 + 100,
+  const x = (id: string) => (EVOLUTIONS[id].treeStage ?? EVOLUTIONS[id].stage) * 230 + 100,
     y = (id: string) => EVOLUTIONS[id].slot * 155 + 100;
   function select(id: string) {
     setSelected(id);

@@ -64,6 +64,8 @@ export interface EvolutionDef {
   branch?: Branch;
   /** 止步觉醒：不升阶段的终点形态（如觉醒斗牛士兽），可同步爆发 */
   endpoint?: boolean;
+  /** 进化树展示列（默认按 stage）；止步觉醒挂在前置形态同列 */
+  treeStage?: number;
   groups: Term[][];
   slot: number;
 }
@@ -394,7 +396,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         passive: '每场战斗开始时获得 1 噬能。',
         cards: ['soulHarvest', 'lureDance'],
         groups: [],
-        slot: 0,
+        slot: 1,
       },
       {
         id: 'vamdemon',
@@ -480,6 +482,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         passive: '每回合打出的第二张攻击牌不消耗行动力；吸血效果额外回复 1 生命。',
         cards: ['flamencoSlash', 'curtainSpin'],
         endpoint: true,
+        treeStage: 2,
         groups: [
           [{ metric: 'attacks', goal: 40 }],
           [
@@ -487,7 +490,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
             { metric: 'bigTurns', goal: 3 },
           ],
         ],
-        slot: 3,
+        slot: 0,
       },
     ] satisfies EvolutionDef[]
   ).map((d) => [d.id, d]),

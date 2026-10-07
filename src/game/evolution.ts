@@ -396,7 +396,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         passive: '每场战斗开始时获得 1 噬能。',
         cards: ['soulHarvest', 'lureDance'],
         groups: [],
-        slot: 1,
+        slot: 0,
       },
       {
         id: 'vamdemon',
@@ -490,7 +490,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
             { metric: 'bigTurns', goal: 3 },
           ],
         ],
-        slot: 0,
+        slot: -1,
       },
     ] satisfies EvolutionDef[]
   ).map((d) => [d.id, d]),

@@ -66,7 +66,9 @@ export function EvolutionTree({
     if (el) el.scrollLeft = Math.max(0, (activeRun?.stage ?? 0) * 230 - 40);
   }, [activeRun?.stage, partner]);
   const x = (id: string) => (EVOLUTIONS[id].treeStage ?? EVOLUTIONS[id].stage) * 230 + 100,
-    y = (id: string) => EVOLUTIONS[id].slot * 155 + 100;
+    // 负槽位（止步觉醒挂在路线最上方单独一行）时整树下移，画布加高
+    yOff = Math.min(0, ...nodes.map((n) => n.slot)) * -155,
+    y = (id: string) => EVOLUTIONS[id].slot * 155 + 100 + yOff;
   function select(id: string) {
     setSelected(id);
     setExpanded(true);
@@ -103,8 +105,8 @@ export function EvolutionTree({
         左右滑动查看进化阶段。点击形态查看条件；实线为成长路线，虚线为调和／特殊路线。
       </p>
       <div className="tree-scroll" ref={scroll} aria-label="横向进化树">
-        <div className="tree-canvas">
-          <svg className="tree-edges" viewBox="0 0 920 700" aria-hidden="true">
+        <div className="tree-canvas" style={{ height: 700 + yOff }}>
+          <svg className="tree-edges" viewBox={`0 0 920 ${700 + yOff}`} style={{ height: 700 + yOff }} aria-hidden="true">
             {nodes.flatMap((node) =>
               node.parents.map((parent) => {
                 const special =

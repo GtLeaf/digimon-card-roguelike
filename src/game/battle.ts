@@ -553,9 +553,13 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   if (windupSpent) b.nextAttackHits = 0;
   // 深渊龙枪：本回合此前已自损过则追加伤害（先于本牌的自损结算判定）。
   const priorSelfCost = b.selfCostThisTurn;
+  // 自损返还：记录出牌前已阵亡敌人数与实际自损量，结算后若新增击杀则返还。
+  const deadBefore = d.refundSelfCostOnKill ? b.enemies.filter((e) => e.hp <= 0).length : 0;
+  let selfCostRefund = 0;
   if (d.special === 'sacrifice') {
     const before = r.hp;
     r.hp = Math.max(0, r.hp - 3);
+    if (d.refundSelfCostOnKill) selfCostRefund = before - r.hp;
     b.feedback.push({ target: 'player', kind: 'damage', amount: before - r.hp });
     count(r, 'selfCosts');
     if (!b.selfCostThisTurn) {
@@ -793,6 +797,13 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
       log(b, `${d.name} · 击败敌人，噬能 ＋${d.killDevour}`);
     }
     if (d.killDraw) draw(r, d.killDraw);
+  }
+  // 自损返还：本牌新增击杀则返还本牌的自损生命。
+  if (selfCostRefund && b.enemies.filter((e) => e.hp <= 0).length > deadBefore) {
+    const before = r.hp;
+    r.hp = Math.min(r.maxHp, r.hp + selfCostRefund);
+    if (r.hp > before) b.feedback.push({ target: 'player', kind: 'heal', amount: r.hp - before });
+    log(b, `${d.name} · 击败敌人，返还自损生命`);
   }
   if (appliedMark) {
     count(r, 'marks');

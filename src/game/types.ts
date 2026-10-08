@@ -95,6 +95,8 @@ export interface CardDef {
   killDevour?: number;
   // 此牌击败敌人时抽牌
   killDraw?: number;
+  // 自损牌：此牌击败敌人时返还本牌的自损生命
+  refundSelfCostOnKill?: boolean;
   // 风压推进：本回合下一张攻击牌增加段数
   windupHits?: number;
   // 目标生命低于一半时每段额外伤害

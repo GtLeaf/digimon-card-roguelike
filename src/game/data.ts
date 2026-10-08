@@ -966,9 +966,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       2,
       'attack',
       'impmon',
-      '失去 3 生命，造成 9×2 段伤害。',
+      '失去 3 生命，造成 9×2 段伤害；若此牌击败敌人，返还失去的生命。',
       'belialvamdemon',
-      { damage: 9, hits: 2, special: 'sacrifice' },
+      { damage: 9, hits: 2, special: 'sacrifice', refundSelfCostOnKill: true },
     ),
     card(
       'despairReap',

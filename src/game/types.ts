@@ -63,6 +63,10 @@ export interface CardDef {
   upgradeDamage?: number;
   // 强化后的吸血量（不设置则强化不改变吸血）
   upgradeDrain?: number;
+  // 散射攻击：第 1 段锁定所选目标，其余段从存活敌人中随机索敌（逐段独立结算与动画）
+  scatter?: boolean;
+  // 消耗至多 N 层蓄能，每层使每段伤害 +1（不清空全部蓄能）
+  chargeSeg?: number;
   upgradeText?: string;
   // 强化后额外抽牌（设置后能量强化不再享受默认 +1）
   upgradeDraw?: number;

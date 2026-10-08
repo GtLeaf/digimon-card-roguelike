@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import { CARDS, cardText } from '../src/game/data';
 import { cardPool, skillUnlocked } from '../src/game/cardSkills';
-import { emptySave, makeRun, reduceGame, cardCost, intent } from '../src/game/engine';
+import { emptySave, makeRun, reduceGame, cardCost, intent, previewAction } from '../src/game/engine';
 import { EVOLUTIONS, evolutionStatus, syncRouteData } from '../src/game/evolution';
 import { availableNodes } from '../src/game/map';
 import { parseSave } from '../src/game/storage';
@@ -168,6 +168,89 @@ describe('charge and multihit combat rules', () => {
     expect(s.run!.battle!.enemies[0].hp).toBe(987);
     expect(cardText({ id: 'gatling', upgraded: true })).toContain('4×3');
   });
+  describe('巨型导弹散射', () => {
+    function scatterFight(charge = 0, upgraded = false) {
+      const s = fight('saintgalgomon');
+      s.run!.training = 'defense'; // 排除训练加成，保证每段恰好 6/7
+      const b = s.run!.battle!;
+      b.hand = [{ id: 'giantMissile', uid: 't0', upgraded }];
+      b.energy = 10;
+      b.charge = charge;
+      b.enemies = ['e1', 'e2', 'e3'].map((uid) => ({
+        uid,
+        id: 'gotsumon',
+        hp: 40,
+        maxHp: 40,
+        block: 0,
+        burn: 0,
+        mark: 0,
+        strength: 0,
+        weakened: 0,
+        opening: false,
+        stagger: 0,
+      }));
+      return s;
+    }
+    const losses = (s: Save) =>
+      ['e1', 'e2', 'e3'].map(
+        (uid) => 40 - s.run!.battle!.enemies.find((e) => e.uid === uid)!.hp,
+      );
+    it('first segment locks the target, the rest scatter among alive enemies', () => {
+      const s = play(scatterFight(), 0);
+      const l = losses(s);
+      expect(l.reduce((a, c) => a + c, 0)).toBe(18); // 3 段 × 6
+      for (const x of l) expect(x % 6).toBe(0);
+      expect(l[0]).toBeGreaterThanOrEqual(6); // 首段必中锁定目标（其余段允许再中）
+      expect(l[0]).toBeLessThanOrEqual(18);
+    });
+    it('each charge layer adds 1 damage per segment and is spent', () => {
+      const s = play(scatterFight(2), 0);
+      const l = losses(s);
+      expect(l.reduce((a, c) => a + c, 0)).toBe(24); // 3 段 × (6+2)
+      for (const x of l) expect(x % 8).toBe(0);
+      expect(s.run!.battle!.charge).toBe(0);
+    });
+    it('spends only the layers it needs and upgraded raises each segment to 7', () => {
+      const s = play(scatterFight(1), 0);
+      const l = losses(s);
+      expect(l.reduce((a, c) => a + c, 0)).toBe(21); // 3 段 × (6+1)
+      expect(s.run!.battle!.charge).toBe(0);
+      const up = play(scatterFight(0, true), 0);
+      const lu = losses(up);
+      expect(lu.reduce((a, c) => a + c, 0)).toBe(21); // 强化每段 +1
+      for (const x of lu) expect(x % 7).toBe(0);
+    });
+    it('never targets corpses and never drops hp below zero', () => {
+      const s = scatterFight();
+      // 只剩 e2 存活且生命 5：三段全部（含锁定的首段）打向 e2，
+      // 伤害被生命上限截断，尸体 e1/e3 不会被随机索敌命中。
+      s.run!.battle!.enemies[0].hp = 0;
+      s.run!.battle!.enemies[2].hp = 0;
+      s.run!.battle!.enemies[1].hp = 5;
+      const dealt = s.run!.damageDealt;
+      const after = play(s, 0);
+      const es = after.run!.battle!.enemies;
+      expect(es[0].hp).toBe(0);
+      expect(es[2].hp).toBe(0);
+      expect(es[1].hp).toBe(0); // 不倒扣、不为负
+      expect(after.run!.damageDealt - dealt).toBe(5);
+    });
+    it('emits one feedback event per segment for independent hit animations', () => {
+      const fb = previewAction(scatterFight(), { type: 'play', uid: 't0' }).filter(
+        (f) => f.kind === 'damage',
+      );
+      expect(fb).toHaveLength(3); // 每段一条，前端按段播放动画
+      expect(fb[0].target).toBe('e1'); // 首段命中锁定目标
+    });
+    it('burst shot grants 1 charge for the salvo engine', () => {
+      const s = fight('saintgalgomon');
+      s.run!.training = 'defense';
+      hand(s, ['burstShot']);
+      const after = play(s, 0);
+      expect(after.run!.battle!.charge).toBe(1);
+      expect(after.run!.battle!.enemies[0].hp).toBe(991); // 4×2 段
+    });
+  });
   it('charge persists across turns and resets in the next battle', () => {
     let s = fight();
     hand(s, ['charge']);
@@ -177,6 +260,7 @@ describe('charge and multihit combat rules', () => {
     s.run!.battle!.enemies[0].hp = 1;
     s.run!.battle!.enemies[0].block = 0;
     hand(s, ['strike']);
+
     s = play(s, 0);
     expect(s.run!.screen).toBe('reward');
     s = reduceGame(s, { type: 'reward' });

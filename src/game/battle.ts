@@ -668,6 +668,12 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     b.strength += gain;
     log(b, `${d.name} · 消耗 ${spent} 噬能，力量 ＋${gain}`);
   }
+  // 巨型导弹：消耗至多 N 层蓄能，每层使每段伤害 +1（只取所需层数，不清空蓄能）。
+  let chargeSegSpent = 0;
+  if (d.chargeSeg && b.charge > 0) {
+    chargeSegSpent = Math.min(b.charge, d.chargeSeg);
+    b.charge -= chargeSegSpent;
+  }
   const targets = d.all ? b.enemies.filter((e) => e.hp > 0) : chosen ? [chosen] : [];
   const beforeDamage = r.damageDealt;
   let appliedMark = false,
@@ -693,7 +699,32 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
         (r.inherit === 'ember' && r.stage > 0 ? 1 : 0) +
         (r.relics.includes('firebrand') ? 1 : 0)
       : 0;
-  for (const e of targets) {
+  if (d.scatter) {
+    // 散射攻击：第 1 段锁定所选目标，其余段从存活敌人中随机索敌。
+    // 逐段独立调用 hit()，每段产生独立伤害反馈，前端按段播放攻击动画。
+    const totalSegs = (d.hits ?? 1) + devourHitsSpent + windupSpent;
+    const segBase = (d.damage ?? 0) + damageUp + chargeSegSpent + bonus;
+    for (let h = 0; h < totalSegs; h++) {
+      const alive = b.enemies.filter((e) => e.hp > 0);
+      if (!alive.length) break;
+      const t =
+        h === 0 && chosen && chosen.hp > 0
+          ? chosen
+          : alive[Math.floor(rand(r) * alive.length)];
+      hit(
+        r,
+        t,
+        segBase +
+          (h === 0 ? tacticalBonus : 0) +
+          sum(r, (hx, cx) => hx.hitBonusVsWeakened?.(cx, t, d)) +
+          (d.executeBonus && t.hp * 2 < t.maxHp ? d.executeBonus : 0),
+        true,
+        h,
+      );
+    }
+    tacticalBonus = 0;
+  }
+  for (const e of d.scatter ? [] : targets) {
     const hpBefore = e.hp;
     let extra = bonus;
     extra += sum(r, (h, cx) => h.hitBonusVsWeakened?.(cx, e, d));
@@ -722,6 +753,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
           e,
           d.damage +
             damageUp +
+            chargeSegSpent +
             extra +
             tacticalBonus +
             (d.executeBonus && e.hp * 2 < e.maxHp ? d.executeBonus : 0),

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Lock } from 'lucide-react';
 import {
   BRANCHES,
   CARDS,
@@ -8,15 +7,14 @@ import {
   PARTNER_IDS,
   asset,
 } from '../game/data';
-import type { Branch, CardDef, Meta, Partner } from '../game/types';
+import type { Branch, CardDef, CardKind, Meta, Partner } from '../game/types';
+import { GameCard } from './GameCard';
 
 type Tab = 'digimon' | 'card';
-const kindLabel: Record<CardDef['kind'], string> = {
-  attack: '攻击',
-  skill: '技能',
-  power: '强化',
-  status: '故障',
-};
+type GroupFilter = Partner | 'common' | 'all';
+type KindFilter = CardKind | 'all';
+type CostFilter = 'all' | '0' | '1' | '2';
+type LitFilter = 'all' | 'lit' | 'locked';
 
 // 卡片所属的基础搭档分组：family 是分支时回溯到搭档，通用卡归通用组。
 function groupOf(d: CardDef): Partner | 'common' {
@@ -26,7 +24,10 @@ function groupOf(d: CardDef): Partner | 'common' {
 
 export function Codex({ meta }: { meta: Meta }) {
   const [tab, setTab] = useState<Tab>('digimon');
-  const [group, setGroup] = useState<Partner | 'common' | 'all'>('all');
+  const [group, setGroup] = useState<GroupFilter>('all');
+  const [kind, setKind] = useState<KindFilter>('all');
+  const [cost, setCost] = useState<CostFilter>('all');
+  const [collection, setCollection] = useState<LitFilter>('all');
 
   const enemies = Object.values(ENEMIES).sort((a, b) => a.hp - b.hp);
   const seenCount = enemies.filter((e) => (meta.scans[e.id] ?? 0) > 0).length;
@@ -44,12 +45,13 @@ export function Codex({ meta }: { meta: Meta }) {
     .filter((d) => d.family !== 'status')
     .sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name, 'zh'));
   const litCount = cards.filter(lit).length;
-  const visible = cards.filter((d) => group === 'all' || groupOf(d) === group);
-  const groups: { id: Partner | 'common' | 'all'; name: string }[] = [
-    { id: 'all', name: '全部' },
-    ...PARTNER_IDS.map((id) => ({ id: id as Partner | 'common' | 'all', name: PARTNERS[id].name })),
-    { id: 'common', name: '通用卡' },
-  ];
+  const visible = cards.filter(
+    (d) =>
+      (group === 'all' || groupOf(d) === group) &&
+      (kind === 'all' || d.kind === kind) &&
+      (cost === 'all' || d.cost === Number(cost)) &&
+      (collection === 'all' || (collection === 'lit' ? lit(d) : !lit(d))),
+  );
   return (
     <div className="codex">
       <div className="item-codex-filters codex-tabs" role="group" aria-label="图鉴分类">
@@ -103,21 +105,51 @@ export function Codex({ meta }: { meta: Meta }) {
         </>
       ) : (
         <>
-          <div className="item-codex-filters" role="group" aria-label="按搭档筛选">
-            {groups.map((g) => (
-              <button
-                key={g.id}
-                aria-pressed={group === g.id}
-                onClick={() => setGroup(g.id)}
+          <div className="codex-selects">
+            <label>
+              搭档
+              <select
+                value={group}
+                onChange={(e) => setGroup(e.target.value as GroupFilter)}
               >
-                {g.name}
-                <span>
-                  {g.id === 'all'
-                    ? cards.length
-                    : cards.filter((d) => groupOf(d) === g.id).length}
-                </span>
-              </button>
-            ))}
+                <option value="all">全部</option>
+                {PARTNER_IDS.map((id) => (
+                  <option value={id} key={id}>
+                    {PARTNERS[id].name}
+                  </option>
+                ))}
+                <option value="common">通用卡</option>
+              </select>
+            </label>
+            <label>
+              类型
+              <select value={kind} onChange={(e) => setKind(e.target.value as KindFilter)}>
+                <option value="all">全部</option>
+                <option value="attack">攻击</option>
+                <option value="skill">技能</option>
+                <option value="power">强化</option>
+              </select>
+            </label>
+            <label>
+              费用
+              <select value={cost} onChange={(e) => setCost(e.target.value as CostFilter)}>
+                <option value="all">全部</option>
+                <option value="0">0 费</option>
+                <option value="1">1 费</option>
+                <option value="2">2 费</option>
+              </select>
+            </label>
+            <label>
+              收录
+              <select
+                value={collection}
+                onChange={(e) => setCollection(e.target.value as LitFilter)}
+              >
+                <option value="all">全部</option>
+                <option value="lit">已收录</option>
+                <option value="locked">未收录</option>
+              </select>
+            </label>
           </div>
           <p className="item-codex-count" aria-live="polite">
             共 {visible.length} 张 · 置灰的卡尚未在进化旅途中获得
@@ -125,34 +157,11 @@ export function Codex({ meta }: { meta: Meta }) {
           <div className="codex-card-grid">
             {visible.map((d) => {
               const on = lit(d);
-              const isGeneric = !d.unlockForm;
-              const artwork = isGeneric
-                ? `${import.meta.env.BASE_URL}card-art/${d.id}.jpg`
-                : asset(d.art);
               return (
-                <article
-                  className={`codex-card kind-${d.kind} ${on ? '' : 'locked'}`}
-                  key={d.id}
-                >
-                  <div className="codex-card-head">
-                    <span className="codex-cost">{d.cost}</span>
-                    <strong>{d.name}</strong>
-                    {!on && (
-                      <span className="codex-lock">
-                        <Lock size={12} />
-                        未收录
-                      </span>
-                    )}
-                  </div>
-                  <span className="codex-card-art">
-                    <img src={artwork} alt="" loading="lazy" decoding="async" />
-                  </span>
-                  <p>{d.text}</p>
-                  <small>
-                    {kindLabel[d.kind]}
-                    {d.exhaust ? ' · 耗竭' : ''}
-                  </small>
-                </article>
+                <div className={`codex-card-slot ${on ? '' : 'locked'}`} key={d.id}>
+                  <GameCard card={{ uid: `codex-${d.id}`, id: d.id, upgraded: false }} />
+                  {!on && <span className="codex-slot-tag">未收录</span>}
+                </div>
               );
             })}
           </div>

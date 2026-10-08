@@ -4586,83 +4586,73 @@ progress::-moz-progress-bar {
   color: var(--muted);
 }
 
-/* 卡片图鉴：视觉置灰但全文可读 */
+/* 卡片图鉴：沿用游戏内卡牌样式，两张一行；置灰但全文可读 */
+.codex-selects {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 4px;
+}
+.codex-selects label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.codex-selects select {
+  min-height: 40px;
+  padding: 6px 9px;
+  border: 1px solid #516d60;
+  border-radius: 5px;
+  background: #142a2f;
+  color: var(--paper);
+  font-size: 13px;
+}
 .codex-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 13px;
   margin-top: 10px;
 }
-.codex-card {
-  border: 1px solid #496056;
-  border-radius: 7px;
-  padding: 13px;
-  background: #20373b;
+.codex-card-slot {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 9px;
 }
-.codex-card-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.codex-cost {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #142a2f;
-  border: 1px solid #607367;
-  color: var(--orange);
-  font-size: 13px;
-  font-family: 'Courier New', monospace;
-  flex-shrink: 0;
-}
-.codex-card-head strong {
-  font-size: 14px;
-  font-weight: 600;
-}
-.codex-lock {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  color: var(--muted);
-  border: 1px solid #516d60;
-  border-radius: 4px;
-  padding: 3px 6px;
-}
-.codex-card-art {
-  display: block;
-  height: 64px;
-  overflow: hidden;
-  border-radius: 5px;
-  background: #142a2f;
-}
-.codex-card-art img {
+.codex-card-slot .game-card {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.codex-card p {
-  font-size: 12px;
-  color: var(--paper);
-  line-height: 1.75;
   flex: 1;
+  min-height: 215px;
+  cursor: default;
 }
-.codex-card > small {
-  font-size: 10px;
-  color: var(--muted);
+.codex-card-slot .card-description {
+  font-size: 11px;
+  line-height: 1.6;
 }
-.codex-card.locked {
+.codex-card-slot .card-art {
+  height: 72px;
+}
+.codex-card-slot .card-art img {
+  max-height: 68px;
+}
+.codex-card-slot.locked .game-card {
   filter: grayscale(0.9);
   opacity: 0.55;
 }
-.codex-card.locked .codex-card-head strong {
-  color: var(--muted);
+/* 未收录卡不展示属于哪个形态，避免剧透路线 */
+.codex-card-slot.locked .card-origin {
+  visibility: hidden;
+}
+.codex-slot-tag {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  font-size: 10px;
+  color: #d8e2d5;
+  background: #142a2fd9;
+  border: 1px solid #516d60;
+  border-radius: 4px;
+  padding: 3px 6px;
 }
 
 @media (max-width: 700px) {
@@ -4671,14 +4661,20 @@ progress::-moz-progress-bar {
     gap: 10px;
   }
   .codex-card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
-  .codex-card {
-    padding: 11px;
+  .codex-card-slot .game-card {
+    min-height: 200px;
+    padding: 6px;
   }
-  .codex-card-art {
-    height: 52px;
+  .codex-card-slot .card-art {
+    height: 56px;
+  }
+  .codex-card-slot .card-description {
+    font-size: 10px;
+  }
+  .codex-selects {
+    gap: 7px;
   }
   .codex-entry {
     flex-wrap: wrap;
@@ -4689,7 +4685,7 @@ progress::-moz-progress-bar {
     justify-content: space-between;
   }
 }
-@media (max-width: 380px) {
+@media (max-width: 340px) {
   .codex-card-grid {
     grid-template-columns: 1fr;
   }

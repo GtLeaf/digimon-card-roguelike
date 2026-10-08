@@ -77,6 +77,12 @@ function value(d: CardDef, upgraded: boolean, layers: number): number {
     v += ((d.killDevour ?? 0) * W.devourGain + (d.killDraw ?? 0) * W.draw) * 0.35;
   // 处决加成按目标半血命中率约一半折算。
   if (d.executeBonus) v += hits * d.executeBonus * 0.5;
+  // 深渊龙枪：混沌路线一回合双自损是常态操作，按 2/3 触发率折算。
+  if (d.selfCostBonus) v += d.selfCostBonus * 0.67;
+  // 神乐铃：术式循环里爆印后补印是常态节奏，按一半触发率折算。
+  if (d.burstMarkBonus) v += d.burstMarkBonus * W.mark * 0.5;
+  // 致命穿刺：觉醒斗牛士兽被动鼓励多张攻击，按 2/3 触发率折算翻倍部分。
+  if (d.multiAttackDouble) v += dmg * 0.67;
   if (d.special === 'cannon') v += Math.min(layers, 2) * (d.chargeMultiplier ?? 4); // 蓄能期望 2 层
   v += SPECIAL_FLAT[d.special ?? ''] ?? 0;
   return v;

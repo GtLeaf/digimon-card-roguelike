@@ -121,6 +121,7 @@ const battle = z.object({
   defended: z.boolean(),
   weakenedThisTurn: z.boolean().default(false),
   markedThisTurn: z.boolean().default(false),
+  markBurstThisTurn: z.boolean().default(false),
   devour: z.number().int().nonnegative().default(0),
   devourCapBonus: z.number().int().nonnegative().default(0),
   log: z.array(z.string()),

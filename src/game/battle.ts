@@ -304,6 +304,7 @@ export function beginBattle(r: Run, node: MapNode) {
     defended: false,
     weakenedThisTurn: false,
     markedThisTurn: false,
+    markBurstThisTurn: false,
     devour: 0,
     devourCapBonus: 0,
     log: ['连接建立。先观察敌人的行动意图。'],
@@ -550,6 +551,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   // 风压推进：本回合下一张攻击牌增加段数，使用后消耗。
   const windupSpent = d.kind === 'attack' && d.damage ? b.nextAttackHits : 0;
   if (windupSpent) b.nextAttackHits = 0;
+  // 深渊龙枪：本回合此前已自损过则追加伤害（先于本牌的自损结算判定）。
+  const priorSelfCost = b.selfCostThisTurn;
   if (d.special === 'sacrifice') {
     const before = r.hp;
     r.hp = Math.max(0, r.hp - 3);
@@ -638,6 +641,11 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
   }
   let bonus = b.charge > 0 ? (d.chargedDamage ?? 0) : 0;
   if (d.special === 'shieldhit') bonus += Math.floor(b.block / (d.shieldDiv ?? 2));
+  // 深渊龙枪：本回合此前已自损过则追加伤害。
+  if (d.selfCostBonus && priorSelfCost) bonus += d.selfCostBonus;
+  // 致命穿刺：本回合第二张及以后的攻击牌伤害翻倍。
+  if (d.multiAttackDouble && d.kind === 'attack' && b.attackPlays >= 2)
+    bonus += (d.damage ?? 0) + damageUp;
   if (d.special === 'cannon') {
     if (b.charge > 0) {
       count(r, 'cannonShots');
@@ -700,6 +708,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
     if (d.special === 'markburst') {
       extra += e.mark * (d.markPower ?? 5);
       if (e.mark > 0) consumedMark = true;
+      if (e.mark > 0) b.markBurstThisTurn = true;
       if (e.mark > 0 && !b.marked) {
         fire(r, (h, cx) => h.onFirstMarkBurst?.(cx));
         b.marked = true;
@@ -728,6 +737,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string) {
         appliedMark = true;
         e.mark +=
           d.mark +
+          // 神乐铃：本回合已消耗过符印则加量施加。
+          (d.burstMarkBonus && b.markBurstThisTurn ? d.burstMarkBonus : 0) +
           (r.inherit === 'seal' && r.stage > 0 && b.played === 1 ? 1 : 0) +
           (!b.markedThisTurn && r.relics.includes('compass') ? 1 : 0) +
           sum(r, (h, cx) => h.markBonus?.(cx));
@@ -934,6 +945,7 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   b.defended = false;
   b.weakenedThisTurn = false;
   b.markedThisTurn = false;
+  b.markBurstThisTurn = false;
   fire(r, (h, c) => h.onTurnStart?.(c));
   b.burst = Math.max(0, b.burst - 1);
   for (const e of b.enemies) {

@@ -394,6 +394,7 @@ export function autoplay(
           'darkDisaster',
           'despairHowl',
           'soulHarvest',
+          'fatalPierce',
           'devourTrick',
           'devourCorrode',
           'devourFeast',
@@ -413,6 +414,7 @@ export function autoplay(
       : partner === 'guilmon'
         ? branch === 'chaos'
           ? [
+              'abyssLance',
               'sacrifice',
               'mend',
               'bloodedge',
@@ -429,7 +431,7 @@ export function autoplay(
             : ['gramLance', 'roar', 'fireball', 'brace', 'fortify', 'doublecut', 'inferno', 'mend']
         : branch === 'kuzuha'
           ? ['izuna', 'barrier', 'brace', 'talisman', 'ritual', 'mend', 'insight', 'leaf']
-          : ['fullSalvo', 'leaf', 'seal', 'barrier', 'brace', 'ritual', 'fortify', 'mend'];
+          : ['fullSalvo', 'leaf', 'seal', 'kaguraBell', 'barrier', 'brace', 'ritual', 'fortify', 'mend'];
   while (s.run!.screen !== 'result' && steps++ < 2000) {
     const r = s.run!;
     let action: Action;
@@ -567,6 +569,13 @@ export function autoplay(
           if (d.special === 'cannon') score += b.charge * (d.chargeMultiplier ?? 4);
           // 盾击类：按当前护盾折算追加伤害。
           if (d.special === 'shieldhit') score += Math.floor(b.block / (d.shieldDiv ?? 2));
+          // 深渊龙枪：本回合已自损过才值得打出。
+          if (d.selfCostBonus) score += b.selfCostThisTurn ? d.selfCostBonus : -6;
+          // 神乐铃：爆印过后加量产印。
+          if (d.burstMarkBonus && b.markBurstThisTurn) score += d.burstMarkBonus * 2;
+          // 致命穿刺：非第二张起攻击时价值折半。
+          if (d.multiAttackDouble)
+            score += b.attackPlays >= 1 ? (d.damage ?? 0) : -(d.damage ?? 0) * 0.5;
           if (branch === 'megidra' && d.burn && !target.burn) score += 12;
           if (d.special === 'markburst') score += target.mark * 5;
           // 符印爆发存到 2 层以上再放，除非当前层数已经够斩杀（与噬能全量爆发同一策略）。
@@ -1464,6 +1473,77 @@ describe('ultimate third cards', () => {
     s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
     expect(s.run!.battle!.enemies[0].hp).toBe(200 - 15); // 6＋3×3
     expect(s.run!.battle!.charge).toBe(0);
+  });
+  it('abyss lance gains bonus damage when a self-cost already happened this turn', () => {
+    let s = partnerFight('guilmon');
+    s.run!.branch = 'chaos';
+    hand(s, ['abyssLance', 'chaosward']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    e.hp = 200;
+    e.maxHp = 200;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 14); // 未自损过，无追加
+    s = reduceGame(s, { type: 'play', uid: 'test1' });
+    expect(s.run!.battle!.selfCostThisTurn).toBe(true);
+    let t = partnerFight('guilmon');
+    t.run!.branch = 'chaos';
+    hand(t, ['chaosward', 'abyssLance']);
+    const w = t.run!.battle!.enemies[0];
+    w.block = 0;
+    w.hp = 200;
+    w.maxHp = 200;
+    t = reduceGame(t, { type: 'play', uid: 'test0' });
+    t = reduceGame(t, { type: 'play', uid: 'test1', target: w.uid });
+    expect(t.run!.battle!.enemies[0].hp).toBe(200 - 22); // 14＋8
+  });
+  it('kagura bell applies more marks after a mark burst this turn', () => {
+    let s = partnerFight('renamon');
+    s.run!.branch = 'sakuya';
+    hand(s, ['kaguraBell']);
+    const e = s.run!.battle!.enemies[0];
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].mark).toBe(2);
+    let t = partnerFight('renamon');
+    t.run!.branch = 'sakuya';
+    hand(t, ['talisman', 'seal', 'kaguraBell']);
+    const w = t.run!.battle!.enemies[0];
+    w.block = 0;
+    w.hp = 200;
+    w.maxHp = 200;
+    t = reduceGame(t, { type: 'play', uid: 'test0', target: w.uid });
+    t = reduceGame(t, { type: 'play', uid: 'test1', target: w.uid }); // 爆印
+    expect(t.run!.battle!.markBurstThisTurn).toBe(true);
+    t = reduceGame(t, { type: 'play', uid: 'test2', target: w.uid });
+    expect(t.run!.battle!.enemies[0].mark).toBe(4); // 爆印后 2＋2
+  });
+  it('fatal pierce doubles damage from the second attack card onward', () => {
+    const impFight = () => {
+      let s = emptySave();
+      s.meta.scans.beelzebumon = 100;
+      s = reduceGame(s, { type: 'start', partner: 'impmon', seed: 42 });
+      s = reduceGame(s, { type: 'bless', id: 'guard' });
+      return reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
+    };
+    let s = impFight();
+    s.run!.form = 'matadormonAwakened';
+    hand(s, ['fatalPierce']);
+    const e = s.run!.battle!.enemies[0];
+    e.block = 0;
+    e.hp = 200;
+    e.maxHp = 200;
+    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 6); // 首张攻击不翻倍
+    let t = impFight();
+    t.run!.form = 'matadormonAwakened';
+    hand(t, ['strike', 'fatalPierce']);
+    const w = t.run!.battle!.enemies[0];
+    w.block = 0;
+    w.hp = 200;
+    w.maxHp = 200;
+    t = reduceGame(t, { type: 'play', uid: 'test0', target: w.uid });
+    t = reduceGame(t, { type: 'play', uid: 'test1', target: w.uid });
+    expect(t.run!.battle!.enemies[0].hp).toBe(200 - 7 - 12); // 攻击指令 7＋穿刺翻倍 12
   });
 });
 

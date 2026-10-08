@@ -99,6 +99,12 @@ export interface CardDef {
   shieldDiv?: number;
   // 末日审判：灼烧每层追加伤害但不消耗灼烧
   burnPower?: number;
+  // 若本回合已自损过，额外追加伤害
+  selfCostBonus?: number;
+  // 若本回合已消耗过符印，额外施加的符印层数
+  burstMarkBonus?: number;
+  // 本回合第二张及以后的攻击牌打出时伤害翻倍
+  multiAttackDouble?: boolean;
   devourVuln?: number;
   // 消耗全部噬能，每 N 层获得 1 力量
   devourStrength?: number;
@@ -231,6 +237,7 @@ export interface Battle {
   defended: boolean;
   weakenedThisTurn: boolean;
   markedThisTurn: boolean;
+  markBurstThisTurn: boolean;
   devour: number;
   // 噬能光环提供的上限加成（基础上限 6）
   devourCapBonus: number;

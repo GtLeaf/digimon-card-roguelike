@@ -154,16 +154,21 @@ export function Codex({ meta }: { meta: Meta }) {
           <p className="item-codex-count" aria-live="polite">
             共 {visible.length} 张 · 置灰的卡尚未在进化旅途中获得
           </p>
-          <div className="codex-card-grid">
-            {visible.map((d) => {
-              const on = lit(d);
-              return (
-                <div className={`codex-card-slot ${on ? '' : 'locked'}`} key={d.id}>
-                  <GameCard card={{ uid: `codex-${d.id}`, id: d.id, upgraded: false }} />
-                  {!on && <span className="codex-slot-tag">未收录</span>}
-                </div>
-              );
-            })}
+          <div className="codex-cards deck-viewer">
+            <div className="deck-grid">
+              {visible.map((d) => {
+                const on = lit(d);
+                return (
+                  <div
+                    className={`deck-entry codex-card-slot ${on ? '' : 'locked'}`}
+                    key={d.id}
+                  >
+                    <GameCard card={{ uid: `codex-${d.id}`, id: d.id, upgraded: false }} compact />
+                    {!on && <span className="codex-slot-tag">未收录</span>}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </>
       )}

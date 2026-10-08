@@ -1,6 +1,7 @@
 import {
   Backpack,
   BookOpen,
+  BookMarked,
   CircleHelp,
   GitBranch,
   Layers,
@@ -8,7 +9,15 @@ import {
   Settings,
 } from 'lucide-react';
 
-export type ModalKind = 'deck' | 'collection' | 'items' | 'tree' | 'settings' | 'help' | 'abandon';
+export type ModalKind =
+  | 'deck'
+  | 'collection'
+  | 'items'
+  | 'tree'
+  | 'settings'
+  | 'help'
+  | 'abandon'
+  | 'codex';
 
 export function TopBar({
   showDeck,
@@ -50,6 +59,14 @@ export function TopBar({
         >
           <BookOpen size={18} />
           <b aria-hidden="true">{partnerCount}</b>
+        </button>
+        <button
+          className="icon-btn"
+          title="数码图鉴"
+          aria-label="数码图鉴"
+          onClick={() => onOpenModal('codex')}
+        >
+          <BookMarked size={18} />
         </button>
         <button
           className="icon-btn"

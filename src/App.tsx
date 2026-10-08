@@ -15,6 +15,7 @@ import type { ModalKind } from './components/TopBar';
 import { JourneySidebar } from './components/JourneySidebar';
 import { PartnerSidebar } from './components/PartnerSidebar';
 import { CollectionView } from './components/CollectionView';
+import { Codex } from './components/Codex';
 import { HelpView } from './components/HelpView';
 import { SettingsView } from './components/SettingsView';
 import { AbandonView } from './components/AbandonView';
@@ -128,9 +129,11 @@ export default function App() {
           run={r}
           wins={state.meta.wins}
           scans={state.meta.scans}
+          discovered={state.meta.discovered}
           onStart={start}
           onContinue={() => setScreen('game')}
           onAbandon={() => setModal('abandon')}
+          onCodex={() => setModal('codex')}
         />
       ) : (
         r && (
@@ -224,6 +227,11 @@ export default function App() {
       {modal === 'items' && (
         <Modal title="道具图鉴" onClose={closeModal} wide>
           <ItemCodex run={isActive ? r : null} />
+        </Modal>
+      )}
+      {modal === 'codex' && (
+        <Modal title="数码图鉴" onClose={closeModal} wide>
+          <Codex meta={state.meta} />
         </Modal>
       )}
       {modal === 'tree' && (

@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   ArrowUpRight,
+  BookMarked,
   GitBranch,
   Lock,
   Play,
@@ -8,7 +9,7 @@ import {
   ScanLine,
   Swords,
 } from 'lucide-react';
-import { BRANCHES, FORM_NAMES, PARTNERS, PARTNER_IDS } from '../game/data';
+import { BRANCHES, CARDS, ENEMIES, FORM_NAMES, PARTNERS, PARTNER_IDS } from '../game/data';
 import type { Partner, Run } from '../game/types';
 import { SceneDecor } from '../components/SceneDecor';
 import { Sprite } from '../components/Sprite';
@@ -17,16 +18,20 @@ export function HomeScreen({
   run,
   wins,
   scans,
+  discovered,
   onStart,
   onContinue,
   onAbandon,
+  onCodex,
 }: {
   run: Run | null;
   wins: number;
   scans: Record<string, number>;
+  discovered: string[];
   onStart: (partner: Partner) => void;
   onContinue: () => void;
   onAbandon: () => void;
+  onCodex: () => void;
 }) {
   const isActive = !!run && run.screen !== 'result';
   return (
@@ -154,6 +159,41 @@ export function HomeScreen({
             结束当前旅途，重新选择搭档
           </button>
         )}
+      </section>
+      <section className="codex-section">
+        <button className="codex-entry" onClick={onCodex}>
+          <BookMarked size={22} />
+          <span className="codex-entry-copy">
+            <strong>数码图鉴</strong>
+            <small>遇见过的数码兽与全部搭档卡片，随时翻阅</small>
+          </span>
+          <span className="codex-entry-stats">
+            <span>
+              数码兽{' '}
+              <b>
+                {Object.keys(ENEMIES).filter((id) => (scans[id] ?? 0) > 0).length}/
+                {Object.keys(ENEMIES).length}
+              </b>
+            </span>
+            <span>
+              卡片{' '}
+              <b>
+                {
+                  Object.values(CARDS).filter(
+                    (d) =>
+                      d.family !== 'status' &&
+                      (!d.unlockForm ||
+                        ((PARTNER_IDS as string[]).includes(d.unlockForm) &&
+                          (d.unlockForm !== 'impmon' || (scans.beelzebumon ?? 0) >= 100)) ||
+                        discovered.includes(d.unlockForm)),
+                  ).length
+                }
+                /{Object.values(CARDS).filter((d) => d.family !== 'status').length}
+              </b>
+            </span>
+          </span>
+          <ArrowRight size={18} />
+        </button>
       </section>
       <footer className="home-footer">
         <span>每一段旅程，都会留下数据与回忆。</span>

@@ -7,6 +7,7 @@ import {
   PARTNER_IDS,
   asset,
 } from '../game/data';
+import { EVOLUTIONS } from '../game/evolution';
 import type { Branch, CardDef, CardKind, Meta, Partner } from '../game/types';
 import { GameCard } from './GameCard';
 
@@ -15,6 +16,7 @@ type GroupFilter = Partner | 'common' | 'all';
 type KindFilter = CardKind | 'all';
 type CostFilter = 'all' | '0' | '1' | '2';
 type LitFilter = 'all' | 'lit' | 'locked';
+type CardSort = 'cost' | 'stage' | 'name';
 
 // 卡片所属的基础搭档分组：family 是分支时回溯到搭档，通用卡归通用组。
 function groupOf(d: CardDef): Partner | 'common' {
@@ -28,6 +30,7 @@ export function Codex({ meta }: { meta: Meta }) {
   const [kind, setKind] = useState<KindFilter>('all');
   const [cost, setCost] = useState<CostFilter>('all');
   const [collection, setCollection] = useState<LitFilter>('all');
+  const [sort, setSort] = useState<CardSort>('cost');
 
   const enemies = Object.values(ENEMIES).sort((a, b) => a.hp - b.hp);
   const seenCount = enemies.filter((e) => (meta.scans[e.id] ?? 0) > 0).length;
@@ -41,11 +44,19 @@ export function Codex({ meta }: { meta: Meta }) {
       return d.unlockForm !== 'impmon' || !impmonLocked;
     return meta.discovered.includes(d.unlockForm);
   };
-  const cards = Object.values(CARDS)
-    .filter((d) => d.family !== 'status')
-    .sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name, 'zh'));
+  const cards = Object.values(CARDS).filter((d) => d.family !== 'status');
   const litCount = cards.filter(lit).length;
-  const visible = cards.filter(
+  // 成长阶段：通用卡 -1 在最前，专属卡按解锁形态的进化阶段（成长期→究极体）。
+  const stageOf = (d: CardDef) => (d.unlockForm ? (EVOLUTIONS[d.unlockForm]?.stage ?? 0) : -1);
+  const sorted = [...cards].sort((a, b) => {
+    if (sort === 'name') return a.name.localeCompare(b.name, 'zh');
+    if (sort === 'stage')
+      return (
+        stageOf(a) - stageOf(b) || a.cost - b.cost || a.name.localeCompare(b.name, 'zh')
+      );
+    return a.cost - b.cost || a.name.localeCompare(b.name, 'zh');
+  });
+  const visible = sorted.filter(
     (d) =>
       (group === 'all' || groupOf(d) === group) &&
       (kind === 'all' || d.kind === kind) &&
@@ -148,6 +159,14 @@ export function Codex({ meta }: { meta: Meta }) {
                 <option value="all">全部</option>
                 <option value="lit">已收录</option>
                 <option value="locked">未收录</option>
+              </select>
+            </label>
+            <label>
+              排序
+              <select value={sort} onChange={(e) => setSort(e.target.value as CardSort)}>
+                <option value="cost">费用从低到高</option>
+                <option value="stage">成长阶段</option>
+                <option value="name">名称排序</option>
               </select>
             </label>
           </div>

@@ -149,9 +149,12 @@ export const PASSIVES: Record<string, PassiveHooks> = {
     },
   },
   belial: {
-    onKill({ draw, log }) {
+    onKill({ r, b, draw, log }) {
       draw(1);
-      log('绝望收割 · 抽 1 张牌');
+      const before = r.hp;
+      r.hp = Math.min(r.maxHp, r.hp + 2);
+      if (r.hp > before) b.feedback.push({ target: 'player', kind: 'heal', amount: r.hp - before });
+      log('绝望收割 · 抽 1 张牌，回复 2 生命');
     },
     devourPowerBonus: () => 2,
   },
@@ -162,6 +165,8 @@ export const PASSIVES: Record<string, PassiveHooks> = {
       r.hp = Math.min(r.maxHp, r.hp + 3);
       if (r.hp > before) b.feedback.push({ target: 'player', kind: 'heal', amount: r.hp - before });
     },
+    // 怨毒增伤：敌方每层虚弱使其受到的攻击伤害＋1（仅攻击牌触发）。
+    hitBonusVsWeakened: (_c, e, d) => (d.damage ? e.weakened : 0),
   },
   chaos: {
     onFirstSelfCost({ b }) {

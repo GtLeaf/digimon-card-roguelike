@@ -1,4 +1,5 @@
 import { CARDS } from './data';
+import { ROUTE_DATA } from './evolution';
 import type { Meta, Run } from './types';
 
 interface EventEffect { hpCost?:number; goldCost?:number; heal?:number; gold?:number; card?:'upgrade'|'remove'; autoUpgrade?:boolean; potion?:boolean; training?:Run['training']; routes?:string[] }
@@ -31,29 +32,48 @@ export const EVENTS:Record<string,StoryEvent>={
  ]},
 };
 export const eventFor=(run:Run):StoryEvent|undefined=>run.currentNode?.eventId?EVENTS[run.currentNode.eventId]:undefined;
+export function storyEventFor(run:Run):StoryEvent{
+ return eventFor(run)??{...EVENTS.reader,title:'废墟里的一束光。',choices:EVENTS.reader.choices.map(choice=>choice.id==='safe'&&Math.floor(run.row/8)===1?{...choice,effect:{...choice.effect,routes:['mechanical','purification']},text:'回复10生命，永久解锁机械研究与净化资料。'}:choice)};
+}
 export function eligibleEventCards(run:Run,choice:EventChoice){return run.deck.filter(c=>choice.effect.card==='upgrade'?!c.upgraded:true);}
 export function eventChoiceBlock(run:Run,choice:EventChoice):string {
  const e=choice.effect;
- if(run.gold<(e.goldCost??0))return '金币不足';
- if(e.potion&&run.potions>=2)return '恢复磁盘已满';
+ if(run.gold<(e.goldCost??0))return `还差 ${(e.goldCost??0)-run.gold} 金币`;
+ if(e.potion&&run.potions>=2)return '恢复磁盘已满 2/2';
  if(e.card==='remove'&&run.deck.length<=5)return '至少保留5张牌';
  if(e.card&&!eligibleEventCards(run,choice).length)return '没有可选择的卡牌';
  return '';
 }
+export function eventChoicePreview(run:Run,choice:EventChoice):string[]{
+ if(eventChoiceBlock(run,choice))return [];
+ const e=choice.effect,lines:string[]=[];
+ if(e.hpCost||e.heal){const hp=Math.min(run.maxHp,Math.max(1,run.hp-(e.hpCost??0))+(e.heal??0));lines.push(`生命 ${run.hp} → ${hp}${hp===run.hp?' · 无变化':''}`);}
+ if(e.goldCost||e.gold)lines.push(`金币 ${run.gold} → ${run.gold-(e.goldCost??0)+(e.gold??0)}`);
+ if(e.potion)lines.push(`磁盘 ${run.potions} → ${run.potions+1}/2`);
+ if(e.card==='remove')lines.push(`卡组 ${run.deck.length} → ${run.deck.length-1} 张`);
+ if(e.card==='upgrade')lines.push('选择一张牌强化 · 本局生效');
+ if(e.autoUpgrade)lines.push(run.deck.some(card=>!card.upgraded&&card.id!=='guard')?'自动强化一张牌 · 本局生效':'无可强化卡牌');
+ if(e.training)lines.push(`训练：${e.training==='attack'?'进攻':'守护'} · 本局生效`);
+ return lines;
+}
 // 仅验证通过后提交效果；选择卡片前不扣金币，重复点击由事件页面状态拦截。
 export function applyEvent(run:Run,meta:Meta,choiceId:'risk'|'safe',uid?:string):boolean {
- const event=eventFor(run),choice=event?.choices.find(c=>c.id===choiceId);
+ const event=storyEventFor(run),choice=event.choices.find(c=>c.id===choiceId);
  if(!choice||eventChoiceBlock(run,choice))return false;
  const e=choice.effect,card=e.card?eligibleEventCards(run,choice).find(c=>c.uid===uid):undefined;
  if(e.card&&!card)return false;
+ const changes=eventChoicePreview(run,choice).filter(text=>!text.startsWith('自动强化')&&!text.startsWith('选择一张牌'));
+ const newRoutes=e.routes?.filter(route=>!meta.unlockedRoutes.includes(route))??[];
  run.gold=run.gold-(e.goldCost??0)+(e.gold??0);
  run.hp=Math.min(run.maxHp,Math.max(1,run.hp-(e.hpCost??0))+(e.heal??0));
  if(e.card==='upgrade'&&card)card.upgraded=true;
  if(e.card==='remove'&&card)run.deck=run.deck.filter(c=>c.uid!==card.uid);
- if(e.autoUpgrade){const c=run.deck.find(c=>!c.upgraded&&c.id!=='guard');if(c)c.upgraded=true;}
+ if(e.autoUpgrade){const c=run.deck.find(c=>!c.upgraded&&c.id!=='guard');if(c){c.upgraded=true;changes.push(`已强化：${CARDS[c.id].name}`);}}
  if(e.potion)run.potions++;
  if(e.training)run.training=e.training;
  for(const route of e.routes??[])if(!meta.unlockedRoutes.includes(route))meta.unlockedRoutes.push(route);
- run.message=`${event!.title} · ${choice.title}：${choice.text}${card?`（${CARDS[card.id].name}）`:''}`;
+ if(card)changes.push(`已${e.card==='remove'?'移除':'强化'}：${CARDS[card.id].name}`);
+ if(newRoutes.length)changes.push(`永久解锁：${newRoutes.map(route=>ROUTE_DATA[route].name).join('、')}`);
+ run.message=`${event.title} · ${choice.title}：${changes.join('；')}`;
  return true;
 }

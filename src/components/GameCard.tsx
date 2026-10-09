@@ -1,11 +1,11 @@
 import { skillLabel, skillDescription } from '../game/cardSkills';
 import { Flame, Shield, Sparkles, Swords, Zap, Lock } from 'lucide-react';
-import { CARDS, asset, cardText } from '../game/data';
+import { asset, cardDefinition, cardText } from '../game/data';
 import { cardCost } from '../game/engine';
 import type { Card, Run } from '../game/types';
 const icons={attack:Swords,skill:Shield,power:Sparkles,status:Lock};
 export function GameCard({card,selected=false,disabled=false,onClick,compact=false,run}:{card:Card;selected?:boolean;disabled?:boolean;onClick?:()=>void;compact?:boolean;run?:Run|null}){
- const d=CARDS[card.id],Icon=icons[d.kind];
+ const d=cardDefinition(card),Icon=icons[d.kind];
  const isGeneric=d.family==='common'||d.family==='status';
  const artwork=isGeneric?`${import.meta.env.BASE_URL}card-art/${d.id}.jpg`:asset(d.art);
  return <button className={`game-card ${d.kind} ${selected?'selected':''} ${compact?'compact':''}`} disabled={disabled} onClick={onClick} aria-label={`${d.name}${card.upgraded?'强化':''}，${cardCost(card)}费`} aria-pressed={selected}>

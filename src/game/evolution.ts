@@ -2,7 +2,7 @@ import { BRANCHES, FORM_NAMES } from './data';
 import type { Activity, Branch, Meta, Metric, Partner, Run } from './types';
 
 export const emptyActivity = (): Activity => ({ counts: {}, cards: {} });
-export const METRIC_NAMES: Record<Metric, string> = { attacks:'攻击出牌',defenses:'主动防御',skills:'技能出牌',fire:'火焰出牌',marks:'施加符印',detonations:'引爆灼烧',markBursts:'消耗符印',selfCosts:'主动自损',heals:'有效治疗',copies:'使用复制牌',weakens:'施加虚弱',combos:'双技能回合',burnKills:'灼烧击杀',charges:'主动蓄能',cannonShots:'蓄能炮击' };
+export const METRIC_NAMES: Record<Metric, string> = { attacks:'攻击出牌',defenses:'主动防御',skills:'技能出牌',fire:'火焰出牌',marks:'施加符印',detonations:'引爆灼烧',markBursts:'消耗符印',selfCosts:'主动自损',heals:'有效治疗',copies:'使用复制牌',weakens:'施加虚弱',combos:'双技能回合',burnKills:'击败带灼烧的敌人',charges:'主动蓄能',cannonShots:'蓄能炮击' };
 export const ROUTE_DATA: Record<string,{name:string;source:string}> = {
  mechanical:{name:'机械研究',source:'齿轮兽或安杜路兽扫描达到 100%，或在第二章事件中完成机械研究'},
  chaos:{name:'混沌资料',source:'邪龙兽扫描达到 100%，或在失控机械档案中读取混沌记忆'},
@@ -22,11 +22,11 @@ export interface EvolutionDef {
 }
 export const EVOLUTIONS: Record<string,EvolutionDef> = Object.fromEntries(([
  {id:'guilmon',partner:'guilmon',stage:0,parents:[],tag:'旅途起点',passive:'以火焰与勇气开启冒险。',cards:['fireball','rock'],groups:[],slot:1},
- {id:'growlmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'勇气之路',passive:'招牌牌强化；可选择进攻或守护训练。',cards:['fireball','rock'],groups:[],slot:0},
- {id:'blackgrowmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'暗炎之路',passive:'每回合首次施加灼烧额外＋1。',cards:['darkflame','bloodedge'],groups:[[{metric:'attacks',goal:8}],[{metric:'fire',goal:3}]],slot:2},
- {id:'wargrowlmon',partner:'guilmon',stage:2,parents:['growlmon','blackgrowmon'],tag:'重炮与守护',passive:'每场开始获得 1 蓄能。',cards:['fireball','cannon'],groups:[],slot:0},
- {id:'blackwargrowlmon',partner:'guilmon',stage:2,parents:['blackgrowmon'],tag:'危险过载',passive:'每回合首次主动自损，获得 1 行动力。',cards:['darkflame','sacrifice'],groups:[[{metric:'attacks',goal:16}],[{metric:'selfCosts',goal:3},{metric:'fire',goal:6}]],slot:2},
- {id:'dukemon',partner:'guilmon',stage:3,parents:['wargrowlmon'],tag:'圣盾反击',passive:BRANCHES.duke.passive+' 主动防御满12次，进化时额外获得圣盾继承：每回合开始＋2护盾。',cards:BRANCHES.duke.cards,branch:'duke',groups:[],slot:0},
+ {id:'growlmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'烈焰追击',passive:'每回合首次攻击带灼烧的敌人，额外造成 2 总伤害（多段只加一次）。',cards:['fireball','doublecut'],groups:[],slot:0},
+ {id:'blackgrowmon',partner:'guilmon',stage:1,parents:['guilmon'],tag:'暗炎之路',passive:'每回合首次实际施加灼烧额外＋1。',cards:['darkflame','bloodedge'],groups:[[{metric:'attacks',goal:8}],[{metric:'fire',goal:3}]],slot:2},
+ {id:'wargrowlmon',partner:'guilmon',stage:2,parents:['growlmon','blackgrowmon'],tag:'余烬与守护',passive:'每场开始获得 1 蓄能；每回合首次实际施加灼烧，获得 2 护盾。',cards:['flare','cannon'],groups:[],slot:0},
+ {id:'blackwargrowlmon',partner:'guilmon',stage:2,parents:['blackgrowmon'],tag:'危险过载',passive:'每回合首次主动自损，获得 1 行动力。',cards:['sacrifice','drain'],groups:[[{metric:'attacks',goal:16}],[{metric:'selfCosts',goal:3},{metric:'fire',goal:6}]],slot:2},
+ {id:'dukemon',partner:'guilmon',stage:3,parents:['wargrowlmon'],tag:'圣盾攻防',passive:BRANCHES.duke.passive+' 主动防御满12次，进化时额外获得圣盾继承：每回合开始＋2护盾。',cards:BRANCHES.duke.cards,branch:'duke',groups:[],slot:0},
  {id:'megidramon',partner:'guilmon',stage:3,parents:['wargrowlmon','blackwargrowlmon'],tag:'灼烧爆发',passive:BRANCHES.megidra.passive, cards:BRANCHES.megidra.cards,branch:'megidra',groups:[[{card:'fireball',label:'火球系列',goal:6},{metric:'fire',goal:10}],[{metric:'detonations',goal:3},{metric:'burnKills',goal:6}]],slot:1},
  {id:'chaosdukemon',partner:'guilmon',stage:3,parents:['blackwargrowlmon'],tag:'血契循环',passive:BRANCHES.chaos.passive,cards:BRANCHES.chaos.cards,branch:'chaos',groups:[[{metric:'selfCosts',goal:6}],[{metric:'heals',goal:4}]],slot:2},
  {id:'renamon',partner:'renamon',stage:0,parents:[],tag:'旅途起点',passive:'以符印与术式开启冒险。',cards:['leaf','talisman'],groups:[],slot:1},
@@ -66,3 +66,19 @@ export const stageName=(stage:number)=>['成长期','成熟期','完全体','究
 export const stageRequirement=(stage:number)=>['初始搭档','到达第1章第4层；赢得2场战斗','击败第1章首领','击败第2章首领'][stage];
 export function activityGains(before:Activity,after:Activity):string[]{return (Object.keys(METRIC_NAMES) as Metric[]).filter(k=>(after.counts[k]??0)>(before.counts[k]??0)).map(k=>`${METRIC_NAMES[k]} +${(after.counts[k]??0)-(before.counts[k]??0)}`);}
 export const formName=(id:string)=>FORM_NAMES[id]??id;
+
+// 说明合法转线对旧牌的影响；形态被动替换，训练与单独选择的继承仍保留。
+export function evolutionTransition(from:string,to:string):string|null {
+ const hints:Record<string,string>={
+  'guilmon/growlmon':'火球先叠灼烧，再用双刃斩或烈焰引爆追击；每回合首次攻击带灼烧目标额外＋2总伤害。',
+  'guilmon/blackgrowmon':'火焰转为暗炎，自损换取更高伤害；解锁共享的烈焰引爆，可主动消费灼烧。',
+  'growlmon/wargrowlmon':'烈焰追击的＋2总伤害改为首次实际灼烧获得2护盾；余烬护甲兼顾叠火与守护，脉冲炮获得一次初始蓄能。',
+  'blackgrowmon/wargrowlmon':'暗炎额外＋1改为首次实际灼烧获得2护盾；保留已学暗炎与引爆，转向余烬守护和炮击。',
+  'blackgrowmon/blackwargrowlmon':'暗炎额外＋1改为首次自损返1行动力；保留暗炎与引爆，获得危险过载和生命汲取，开始自损后恢复。',
+  'wargrowlmon/dukemon':'首次灼烧护盾与初始蓄能改为首次提供护盾的牌额外＋3护盾；余烬护甲仍能触发，皇家枪击将攻防合为一张牌。',
+  'wargrowlmon/megidramon':'首次灼烧护盾与初始蓄能改为首次实际灼烧额外＋2；旧火焰和引爆转为群体爆发的准备。',
+  'blackwargrowlmon/megidramon':'首次自损返能改为首次实际灼烧额外＋2；危险过载仍返能抽牌，但少了形态额外返能，生命汲取可补偿灭世烈焰的自损。',
+  'blackwargrowlmon/chaosdukemon':'首次自损返1行动力改为获得6护盾；血色利刃不再由被动抵消费用，危险过载少返1行动力，生命汲取与混沌枪击帮助恢复。',
+ };
+ return EVOLUTIONS[to]?.parents.includes(from)?hints[`${from}/${to}`]??null:null;
+}

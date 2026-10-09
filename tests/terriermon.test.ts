@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
-import { CARDS, cardText } from '../src/game/data';
+import { CARDS, cardDefinition, cardText } from '../src/game/data';
 import { cardPool, skillUnlocked } from '../src/game/cardSkills';
 import { emptySave, makeRun, reduceGame, cardCost, intent } from '../src/game/engine';
 import { EVOLUTIONS, evolutionStatus, syncRouteData } from '../src/game/evolution';
@@ -29,7 +29,7 @@ describe('charge and multihit combat rules',()=>{
  it.each(['galgomon','rapidmon','saintgalgomon'])('%s triggers once on the second attack card, not the second hit',form=>{let s=fight(form);hand(s,['gatling','gatling','gatling']);const draw=s.run!.battle!.draw.length;s=play(s,0);expect(s.run!.battle!.charge).toBe(0);expect(s.run!.battle!.draw.length).toBe(draw);s=play(s,1);const charges=form==='rapidmon'?0:1;expect(s.run!.battle!.charge).toBe(charges);expect(s.run!.activity.counts.charges??0).toBe(0);if(form!=='galgomon')expect(s.run!.battle!.draw.length).toBe(draw-1);s=play(s,2);expect(s.run!.battle!.charge).toBe(charges);expect(s.run!.activity.counts.attacks).toBe(3);});
  it('tactical bonus is two damage total and does not apply to the shield attack itself',()=>{let s=fight('blackgalgomon');hand(s,['blackGatling','gatling']);s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(989);expect(s.run!.battle!.nextAttackBonus).toBe(2);s=play(s,1);expect(s.run!.battle!.enemies[0].hp).toBe(975);expect(s.run!.battle!.nextAttackBonus).toBe(0);});
  it('armor passives do not count as active charge and cannon guard triggers once per turn',()=>{let s=fight('blacksaintgalgomon');hand(s,['guard','charge','cannon','charge','cannon']);s=play(s,0);expect(s.run!.battle!.charge).toBe(1);expect(s.run!.activity.counts.charges??0).toBe(0);s=play(s,1);const block=s.run!.battle!.block;s=play(s,2);expect(s.run!.battle!.block).toBe(block+6);s=play(s,3);s=play(s,4);expect(s.run!.battle!.block).toBe(block+10);expect(s.run!.activity.counts.cannonShots).toBe(2);s=reduceGame(s,{type:'endTurn'});expect(s.run!.battle!.cannonGuardUsed).toBe(false);expect(s.run!.battle!.attackPlays).toBe(0);});
- it('heavy cannon uses its multiplier and exhausts; upgraded multihit text agrees with damage',()=>{let s=fight();hand(s,['heavySalvo']);s.run!.battle!.charge=3;s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(972);expect(s.run!.battle!.exhaust[0].id).toBe('heavySalvo');s=fight();hand(s,['gatling']);s.run!.battle!.hand[0].upgraded=true;s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(987);expect(cardText({id:'gatling',upgraded:true})).toContain('4×3');});
+ it('heavy cannon uses its multiplier and exhausts; upgraded multihit text agrees with damage',()=>{let s=fight();hand(s,['heavySalvo']);s.run!.battle!.charge=3;s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(969);expect(s.run!.battle!.exhaust[0].id).toBe('heavySalvo');s=fight();hand(s,['gatling']);s.run!.battle!.hand[0].upgraded=true;s=play(s,0);expect(s.run!.battle!.enemies[0].hp).toBe(987);expect(cardText({id:'gatling',upgraded:true})).toContain('4×3');});
  it('charge persists across turns and resets in the next battle',()=>{let s=fight();hand(s,['charge']);s=play(s,0);s=reduceGame(s,{type:'endTurn'});expect(s.run!.battle!.charge).toBe(2);s.run!.battle!.enemies[0].hp=1;s.run!.battle!.enemies[0].block=0;hand(s,['strike']);s=play(s,0);expect(s.run!.screen).toBe('reward');s=reduceGame(s,{type:'reward'});s=reduceGame(s,{type:'node',id:s.run!.nodes[1][0].id});expect(s.run!.battle!.charge).toBe(0);});
 });
 
@@ -55,11 +55,11 @@ function journey(branch:Branch){
     if(!b.supportUsed){action={type:'support'};break;}
     if(r.branch&&b.sync>=6&&!b.burstUsed){action={type:'burst'};break;}
     const incoming=b.enemies.filter(e=>e.hp>0).reduce((n,e)=>{const i=intent(r,e);return n+i.damage*i.hits;},0);
-    const score=(id:string,upgraded:boolean)=>{const d=CARDS[id],up=upgraded?3:0;
-     let damage=(d.damage?(d.damage+(upgraded?(d.upgradeDamage??3):0))*(d.hits??1):0)+(d.special==='cannon'?b.charge*(d.chargeMultiplier??4):0);
+    const score=(id:string,upgraded:boolean)=>{const d=cardDefinition({id,upgraded});
+     let damage=(d.damage??0)*(d.hits??1)+(d.special==='cannon'?b.charge*(d.chargeMultiplier??4):0);
      if(d.all)damage*=b.enemies.filter(e=>e.hp>0).length;
      let score=damage+(d.draw??0)*3+(d.energy??0)*12+(d.heal??0)*2+(d.weak??0)*3;
-     if(d.shield)score+=Math.min(d.shield+up,Math.max(0,incoming-b.block))*2;
+     if(d.shield)score+=Math.min(d.shield,Math.max(0,incoming-b.block))*2;
      if(d.charge)score+=d.charge*4;
      if(dark&&(r.activity.counts.defenses??0)<(r.stage===0?4:18)&&d.shield)score+=8;
      if(dark&&(r.activity.counts.charges??0)<4&&d.charge)score+=10;

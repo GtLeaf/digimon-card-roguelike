@@ -48,7 +48,7 @@ describe('new enemy mechanics',()=>{
  it('clock interference adds exactly one temporary fault per cycle',()=>{let s=fight('clockmon');const plan=intent(s.run!,s.run!.battle!.enemies[0]);expect(plan.jam).toBe(1);s=reduceGame(s,{type:'endTurn'});const b=s.run!.battle!;expect([...b.hand,...b.draw,...b.discard].filter(c=>c.id==='fault')).toHaveLength(1);expect(s.run!.deck.some(c=>c.id==='fault')).toBe(false);});
  it('SkullGreymon can be interrupted by damage or by three separate cards, not three hits',()=>{
   let s=fight('skullgreymon');s.run!.battle!.turn=3;hand(s,['gatling']);s=play(s,0);expect(s.run!.battle!.enemies[0].effectiveAttacks).toBe(1);expect(intent(s.run!,s.run!.battle!.enemies[0]).type).toBe('attack');
-  s=fight('skullgreymon');s.run!.battle!.turn=3;hand(s,['tinyTwister','tinyTwister','tinyTwister']);for(let i=0;i<3;i++)s=play(s,i);expect(s.run!.battle!.enemies[0].stagger).toBe(12);expect(intent(s.run!,s.run!.battle!.enemies[0]).type).toBe('block');
+  s=fight('skullgreymon');s.run!.battle!.turn=3;hand(s,['tinyTwister','tinyTwister','tinyTwister']);for(let i=0;i<3;i++)s=play(s,i);expect(s.run!.battle!.enemies[0].stagger).toBe(15);expect(intent(s.run!,s.run!.battle!.enemies[0]).type).toBe('block');
   s=fight('skullgreymon');s.run!.battle!.turn=3;hand(s,['royal']);s=play(s,0);expect(intent(s.run!,s.run!.battle!.enemies[0]).type).toBe('block');
  });
  it('Machinedramon retains armor through charging and breaking it weakens only this cycle',()=>{

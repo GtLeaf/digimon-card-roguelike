@@ -2,7 +2,7 @@ import { describe,expect,it } from 'vitest';
 import { emptySave, makeRun, reduceGame, intent, cardCost } from '../src/game/engine';
 import { availableNodes } from '../src/game/map';
 import { evolutionStatus, nextEvolutions } from '../src/game/evolution';
-import { CARDS, BRANCHES } from '../src/game/data';
+import { CARDS, BRANCHES, cardDefinition, copyCandidates, MAX_COPIES_PER_TURN } from '../src/game/data';
 import { parseSave } from '../src/game/storage';
 import type { Save, Partner, Branch, Action } from '../src/game/types';
 function start(partner:Partner='guilmon',seed=42){let s=reduceGame(emptySave(),{type:'start',partner,seed});s=reduceGame(s,{type:'bless',id:'guard'});return s;}
@@ -79,9 +79,9 @@ export function autoplay(partner:Partner,branch:Branch,seed:number){
     if(!b.supportUsed){action={type:'support',target:target.uid};break;}
     if(r.branch&&b.sync>=6&&!b.burstUsed){action={type:'burst'};break;}
     const incoming=b.enemies.filter(e=>e.hp>0).reduce((n,e)=>{const i=intent(r,e);return n+i.damage*i.hits;},0);
-    const candidates=b.hand.filter(c=>cardCost(c)<=b.energy);
-    const score=(c:typeof candidates[number])=>{const d=CARDS[c.id];let score=(d.damage??0)*(d.hits??1)+(d.burn??0)*2+(d.mark??0)+(d.heal??0)*2+(d.draw??0)*2+(d.strength??0)*7+(d.energy??0)*10;if(d.shield)score+=Math.min(d.shield+ (c.upgraded?3:0),Math.max(0,incoming-b.block))*1.7;if(d.special==='detonate')score+=target.burn*3;if(d.special==='markburst')score+=target.mark*5;if(d.special==='copy')score=1;if(branch==='megidra'&&d.burn)score+=6;if(branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power'))score+=4;if(d.all)score*=b.enemies.filter(e=>e.hp>0).length;if(d.special==='sacrifice')score-=8;if(branch==='chaos'){if(r.stage===0&&d.burn)score+=10;if(d.special==='sacrifice'&&r.hp>15)score+=15;if(d.heal&&r.hp<r.maxHp)score+=15;}return score;};
-    candidates.sort((a,b)=>score(b)-score(a));const c=candidates[0];action=c?{type:'play',uid:c.uid,target:target.uid}:{type:'endTurn'};break;
+    const candidates=b.hand.filter(c=>cardCost(c)<=b.energy&&(CARDS[c.id].special!=='copy'||b.copyUses<MAX_COPIES_PER_TURN&&copyCandidates(b.hand,c.uid).length>0));
+    const score=(c:typeof candidates[number])=>{const d=cardDefinition(c);let score=(d.damage??0)*(d.hits??1)+(d.burn??0)*2+(d.mark??0)+(d.heal??0)*2+(d.draw??0)*2+(d.strength??0)*7+(d.energy??0)*10;if(d.shield)score+=Math.min(d.shield,Math.max(0,incoming-b.block))*1.7;if(d.special==='detonate')score+=target.burn*3;if(d.special==='markburst')score+=target.mark*5;if(d.special==='copy')score=1;if(branch==='megidra'&&d.burn)score+=6;if(branch==='kuzuha'&&(d.kind==='skill'||d.kind==='power'))score+=4;if(d.all)score*=b.enemies.filter(e=>e.hp>0).length;if(d.special==='sacrifice')score-=8;if(branch==='chaos'){if(r.stage===0&&d.burn)score+=10;if(d.special==='sacrifice'&&r.hp>15)score+=15;if(d.heal&&r.hp<r.maxHp)score+=15;}return score;};
+    candidates.sort((a,b)=>score(b)-score(a));const c=candidates[0];action=c?{type:'play',uid:c.uid,target:target.uid,...(cardDefinition(c).copyChoice?{copyUid:copyCandidates(b.hand,c.uid)[0]?.uid}:{})}:{type:'endTurn'};break;
    }
    case 'reward':{const pool=r.reward!.cards;const fav=partner==='guilmon'?(branch==='chaos'?['mend','bloodedge','sacrifice','brace','roar','fireball'] :branch==='megidra'?['ignite','fireball','heatwave','flare','roar','brace','mend']:['roar','fireball','brace','fortify','doublecut','inferno','mend']):(branch==='kuzuha'?['barrier','brace','talisman','ritual','mend','insight','leaf']:['leaf','seal','barrier','brace','ritual','fortify','mend']);const pick=fav.find(id=>pool.includes(id));action={type:'reward',card:r.deck.length<18?pick:undefined};break;}
    case 'camp':if(r.stage===2&&evolutionStatus(r,s.meta,BRANCHES[branch].art).ready){action={type:'campEvolution'};break;}action=r.hp<r.maxHp*.78?{type:'camp',mode:'heal'}:{type:'camp',mode:'upgrade',uid:r.deck.find(c=>!c.upgraded&&CARDS[c.id].family===partner)?.uid??r.deck.find(c=>!c.upgraded)?.uid};if(action.type==='camp'&&!action.uid&&action.mode==='upgrade')action={type:'camp',mode:'heal'};break;

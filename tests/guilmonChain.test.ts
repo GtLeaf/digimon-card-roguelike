@@ -1,0 +1,123 @@
+import { describe, expect, it } from 'vitest';
+import { CARDS } from '../src/game/data';
+import { cardPool, skillDescription, skillLabel } from '../src/game/cardSkills';
+import { emptySave, makeRun, reduceGame } from '../src/game/engine';
+import { EVOLUTIONS, evolutionTransition } from '../src/game/evolution';
+import { parseSave } from '../src/game/storage';
+import { balanceScenario } from './helpers/balanceScenario';
+import { simulateJourney } from './helpers/journeySimulation';
+import type { Card, Save } from '../src/game/types';
+
+const card=(id:string,uid=id,upgraded=false):Card=>({id,uid,upgraded});
+const play=(s:Save,uid:string,target?:string)=>reduceGame(s,{type:'play',uid,target});
+const paths=[
+ ['growlmon','wargrowlmon','dukemon'],['growlmon','wargrowlmon','megidramon'],
+ ['blackgrowmon','wargrowlmon','dukemon'],['blackgrowmon','wargrowlmon','megidramon'],
+ ['blackgrowmon','blackwargrowlmon','megidramon'],['blackgrowmon','blackwargrowlmon','chaosdukemon'],
+];
+
+describe('六条基尔兽进化路径的赠牌与获取衔接',()=>{
+ it.each(paths.map(path=>[path.join('→'),path] as const))('%s 合法赠牌、强化、继承与单牌共享',(_name,path)=>{
+  let s=reduceGame(emptySave(),{type:'start',partner:'guilmon',seed:42});
+  s.meta.unlockedRoutes=['chaos'];
+  for(const form of path){
+   Object.assign(s.run!,{screen:'evolution',row:16,victories:3,bosses:2});
+   s.run!.activity.counts={attacks:20,fire:10,selfCosts:6,heals:4,detonations:3,defenses:12};
+   const replacements=s.run!.deck.slice(0,2).map(c=>c.uid);
+   const oldUpgrades=s.run!.deck.slice(0,2).map(c=>c.upgraded);
+   s=reduceGame(s,{type:'evolve',form,replace:replacements,training:'defense',inherit:'ward'});
+   expect(s.run!.form).toBe(form);
+   expect(s.run!.deck.slice(0,2).map(c=>c.id)).toEqual(EVOLUTIONS[form].cards);
+   expect(s.run!.deck.slice(0,2).map(c=>c.upgraded)).toEqual(EVOLUTIONS[form].stage<3?[true,true]:oldUpgrades);
+   expect(s.run!.deck).toHaveLength(10);
+   expect(cardPool(s.run!)).toContain('ignite');
+  }
+  expect(s.run!.formHistory).toEqual(['guilmon',...path]);
+  if(path[0]==='blackgrowmon')expect(cardPool(s.run!)).not.toContain('doublecut');
+  else expect(cardPool(s.run!)).not.toContain('bloodedge');
+ });
+ it('共享引爆只开放指定单牌，标签说明真实解锁来源',()=>{
+  const r=makeRun('guilmon',42);expect(cardPool(r)).not.toContain('ignite');
+  r.form='blackgrowmon';r.stage=1;r.formHistory.push('blackgrowmon');
+  expect(cardPool(r)).toContain('ignite');expect(cardPool(r)).not.toContain('heatwave');
+  expect(skillLabel(CARDS.ignite,r)).toBe('共享技能');expect(skillDescription(CARDS.ignite,r)).toContain('黑古拉兽');
+  r.form='blackwargrowlmon';r.formHistory.push(r.form);
+  expect(skillLabel(CARDS.ignite,r)).toBe('继承技能');expect(skillDescription(CARDS.ignite,r)).toContain('黑古拉兽');
+ });
+ it('黑大古拉兽保底恢复牌与过载构成实际自损恢复序列',()=>{
+  const s=balanceScenario([card('sacrifice'),card('drain')],'blackwargrowlmon');
+  expect(EVOLUTIONS.blackwargrowlmon.cards).toEqual(['sacrifice','drain']);
+  const after=play(play(s,'sacrifice'),'drain').run!;
+  expect(after.hp).toBe(60);expect(after.battle!.energy).toBe(4);
+  expect(after.activity.counts.selfCosts).toBe(1);expect(after.activity.counts.heals).toBe(1);
+ });
+ it('合法转线均有明确的旧牌影响说明，非法跳转不产生说明',()=>{
+  for(const path of paths)for(const [i,form] of path.entries())expect(evolutionTransition(i?path[i-1]:'guilmon',form)).toBeTruthy();
+  expect(evolutionTransition('guilmon','chaosdukemon')).toBeNull();
+  expect(evolutionTransition('blackwargrowlmon','chaosdukemon')).toContain('少返1行动力');
+ });
+});
+
+describe('火焰追击与首次实际灼烧边界',()=>{
+ it('古拉兽追击多段只加2总伤害，非灼烧目标不消耗机会',()=>{
+  let s=balanceScenario([card('rock'),card('doublecut','first'),card('doublecut','second')],'growlmon',['core','core']);
+  const [plain,burning]=s.run!.battle!.enemies;burning.burn=3;
+  s=play(s,'rock',plain.uid);expect(s.run!.battle!.burnFollowupUsed).toBe(false);
+  s=play(s,'first',burning.uid);expect(s.run!.battle!.enemies[1].hp).toBe(88);
+  s=play(s,'second',burning.uid);expect(s.run!.battle!.enemies[1].hp).toBe(78);
+ });
+ it('追击检查先于引爆消费，力量仍逐段结算',()=>{
+  let s=balanceScenario([card('ignite')],'growlmon');s.run!.battle!.enemies[0].burn=3;
+  s=play(s,'ignite');expect(s.run!.battle!.enemies[0].hp).toBe(86);expect(s.run!.battle!.enemies[0].burn).toBe(0);
+  s=balanceScenario([card('doublecut')],'growlmon');s.run!.battle!.enemies[0].burn=3;s.run!.battle!.strength=2;
+  expect(play(s,'doublecut').run!.battle!.enemies[0].hp).toBe(84);
+ });
+ it('群攻追击最多奖励一个目标，不按敌人数放大',()=>{
+  const s=balanceScenario([card('heatwave')],'growlmon',['core','core']);
+  s.run!.battle!.enemies.forEach(e=>e.burn=3);
+  expect(play(s,'heatwave').run!.battle!.enemies.map(e=>e.hp)).toEqual([95,97]);
+ });
+ it.each([['blackgrowmon',4],['megidramon',5]] as const)('%s 直接击杀不消耗首次灼烧，余烬与防火仍留给有效目标',(form,expectedBurn)=>{
+  let s=balanceScenario([card('fireball','a'),card('fireball','b')],form,['core','core']);
+  s.run!.inherit='ember';s.run!.relics=['firewall'];s.run!.battle!.enemies[0].hp=5;
+  const [a,b]=s.run!.battle!.enemies;
+  s=play(s,'a',a.uid);expect(s.run!.battle!.burned).toBe(false);expect(s.run!.battle!.block).toBe(0);
+  s=play(s,'b',b.uid);expect(s.run!.battle!.enemies[1].burn).toBe(expectedBurn);expect(s.run!.battle!.block).toBe(3);
+ });
+ it('大古拉兽实际叠火每回合只获2盾，群攻与防火不刷主动防御',()=>{
+  let s=balanceScenario([card('heatwave','a'),card('fireball','b')],'wargrowlmon',['core','core']);
+  s.run!.relics=['firewall'];s.run!.battle!.enemies[0].hp=2;
+  s=play(s,'a');expect(s.run!.battle!.enemies[0].burn).toBe(0);expect(s.run!.battle!.enemies[1].burn).toBe(2);
+  expect(s.run!.battle!.block).toBe(5);expect(s.run!.activity.counts.defenses??0).toBe(0);
+  s=play(s,'b');expect(s.run!.battle!.block).toBe(5);
+ });
+ it('大古拉兽余烬护甲仍算一次防御，终点替换掉旧被动',()=>{
+  for(const [form,expected] of [['wargrowlmon',10],['dukemon',11],['megidramon',8]] as const){
+   const scenario=balanceScenario([card('flare')],form);scenario.run!.inherit='ember';
+   const after=play(scenario,'flare').run!;
+   expect(after.battle!.block).toBe(expected);expect(after.activity.counts.defenses).toBe(1);
+  }
+ });
+ it('回合开始重置追击，保存恢复保留已使用标记且旧档有默认值',()=>{
+  let s=balanceScenario([card('rock')],'growlmon');s.run!.battle!.enemies[0].burn=4;
+  s=play(s,'rock');expect(parseSave(JSON.stringify(s)).run!.battle!.burnFollowupUsed).toBe(true);
+  const old=JSON.parse(JSON.stringify(s));delete old.run.battle.burnFollowupUsed;
+  const loaded=parseSave(JSON.stringify(old));expect(loaded.run!.battle!.burnFollowupUsed).toBe(false);
+  expect(loaded.run!.deck).toEqual(s.run!.deck);expect(loaded.run!.rng).toBe(s.run!.rng);
+  s=reduceGame(s,{type:'endTurn'});expect(s.run!.battle!.burnFollowupUsed).toBe(false);expect(s.run!.battle!.burned).toBe(false);
+ });
+ it('混沌保留返能转护盾的代价，不叠加旧被动',()=>{
+  const scenario=balanceScenario([card('sacrifice')],'chaosdukemon');scenario.run!.inherit='ember';
+  const after=play(scenario,'sacrifice').run!;
+  expect(after.battle!.energy).toBe(4);expect(after.battle!.block).toBe(6);expect(after.hp).toBe(57);
+ });
+});
+
+describe('六路径实际行动回归',()=>{
+ it.each(paths.map(path=>[path.join('→'),path] as const))('%s 固定策略旅途无异常，目标不足单列诊断',(_name,path)=>{
+  const branch=path[2]==='dukemon'?'duke':path[2]==='megidramon'?'megidra':'chaos';
+  const result=simulateJourney(branch,42,'synergy',undefined,path);
+  expect(result.diagnostics).toEqual([]);expect(result.won).toBe(true);
+  if(!result.targetWon)expect(result.targetMissing.length).toBeGreaterThan(0);
+ });
+});

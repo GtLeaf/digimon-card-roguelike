@@ -1,0 +1,862 @@
+{
+  "policies": {
+    "seeds": "i*7919+42; development i=0..49; holdout i=50..99",
+    "strategies": [
+      "survival",
+      "synergy"
+    ],
+    "maxDeck": 16,
+    "maxShopCardPurchases": 2,
+    "maxShopRemovals": 2,
+    "paths": [
+      {
+        "id": "standard-duke",
+        "branch": "duke",
+        "forms": [
+          "growlmon",
+          "wargrowlmon",
+          "dukemon"
+        ]
+      },
+      {
+        "id": "standard-megidra",
+        "branch": "megidra",
+        "forms": [
+          "growlmon",
+          "wargrowlmon",
+          "megidramon"
+        ]
+      },
+      {
+        "id": "dark-duke",
+        "branch": "duke",
+        "forms": [
+          "blackgrowmon",
+          "wargrowlmon",
+          "dukemon"
+        ]
+      },
+      {
+        "id": "dark-return-megidra",
+        "branch": "megidra",
+        "forms": [
+          "blackgrowmon",
+          "wargrowlmon",
+          "megidramon"
+        ]
+      },
+      {
+        "id": "dark-megidra",
+        "branch": "megidra",
+        "forms": [
+          "blackgrowmon",
+          "blackwargrowlmon",
+          "megidramon"
+        ]
+      },
+      {
+        "id": "dark-chaos",
+        "branch": "chaos",
+        "forms": [
+          "blackgrowmon",
+          "blackwargrowlmon",
+          "chaosdukemon"
+        ]
+      }
+    ],
+    "veteran": "balance-veteran-profile.json",
+    "simulationHash": "587d5ecf7ed4c11c7cbe8055ed9c5690b9be45196cbe365c6d303b3293040ab0"
+  },
+  "stats": [
+    {
+      "cohort": "development",
+      "path": "standard-duke",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 200,
+      "targetAfter": 200,
+      "lossDelta": -0.23259217171717186,
+      "turnDelta": 0.04891666666666666
+    },
+    {
+      "cohort": "development",
+      "path": "standard-megidra",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 199,
+      "targetAfter": 197,
+      "lossDelta": -0.5389934509934511,
+      "turnDelta": 0.05278044178044181
+    },
+    {
+      "cohort": "development",
+      "path": "dark-duke",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 200,
+      "targetAfter": 200,
+      "lossDelta": -0.11563636363636366,
+      "turnDelta": 0.086628787878788
+    },
+    {
+      "cohort": "development",
+      "path": "dark-return-megidra",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 199,
+      "targetAfter": 198,
+      "lossDelta": -0.6589925074925082,
+      "turnDelta": 0.07261979686979686
+    },
+    {
+      "cohort": "development",
+      "path": "dark-megidra",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 199,
+      "targetAfter": 197,
+      "lossDelta": -1.0017784715284719,
+      "turnDelta": 0.01437412587412586
+    },
+    {
+      "cohort": "development",
+      "path": "dark-chaos",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 158,
+      "targetAfter": 199,
+      "lossDelta": -0.7172590742590746,
+      "turnDelta": 0.0578742923742924
+    },
+    {
+      "cohort": "holdout",
+      "path": "standard-duke",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 200,
+      "targetAfter": 200,
+      "lossDelta": -0.13030176767676765,
+      "turnDelta": 0.08567297979797979
+    },
+    {
+      "cohort": "holdout",
+      "path": "standard-megidra",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 198,
+      "targetAfter": 194,
+      "lossDelta": -0.6088587801087804,
+      "turnDelta": 0.07831157731157729
+    },
+    {
+      "cohort": "holdout",
+      "path": "dark-duke",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 200,
+      "targetAfter": 200,
+      "lossDelta": -0.2786818181818181,
+      "turnDelta": 0.10532575757575756
+    },
+    {
+      "cohort": "holdout",
+      "path": "dark-return-megidra",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 200,
+      "targetAfter": 198,
+      "lossDelta": -0.854176823176823,
+      "turnDelta": 0.09113544788544792
+    },
+    {
+      "cohort": "holdout",
+      "path": "dark-megidra",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 200,
+      "targetAfter": 200,
+      "lossDelta": -1.170611888111888,
+      "turnDelta": 0.06032459207459206
+    },
+    {
+      "cohort": "holdout",
+      "path": "dark-chaos",
+      "n": 200,
+      "winsBefore": 200,
+      "winsAfter": 200,
+      "targetBefore": 163,
+      "targetAfter": 199,
+      "lossDelta": -0.7160274725274725,
+      "turnDelta": 0.0578934398934399
+    }
+  ],
+  "regressions": [
+    {
+      "cohort": "development",
+      "profile": "new",
+      "strategy": "synergy",
+      "path": "standard-megidra",
+      "seed": 31718,
+      "before": {
+        "attacks": 68,
+        "fire": 35,
+        "skills": 8,
+        "defenses": 5,
+        "burnKills": 4,
+        "cannonShots": 5,
+        "heals": 4,
+        "detonations": 5,
+        "combos": 1,
+        "selfCosts": 1
+      },
+      "after": {
+        "attacks": 80,
+        "fire": 32,
+        "skills": 12,
+        "defenses": 10,
+        "burnKills": 6,
+        "cannonShots": 7,
+        "heals": 2,
+        "detonations": 3,
+        "combos": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "new",
+      "strategy": "synergy",
+      "path": "dark-return-megidra",
+      "seed": 237612,
+      "before": {
+        "attacks": 76,
+        "fire": 25,
+        "burnKills": 7,
+        "skills": 20,
+        "defenses": 9,
+        "heals": 4,
+        "combos": 4,
+        "cannonShots": 7,
+        "selfCosts": 10
+      },
+      "after": {
+        "attacks": 82,
+        "fire": 19,
+        "burnKills": 6,
+        "skills": 24,
+        "defenses": 10,
+        "heals": 4,
+        "combos": 5,
+        "cannonShots": 9,
+        "selfCosts": 8
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "new",
+      "strategy": "synergy",
+      "path": "dark-return-megidra",
+      "seed": 308883,
+      "before": {
+        "attacks": 69,
+        "fire": 23,
+        "skills": 19,
+        "defenses": 10,
+        "burnKills": 8,
+        "combos": 5,
+        "selfCosts": 6,
+        "cannonShots": 6,
+        "heals": 4
+      },
+      "after": {
+        "attacks": 70,
+        "fire": 24,
+        "skills": 22,
+        "defenses": 11,
+        "burnKills": 4,
+        "combos": 4,
+        "selfCosts": 6,
+        "cannonShots": 8,
+        "detonations": 4,
+        "heals": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "veteran",
+      "strategy": "survival",
+      "path": "standard-megidra",
+      "seed": 198017,
+      "before": {
+        "attacks": 60,
+        "fire": 20,
+        "skills": 11,
+        "defenses": 8,
+        "combos": 2,
+        "burnKills": 7,
+        "cannonShots": 4,
+        "selfCosts": 1,
+        "heals": 1
+      },
+      "after": {
+        "attacks": 60,
+        "fire": 17,
+        "skills": 13,
+        "defenses": 10,
+        "combos": 2,
+        "burnKills": 6,
+        "cannonShots": 5,
+        "heals": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "veteran",
+      "strategy": "survival",
+      "path": "standard-megidra",
+      "seed": 316802,
+      "before": {
+        "attacks": 67,
+        "fire": 28,
+        "burnKills": 7,
+        "skills": 19,
+        "combos": 4,
+        "defenses": 12,
+        "cannonShots": 6,
+        "selfCosts": 1,
+        "heals": 1
+      },
+      "after": {
+        "attacks": 66,
+        "fire": 22,
+        "burnKills": 6,
+        "skills": 20,
+        "combos": 5,
+        "defenses": 12,
+        "cannonShots": 7,
+        "heals": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "veteran",
+      "strategy": "survival",
+      "path": "dark-megidra",
+      "seed": 269288,
+      "before": {
+        "attacks": 75,
+        "fire": 37,
+        "burnKills": 11,
+        "skills": 13,
+        "defenses": 5,
+        "selfCosts": 16,
+        "combos": 2,
+        "heals": 4
+      },
+      "after": {
+        "attacks": 79,
+        "fire": 27,
+        "burnKills": 6,
+        "skills": 17,
+        "defenses": 6,
+        "heals": 14,
+        "selfCosts": 14,
+        "combos": 2
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "veteran",
+      "strategy": "survival",
+      "path": "dark-megidra",
+      "seed": 372235,
+      "before": {
+        "attacks": 71,
+        "fire": 23,
+        "skills": 11,
+        "defenses": 8,
+        "burnKills": 9,
+        "selfCosts": 11,
+        "heals": 2,
+        "combos": 2
+      },
+      "after": {
+        "attacks": 81,
+        "fire": 23,
+        "skills": 16,
+        "defenses": 8,
+        "burnKills": 4,
+        "selfCosts": 13,
+        "heals": 9,
+        "detonations": 4,
+        "combos": 2
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "veteran",
+      "strategy": "survival",
+      "path": "dark-chaos",
+      "seed": 340559,
+      "before": {
+        "attacks": 68,
+        "fire": 20,
+        "skills": 20,
+        "defenses": 9,
+        "heals": 8,
+        "combos": 6,
+        "burnKills": 8,
+        "selfCosts": 18
+      },
+      "after": {
+        "attacks": 70,
+        "fire": 20,
+        "skills": 22,
+        "defenses": 8,
+        "heals": 13,
+        "combos": 7,
+        "burnKills": 8,
+        "selfCosts": 8
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "development",
+      "profile": "veteran",
+      "strategy": "synergy",
+      "path": "dark-megidra",
+      "seed": 23799,
+      "before": {
+        "attacks": 64,
+        "fire": 28,
+        "skills": 17,
+        "defenses": 2,
+        "burnKills": 10,
+        "selfCosts": 13,
+        "heals": 3,
+        "combos": 4
+      },
+      "after": {
+        "attacks": 76,
+        "fire": 15,
+        "skills": 23,
+        "defenses": 2,
+        "burnKills": 4,
+        "selfCosts": 17,
+        "heals": 10,
+        "combos": 8,
+        "detonations": 3
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "new",
+      "strategy": "survival",
+      "path": "standard-megidra",
+      "seed": 475182,
+      "before": {
+        "attacks": 73,
+        "fire": 28,
+        "skills": 9,
+        "defenses": 7,
+        "burnKills": 5,
+        "cannonShots": 8,
+        "detonations": 5,
+        "heals": 1,
+        "combos": 1,
+        "selfCosts": 1
+      },
+      "after": {
+        "attacks": 71,
+        "fire": 22,
+        "skills": 8,
+        "defenses": 8,
+        "burnKills": 5,
+        "cannonShots": 8,
+        "detonations": 2,
+        "heals": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "引爆灼烧",
+            "current": 2,
+            "goal": 3
+          },
+          {
+            "label": "击败带灼烧的敌人",
+            "current": 5,
+            "goal": 6
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "new",
+      "strategy": "survival",
+      "path": "standard-megidra",
+      "seed": 744428,
+      "before": {
+        "attacks": 74,
+        "fire": 27,
+        "skills": 17,
+        "defenses": 3,
+        "burnKills": 10,
+        "cannonShots": 4,
+        "combos": 4,
+        "detonations": 4,
+        "selfCosts": 3,
+        "heals": 1
+      },
+      "after": {
+        "attacks": 71,
+        "fire": 19,
+        "skills": 22,
+        "defenses": 5,
+        "burnKills": 6,
+        "cannonShots": 8,
+        "combos": 6,
+        "detonations": 1,
+        "heals": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "new",
+      "strategy": "survival",
+      "path": "dark-return-megidra",
+      "seed": 744428,
+      "before": {
+        "attacks": 71,
+        "fire": 29,
+        "skills": 13,
+        "defenses": 3,
+        "burnKills": 11,
+        "selfCosts": 13,
+        "cannonShots": 3,
+        "heals": 4,
+        "combos": 1
+      },
+      "after": {
+        "attacks": 69,
+        "fire": 26,
+        "skills": 21,
+        "defenses": 7,
+        "burnKills": 6,
+        "selfCosts": 11,
+        "cannonShots": 8,
+        "combos": 5,
+        "heals": 1,
+        "detonations": 3
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "new",
+      "strategy": "synergy",
+      "path": "standard-megidra",
+      "seed": 744428,
+      "before": {
+        "attacks": 74,
+        "fire": 27,
+        "skills": 17,
+        "defenses": 3,
+        "burnKills": 10,
+        "cannonShots": 4,
+        "combos": 4,
+        "detonations": 4,
+        "selfCosts": 3,
+        "heals": 1
+      },
+      "after": {
+        "attacks": 71,
+        "fire": 20,
+        "skills": 22,
+        "defenses": 5,
+        "burnKills": 5,
+        "cannonShots": 8,
+        "combos": 6,
+        "detonations": 2,
+        "heals": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "引爆灼烧",
+            "current": 2,
+            "goal": 3
+          },
+          {
+            "label": "击败带灼烧的敌人",
+            "current": 5,
+            "goal": 6
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "new",
+      "strategy": "synergy",
+      "path": "dark-return-megidra",
+      "seed": 744428,
+      "before": {
+        "attacks": 71,
+        "fire": 29,
+        "skills": 12,
+        "defenses": 2,
+        "burnKills": 11,
+        "selfCosts": 13,
+        "cannonShots": 3,
+        "heals": 4,
+        "combos": 1
+      },
+      "after": {
+        "attacks": 69,
+        "fire": 26,
+        "skills": 20,
+        "defenses": 6,
+        "burnKills": 6,
+        "selfCosts": 11,
+        "cannonShots": 8,
+        "combos": 5,
+        "heals": 1,
+        "detonations": 3
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "veteran",
+      "strategy": "survival",
+      "path": "standard-megidra",
+      "seed": 451425,
+      "before": {
+        "attacks": 68,
+        "fire": 30,
+        "skills": 8,
+        "defenses": 8,
+        "burnKills": 7,
+        "cannonShots": 5,
+        "detonations": 3,
+        "selfCosts": 1
+      },
+      "after": {
+        "attacks": 65,
+        "fire": 20,
+        "skills": 12,
+        "defenses": 7,
+        "burnKills": 5,
+        "cannonShots": 9,
+        "heals": 1,
+        "detonations": 3
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "veteran",
+      "strategy": "survival",
+      "path": "standard-megidra",
+      "seed": 625643,
+      "before": {
+        "attacks": 60,
+        "skills": 13,
+        "defenses": 8,
+        "fire": 24,
+        "combos": 1,
+        "burnKills": 10,
+        "cannonShots": 3,
+        "heals": 1,
+        "selfCosts": 1
+      },
+      "after": {
+        "attacks": 68,
+        "skills": 25,
+        "defenses": 11,
+        "fire": 17,
+        "combos": 7,
+        "burnKills": 5,
+        "cannonShots": 7,
+        "heals": 2
+      },
+      "missing": [
+        [
+          {
+            "label": "引爆灼烧",
+            "current": 0,
+            "goal": 3
+          },
+          {
+            "label": "击败带灼烧的敌人",
+            "current": 5,
+            "goal": 6
+          }
+        ]
+      ]
+    },
+    {
+      "cohort": "holdout",
+      "profile": "veteran",
+      "strategy": "synergy",
+      "path": "standard-megidra",
+      "seed": 784023,
+      "before": {
+        "attacks": 56,
+        "skills": 6,
+        "defenses": 2,
+        "fire": 28,
+        "burnKills": 8,
+        "cannonShots": 5,
+        "detonations": 4,
+        "selfCosts": 2,
+        "heals": 1
+      },
+      "after": {
+        "attacks": 60,
+        "skills": 7,
+        "defenses": 7,
+        "fire": 25,
+        "burnKills": 5,
+        "cannonShots": 7,
+        "detonations": 3,
+        "heals": 1
+      },
+      "missing": [
+        [
+          {
+            "label": "最终满足条件，但未在剩余进化机会中进化",
+            "current": 0,
+            "goal": 1
+          }
+        ]
+      ]
+    }
+  ],
+  "diagnostics": []
+}

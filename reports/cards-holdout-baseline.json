@@ -1,0 +1,970 @@
+{
+  "strike": {
+    "id": "strike",
+    "name": "攻击指令",
+    "cost": 1,
+    "kind": "attack",
+    "family": "common",
+    "text": "造成 7 点伤害。",
+    "art": "guilmon",
+    "upgrade": {
+      "damage": 10,
+      "text": "造成 10 点伤害。"
+    },
+    "damage": 7
+  },
+  "guard": {
+    "id": "guard",
+    "name": "防御插件",
+    "cost": 1,
+    "kind": "skill",
+    "family": "common",
+    "text": "获得 7 点护盾。",
+    "art": "hagurumon",
+    "upgrade": {
+      "shield": 10,
+      "text": "获得 10 护盾。"
+    },
+    "shield": 7
+  },
+  "haste": {
+    "id": "haste",
+    "name": "高速插件",
+    "cost": 0,
+    "kind": "skill",
+    "family": "common",
+    "text": "抽 1 张牌。耗竭。",
+    "art": "picodevimon",
+    "upgrade": {
+      "draw": 2,
+      "text": "抽 2 张牌。耗竭。"
+    },
+    "draw": 1,
+    "exhaust": true
+  },
+  "fortify": {
+    "id": "fortify",
+    "name": "防护屏障",
+    "cost": 2,
+    "kind": "skill",
+    "family": "common",
+    "text": "获得 17 点护盾。",
+    "art": "andromon",
+    "upgrade": {
+      "shield": 20,
+      "text": "获得 20 护盾。"
+    },
+    "shield": 17
+  },
+  "mend": {
+    "id": "mend",
+    "name": "数据修复",
+    "cost": 1,
+    "kind": "skill",
+    "family": "common",
+    "text": "回复 5 点生命。耗竭。",
+    "art": "mushmon",
+    "upgrade": {
+      "heal": 8,
+      "text": "回复 8 点生命。耗竭。"
+    },
+    "heal": 5,
+    "exhaust": true
+  },
+  "battery": {
+    "id": "battery",
+    "name": "能量装填",
+    "cost": 0,
+    "kind": "skill",
+    "family": "common",
+    "text": "获得 1 点行动力。耗竭。",
+    "art": "hagurumon",
+    "upgrade": {
+      "energy": 2,
+      "text": "获得 2 点行动力。耗竭。"
+    },
+    "energy": 1,
+    "exhaust": true
+  },
+  "study": {
+    "id": "study",
+    "name": "紧急分析",
+    "cost": 1,
+    "kind": "skill",
+    "family": "common",
+    "text": "抽 2 张牌。",
+    "art": "renamon",
+    "upgrade": {
+      "draw": 3,
+      "text": "抽 3 张牌。"
+    },
+    "draw": 2
+  },
+  "purge": {
+    "id": "purge",
+    "name": "净化程序",
+    "cost": 0,
+    "kind": "skill",
+    "family": "common",
+    "text": "清除手牌中的故障牌，抽 1 张。耗竭。",
+    "art": "taomon",
+    "upgrade": {
+      "draw": 2,
+      "text": "清除手牌中的故障牌，抽 2 张。耗竭。"
+    },
+    "special": "purge",
+    "draw": 1,
+    "exhaust": true
+  },
+  "brace": {
+    "id": "brace",
+    "name": "战术整备",
+    "cost": 1,
+    "kind": "skill",
+    "family": "common",
+    "text": "获得 5 护盾，抽 1 张牌。",
+    "art": "leomon",
+    "upgrade": {
+      "shield": 8,
+      "text": "获得 8 护盾，抽 1 张牌。"
+    },
+    "shield": 5,
+    "draw": 1
+  },
+  "shieldbash": {
+    "id": "shieldbash",
+    "name": "盾击",
+    "cost": 1,
+    "kind": "attack",
+    "family": "common",
+    "text": "造成 4 ＋当前护盾一半的伤害。",
+    "art": "dukemon",
+    "upgrade": {
+      "damage": 7,
+      "text": "造成 7 ＋当前护盾一半的伤害。"
+    },
+    "damage": 4,
+    "special": "shieldhit"
+  },
+  "charge": {
+    "id": "charge",
+    "name": "蓄能指令",
+    "cost": 1,
+    "kind": "power",
+    "family": "common",
+    "text": "获得 2 蓄能，获得 4 护盾。",
+    "art": "andromon",
+    "upgrade": {
+      "shield": 7,
+      "text": "获得 2 蓄能，获得 7 护盾。"
+    },
+    "charge": 2,
+    "shield": 4
+  },
+  "cannon": {
+    "id": "cannon",
+    "name": "脉冲炮",
+    "cost": 2,
+    "kind": "attack",
+    "family": "common",
+    "text": "造成 14 伤害，消耗全部蓄能，每层额外 4 伤害。",
+    "art": "wargrowlmon",
+    "upgrade": {
+      "damage": 17,
+      "text": "造成 17 伤害，消耗全部蓄能，每层额外 4 伤害。"
+    },
+    "damage": 14,
+    "special": "cannon"
+  },
+  "fireball": {
+    "id": "fireball",
+    "name": "火球",
+    "cost": 1,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "造成 6 伤害，施加 2 灼烧。",
+    "art": "guilmon",
+    "upgrade": {
+      "damage": 9,
+      "text": "造成 9 伤害，施加 2 灼烧。"
+    },
+    "unlockForm": "guilmon",
+    "damage": 6,
+    "burn": 2
+  },
+  "rock": {
+    "id": "rock",
+    "name": "岩石粉碎",
+    "cost": 1,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "造成 11 点伤害。",
+    "art": "guilmon",
+    "upgrade": {
+      "damage": 14,
+      "text": "造成 14 点伤害。"
+    },
+    "unlockForm": "guilmon",
+    "damage": 11
+  },
+  "ignite": {
+    "id": "ignite",
+    "name": "烈焰引爆",
+    "cost": 1,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "造成 3 伤害；消耗目标灼烧，每层额外 3 伤害。",
+    "art": "growlmon",
+    "upgrade": {
+      "damage": 6,
+      "text": "造成 6 伤害；消耗目标灼烧，每层额外 3 伤害。"
+    },
+    "unlockForm": "growlmon",
+    "damage": 3,
+    "special": "detonate"
+  },
+  "inferno": {
+    "id": "inferno",
+    "name": "原子爆焰",
+    "cost": 2,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "对所有敌人造成 15 伤害。耗竭。",
+    "art": "wargrowlmon",
+    "upgrade": {
+      "damage": 18,
+      "text": "对所有敌人造成 18 伤害。耗竭。"
+    },
+    "unlockForm": "wargrowlmon",
+    "damage": 15,
+    "all": true,
+    "exhaust": true
+  },
+  "doublecut": {
+    "id": "doublecut",
+    "name": "双刃斩",
+    "cost": 1,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "造成 5×2 段伤害。",
+    "art": "growlmon",
+    "upgrade": {
+      "damage": 7,
+      "text": "造成 7×2 段伤害。"
+    },
+    "unlockForm": "growlmon",
+    "damage": 5,
+    "hits": 2
+  },
+  "roar": {
+    "id": "roar",
+    "name": "勇气咆哮",
+    "cost": 1,
+    "kind": "power",
+    "family": "guilmon",
+    "text": "本场攻击每段伤害＋2。耗竭。",
+    "art": "guilmon",
+    "upgrade": {
+      "cost": 0,
+      "text": "本场攻击每段伤害＋2。耗竭。"
+    },
+    "unlockForm": "guilmon",
+    "strength": 2,
+    "exhaust": true
+  },
+  "heatwave": {
+    "id": "heatwave",
+    "name": "热浪",
+    "cost": 1,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "对所有敌人造成 3 伤害，施加 2 灼烧。",
+    "art": "growlmon",
+    "upgrade": {
+      "damage": 6,
+      "text": "对所有敌人造成 6 伤害，施加 2 灼烧。"
+    },
+    "unlockForm": "growlmon",
+    "damage": 3,
+    "burn": 2,
+    "all": true
+  },
+  "sacrifice": {
+    "id": "sacrifice",
+    "name": "危险过载",
+    "cost": 0,
+    "kind": "skill",
+    "family": "guilmon",
+    "text": "失去 3 生命，获得 1 行动力，抽 1 张牌。耗竭。",
+    "art": "blackwargrowlmon",
+    "upgrade": {
+      "draw": 2,
+      "text": "失去 3 生命，获得 1 行动力，抽 2 张牌。耗竭。"
+    },
+    "unlockForm": "blackwargrowlmon",
+    "special": "sacrifice",
+    "energy": 1,
+    "draw": 1,
+    "exhaust": true
+  },
+  "flare": {
+    "id": "flare",
+    "name": "余烬护甲",
+    "cost": 1,
+    "kind": "skill",
+    "family": "guilmon",
+    "text": "获得 8 护盾，对所有敌人施加 1 灼烧。",
+    "art": "wargrowlmon",
+    "upgrade": {
+      "shield": 11,
+      "text": "获得 11 护盾，对所有敌人施加 1 灼烧。"
+    },
+    "unlockForm": "wargrowlmon",
+    "shield": 8,
+    "burn": 1,
+    "all": true
+  },
+  "leaf": {
+    "id": "leaf",
+    "name": "狐叶楔",
+    "cost": 1,
+    "kind": "attack",
+    "family": "renamon",
+    "text": "造成 3×2 段伤害，施加 1 符印。",
+    "art": "renamon",
+    "upgrade": {
+      "damage": 5,
+      "text": "造成 5×2 段伤害，施加 1 符印。"
+    },
+    "unlockForm": "renamon",
+    "damage": 3,
+    "hits": 2,
+    "mark": 1
+  },
+  "illusion": {
+    "id": "illusion",
+    "name": "狐变虚",
+    "cost": 1,
+    "kind": "skill",
+    "family": "renamon",
+    "text": "复制手中最左侧可复制牌；复制品耗竭。每回合最多复制 2 次。",
+    "art": "renamon",
+    "upgrade": {
+      "copyChoice": true,
+      "text": "选择手中一张可复制牌；复制品耗竭。每回合最多复制 2 次。"
+    },
+    "unlockForm": "renamon",
+    "special": "copy"
+  },
+  "talisman": {
+    "id": "talisman",
+    "name": "符咒",
+    "cost": 1,
+    "kind": "skill",
+    "family": "renamon",
+    "text": "施加 3 符印，获得 4 护盾。",
+    "art": "renamon",
+    "upgrade": {
+      "shield": 7,
+      "text": "施加 3 符印，获得 7 护盾。"
+    },
+    "unlockForm": "renamon",
+    "mark": 3,
+    "shield": 4
+  },
+  "seal": {
+    "id": "seal",
+    "name": "解印",
+    "cost": 1,
+    "kind": "attack",
+    "family": "renamon",
+    "text": "造成 5 伤害；消耗符印，每层额外 5 伤害。",
+    "art": "renamon",
+    "upgrade": {
+      "damage": 8,
+      "text": "造成 8 伤害；消耗符印，每层额外 5 伤害。"
+    },
+    "unlockForm": "renamon",
+    "damage": 5,
+    "special": "markburst"
+  },
+  "spirit": {
+    "id": "spirit",
+    "name": "狐火",
+    "cost": 1,
+    "kind": "attack",
+    "family": "renamon",
+    "text": "造成 7 伤害，施加 1 灼烧和 1 符印。",
+    "art": "kyubimon",
+    "upgrade": {
+      "damage": 10,
+      "text": "造成 10 伤害，施加 1 灼烧和 1 符印。"
+    },
+    "unlockForm": "kyubimon",
+    "damage": 7,
+    "burn": 1,
+    "mark": 1
+  },
+  "barrier": {
+    "id": "barrier",
+    "name": "金刚结界",
+    "cost": 1,
+    "kind": "skill",
+    "family": "renamon",
+    "text": "获得 10 护盾。",
+    "art": "taomon",
+    "upgrade": {
+      "shield": 13,
+      "text": "获得 13 护盾。"
+    },
+    "unlockForm": "taomon",
+    "shield": 10
+  },
+  "insight": {
+    "id": "insight",
+    "name": "灵视",
+    "cost": 0,
+    "kind": "skill",
+    "family": "renamon",
+    "text": "抽 2 张牌。耗竭。",
+    "art": "renamon",
+    "upgrade": {
+      "draw": 3,
+      "text": "抽 3 张牌。耗竭。"
+    },
+    "unlockForm": "renamon",
+    "draw": 2,
+    "exhaust": true
+  },
+  "cyclone": {
+    "id": "cyclone",
+    "name": "狐炎龙",
+    "cost": 2,
+    "kind": "attack",
+    "family": "renamon",
+    "text": "对所有敌人造成 11 伤害，施加 1 符印。",
+    "art": "kyubimon",
+    "upgrade": {
+      "damage": 14,
+      "text": "对所有敌人造成 14 伤害，施加 1 符印。"
+    },
+    "unlockForm": "kyubimon",
+    "damage": 11,
+    "mark": 1,
+    "all": true
+  },
+  "ritual": {
+    "id": "ritual",
+    "name": "阴阳术",
+    "cost": 1,
+    "kind": "power",
+    "family": "renamon",
+    "text": "本场攻击每段伤害＋1，抽 1 张牌。耗竭。",
+    "art": "taomon",
+    "upgrade": {
+      "cost": 0,
+      "text": "本场攻击每段伤害＋1，抽 1 张牌。耗竭。"
+    },
+    "unlockForm": "taomon",
+    "strength": 1,
+    "draw": 1,
+    "exhaust": true
+  },
+  "royal": {
+    "id": "royal",
+    "name": "皇家枪击",
+    "cost": 2,
+    "kind": "attack",
+    "family": "duke",
+    "text": "造成 22 伤害，获得 8 护盾。",
+    "art": "dukemon",
+    "upgrade": {
+      "damage": 25,
+      "shield": 11,
+      "text": "造成 25 伤害，获得 11 护盾。"
+    },
+    "unlockForm": "dukemon",
+    "damage": 22,
+    "shield": 8
+  },
+  "aegis": {
+    "id": "aegis",
+    "name": "圣盾守护",
+    "cost": 1,
+    "kind": "skill",
+    "family": "duke",
+    "text": "获得 13 护盾，抽 1 张牌。",
+    "art": "dukemon",
+    "upgrade": {
+      "shield": 16,
+      "text": "获得 16 护盾，抽 1 张牌。"
+    },
+    "unlockForm": "dukemon",
+    "shield": 13,
+    "draw": 1
+  },
+  "megido": {
+    "id": "megido",
+    "name": "灭世烈焰",
+    "cost": 2,
+    "kind": "attack",
+    "family": "megidra",
+    "text": "失去 3 生命；对所有敌人造成 19 伤害、施加 4 灼烧。耗竭。",
+    "art": "megidramon",
+    "upgrade": {
+      "damage": 22,
+      "text": "失去 3 生命；对所有敌人造成 22 伤害、施加 4 灼烧。耗竭。"
+    },
+    "unlockForm": "megidramon",
+    "damage": 19,
+    "burn": 4,
+    "all": true,
+    "special": "sacrifice",
+    "exhaust": true
+  },
+  "apocalypse": {
+    "id": "apocalypse",
+    "name": "地狱咆哮",
+    "cost": 1,
+    "kind": "attack",
+    "family": "megidra",
+    "text": "对所有敌人施加 5 灼烧。",
+    "art": "megidramon",
+    "upgrade": {
+      "burn": 7,
+      "text": "对所有敌人施加 7 灼烧。"
+    },
+    "unlockForm": "megidramon",
+    "burn": 5,
+    "all": true
+  },
+  "sacred": {
+    "id": "sacred",
+    "name": "金刚界曼荼罗",
+    "cost": 1,
+    "kind": "skill",
+    "family": "sakuya",
+    "text": "获得 10 护盾，抽 2 张牌。耗竭。",
+    "art": "sakuyamon",
+    "upgrade": {
+      "shield": 13,
+      "text": "获得 13 护盾，抽 2 张牌。耗竭。"
+    },
+    "unlockForm": "sakuyamon",
+    "shield": 10,
+    "draw": 2,
+    "exhaust": true
+  },
+  "mirrors": {
+    "id": "mirrors",
+    "name": "净化之印",
+    "cost": 1,
+    "kind": "attack",
+    "family": "sakuya",
+    "text": "造成 8 伤害，消耗符印每层追加 5 伤害。",
+    "art": "sakuyamon",
+    "upgrade": {
+      "damage": 11,
+      "text": "造成 11 伤害，消耗符印每层追加 5 伤害。"
+    },
+    "unlockForm": "sakuyamon",
+    "damage": 8,
+    "special": "markburst"
+  },
+  "foxguardian": {
+    "id": "foxguardian",
+    "name": "管狐术",
+    "cost": 1,
+    "kind": "attack",
+    "family": "kuzuha",
+    "text": "造成 10 伤害，获得 6 护盾。",
+    "art": "kuzuhamon",
+    "upgrade": {
+      "damage": 13,
+      "shield": 9,
+      "text": "造成 13 伤害，获得 9 护盾。"
+    },
+    "unlockForm": "kuzuhamon",
+    "damage": 10,
+    "shield": 6
+  },
+  "mandala": {
+    "id": "mandala",
+    "name": "胎藏界曼荼罗",
+    "cost": 2,
+    "kind": "skill",
+    "family": "kuzuha",
+    "text": "获得 19 护盾，对所有敌人施加 2 符印。",
+    "art": "kuzuhamon",
+    "upgrade": {
+      "shield": 22,
+      "text": "获得 22 护盾，对所有敌人施加 2 符印。"
+    },
+    "unlockForm": "kuzuhamon",
+    "shield": 19,
+    "mark": 2,
+    "all": true
+  },
+  "darkflame": {
+    "id": "darkflame",
+    "name": "暗炎弹",
+    "cost": 1,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "造成 7 伤害，施加 3 灼烧。",
+    "art": "blackgrowmon",
+    "upgrade": {
+      "damage": 10,
+      "text": "造成 10 伤害，施加 3 灼烧。"
+    },
+    "unlockForm": "blackgrowmon",
+    "damage": 7,
+    "burn": 3,
+    "series": "fireball"
+  },
+  "bloodedge": {
+    "id": "bloodedge",
+    "name": "血色利刃",
+    "cost": 1,
+    "kind": "attack",
+    "family": "guilmon",
+    "text": "失去 3 生命，造成 13 伤害。",
+    "art": "blackgrowmon",
+    "upgrade": {
+      "damage": 16,
+      "text": "失去 3 生命，造成 16 伤害。"
+    },
+    "unlockForm": "blackgrowmon",
+    "damage": 13,
+    "special": "sacrifice"
+  },
+  "foxcurse": {
+    "id": "foxcurse",
+    "name": "焰玉咒",
+    "cost": 1,
+    "kind": "attack",
+    "family": "renamon",
+    "text": "造成 5 伤害，施加 2 符印和 1 虚弱。",
+    "art": "youkomon",
+    "upgrade": {
+      "damage": 8,
+      "text": "造成 8 伤害，施加 2 符印和 1 虚弱。"
+    },
+    "unlockForm": "youkomon",
+    "damage": 5,
+    "mark": 2,
+    "weak": 1,
+    "series": "leaf"
+  },
+  "shadowseal": {
+    "id": "shadowseal",
+    "name": "咒符结界",
+    "cost": 1,
+    "kind": "skill",
+    "family": "renamon",
+    "text": "获得 7 护盾，施加 2 符印。",
+    "art": "doumon",
+    "upgrade": {
+      "shield": 10,
+      "text": "获得 10 护盾，施加 2 符印。"
+    },
+    "unlockForm": "doumon",
+    "shield": 7,
+    "mark": 2,
+    "series": "talisman"
+  },
+  "drain": {
+    "id": "drain",
+    "name": "生命汲取",
+    "cost": 1,
+    "kind": "attack",
+    "family": "common",
+    "text": "造成 8 伤害；若造成生命伤害，回复 3 生命。",
+    "art": "chaosdukemon",
+    "upgrade": {
+      "damage": 11,
+      "text": "造成 11 伤害；若造成生命伤害，回复 3 生命。"
+    },
+    "damage": 8,
+    "drain": 3
+  },
+  "chaoslance": {
+    "id": "chaoslance",
+    "name": "混沌枪击",
+    "cost": 2,
+    "kind": "attack",
+    "family": "chaos",
+    "text": "失去 3 生命，造成 23 伤害；若造成生命伤害，回复 5 生命。",
+    "art": "chaosdukemon",
+    "upgrade": {
+      "damage": 26,
+      "text": "失去 3 生命，造成 26 伤害；若造成生命伤害，回复 5 生命。"
+    },
+    "unlockForm": "chaosdukemon",
+    "damage": 23,
+    "special": "sacrifice",
+    "drain": 5
+  },
+  "chaosward": {
+    "id": "chaosward",
+    "name": "暗黑圣盾",
+    "cost": 1,
+    "kind": "skill",
+    "family": "chaos",
+    "text": "失去 3 生命，获得 18 护盾，抽 1 张牌。",
+    "art": "chaosdukemon",
+    "upgrade": {
+      "shield": 21,
+      "text": "失去 3 生命，获得 21 护盾，抽 1 张牌。"
+    },
+    "unlockForm": "chaosdukemon",
+    "shield": 18,
+    "draw": 1,
+    "special": "sacrifice"
+  },
+  "tinyTwister": {
+    "id": "tinyTwister",
+    "name": "小型龙卷风",
+    "cost": 1,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "对所有敌人造成 4 伤害。",
+    "art": "terriermon",
+    "upgrade": {
+      "damage": 7,
+      "text": "对所有敌人造成 7 伤害。"
+    },
+    "unlockForm": "terriermon",
+    "damage": 4,
+    "all": true
+  },
+  "blazingShot": {
+    "id": "blazingShot",
+    "name": "炽热气弹",
+    "cost": 1,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "造成 8 伤害；若有蓄能，额外造成 2 伤害，不消耗蓄能。",
+    "art": "terriermon",
+    "upgrade": {
+      "damage": 11,
+      "text": "造成 11 伤害；若有蓄能，额外造成 2 伤害，不消耗蓄能。"
+    },
+    "unlockForm": "terriermon",
+    "damage": 8,
+    "chargedDamage": 2
+  },
+  "gatling": {
+    "id": "gatling",
+    "name": "加特林机枪",
+    "cost": 1,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "造成 3×3 段伤害。",
+    "art": "galgomon",
+    "upgrade": {
+      "damage": 4,
+      "text": "造成 4×3 段伤害。"
+    },
+    "unlockForm": "galgomon",
+    "damage": 3,
+    "hits": 3
+  },
+  "dumUpper": {
+    "id": "dumUpper",
+    "name": "达姆达姆勾拳",
+    "cost": 1,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "造成 9 伤害，获得 4 护盾。",
+    "art": "galgomon",
+    "upgrade": {
+      "damage": 12,
+      "shield": 7,
+      "text": "造成 12 伤害，获得 7 护盾。"
+    },
+    "unlockForm": "galgomon",
+    "damage": 9,
+    "shield": 4
+  },
+  "blackGatling": {
+    "id": "blackGatling",
+    "name": "黑加特林机枪",
+    "cost": 1,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "造成 4×2 段伤害，获得 3 护盾。",
+    "art": "blackgalgomon",
+    "upgrade": {
+      "damage": 5,
+      "shield": 6,
+      "text": "造成 5×2 段伤害，获得 6 护盾。"
+    },
+    "unlockForm": "blackgalgomon",
+    "damage": 4,
+    "hits": 2,
+    "shield": 3
+  },
+  "ambushUpper": {
+    "id": "ambushUpper",
+    "name": "伏击勾拳",
+    "cost": 1,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "造成 10 伤害，施加 2 虚弱。",
+    "art": "blackgalgomon",
+    "upgrade": {
+      "damage": 13,
+      "text": "造成 13 伤害，施加 2 虚弱。"
+    },
+    "unlockForm": "blackgalgomon",
+    "damage": 10,
+    "weak": 2
+  },
+  "rapidFire": {
+    "id": "rapidFire",
+    "name": "疾速射击",
+    "cost": 1,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "造成 3×3 段伤害，抽 1 张牌。",
+    "art": "rapidmon",
+    "upgrade": {
+      "damage": 4,
+      "text": "造成 4×3 段伤害，抽 1 张牌。"
+    },
+    "unlockForm": "rapidmon",
+    "damage": 3,
+    "hits": 3,
+    "draw": 1
+  },
+  "goldTriangle": {
+    "id": "goldTriangle",
+    "name": "黄金三角",
+    "cost": 2,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "对所有敌人造成 13 伤害。",
+    "art": "rapidmon",
+    "upgrade": {
+      "damage": 16,
+      "text": "对所有敌人造成 16 伤害。"
+    },
+    "unlockForm": "rapidmon",
+    "damage": 13,
+    "all": true
+  },
+  "blackReload": {
+    "id": "blackReload",
+    "name": "战术·装甲装填",
+    "cost": 1,
+    "kind": "skill",
+    "family": "terriermon",
+    "text": "获得 8 护盾，获得 2 蓄能。",
+    "art": "blackrapidmon",
+    "upgrade": {
+      "shield": 11,
+      "text": "获得 11 护盾，获得 2 蓄能。"
+    },
+    "unlockForm": "blackrapidmon",
+    "shield": 8,
+    "charge": 2
+  },
+  "blackMissile": {
+    "id": "blackMissile",
+    "name": "战术·定点轰击",
+    "cost": 2,
+    "kind": "attack",
+    "family": "terriermon",
+    "text": "造成 15 伤害，消耗全部蓄能，每层额外 4 伤害。",
+    "art": "blackrapidmon",
+    "upgrade": {
+      "damage": 18,
+      "text": "造成 18 伤害，消耗全部蓄能，每层额外 4 伤害。"
+    },
+    "unlockForm": "blackrapidmon",
+    "damage": 15,
+    "special": "cannon"
+  },
+  "giantMissile": {
+    "id": "giantMissile",
+    "name": "巨型导弹",
+    "cost": 2,
+    "kind": "attack",
+    "family": "saint",
+    "text": "造成 8×3 段伤害。",
+    "art": "saintgalgomon",
+    "upgrade": {
+      "damage": 9,
+      "text": "造成 9×3 段伤害。"
+    },
+    "unlockForm": "saintgalgomon",
+    "damage": 8,
+    "hits": 3
+  },
+  "burstShot": {
+    "id": "burstShot",
+    "name": "爆裂射击",
+    "cost": 1,
+    "kind": "attack",
+    "family": "saint",
+    "text": "对所有敌人造成 4×2 段伤害。",
+    "art": "saintgalgomon",
+    "upgrade": {
+      "damage": 5,
+      "text": "对所有敌人造成 5×2 段伤害。"
+    },
+    "unlockForm": "saintgalgomon",
+    "damage": 4,
+    "hits": 2,
+    "all": true
+  },
+  "heavySalvo": {
+    "id": "heavySalvo",
+    "name": "战术·重装齐射",
+    "cost": 2,
+    "kind": "attack",
+    "family": "blacksaint",
+    "text": "造成 12 伤害，消耗全部蓄能，每层额外 6 伤害。耗竭。",
+    "art": "blacksaintgalgomon",
+    "upgrade": {
+      "damage": 15,
+      "text": "造成 15 伤害，消耗全部蓄能，每层额外 6 伤害。耗竭。"
+    },
+    "unlockForm": "blacksaintgalgomon",
+    "damage": 12,
+    "special": "cannon",
+    "chargeMultiplier": 6,
+    "exhaust": true
+  },
+  "fortressLoad": {
+    "id": "fortressLoad",
+    "name": "战术·要塞整备",
+    "cost": 1,
+    "kind": "skill",
+    "family": "blacksaint",
+    "text": "获得 12 护盾，获得 2 蓄能。",
+    "art": "blacksaintgalgomon",
+    "upgrade": {
+      "shield": 15,
+      "text": "获得 15 护盾，获得 2 蓄能。"
+    },
+    "unlockForm": "blacksaintgalgomon",
+    "shield": 12,
+    "charge": 2
+  },
+  "fault": {
+    "id": "fault",
+    "name": "数据故障",
+    "cost": 1,
+    "kind": "status",
+    "family": "status",
+    "text": "不能产生效果。支付 1 行动力清除，本场耗竭。",
+    "art": "core",
+    "upgrade": {
+      "cost": 0,
+      "text": "不能产生效果。支付 0 行动力清除，本场耗竭。"
+    },
+    "exhaust": true
+  }
+}

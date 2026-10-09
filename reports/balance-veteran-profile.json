@@ -1,0 +1,133 @@
+{
+  "description": "按七条路线连续执行真实行动获得的历史档案；未手工赋予研究或扫描。",
+  "provenance": [
+    {
+      "branch": "duke",
+      "seed": 42,
+      "won": true,
+      "unlocked": [
+        "mechanical",
+        "purification"
+      ],
+      "steps": 178,
+      "diagnostics": []
+    },
+    {
+      "branch": "megidra",
+      "seed": 42,
+      "won": true,
+      "unlocked": [
+        "mechanical",
+        "purification"
+      ],
+      "steps": 165,
+      "diagnostics": []
+    },
+    {
+      "branch": "chaos",
+      "seed": 42,
+      "won": true,
+      "unlocked": [
+        "mechanical",
+        "purification",
+        "chaos"
+      ],
+      "steps": 210,
+      "diagnostics": []
+    },
+    {
+      "branch": "sakuya",
+      "seed": 42,
+      "won": true,
+      "unlocked": [
+        "mechanical",
+        "purification",
+        "chaos"
+      ],
+      "steps": 206,
+      "diagnostics": []
+    },
+    {
+      "branch": "kuzuha",
+      "seed": 42,
+      "won": true,
+      "unlocked": [
+        "mechanical",
+        "purification",
+        "chaos"
+      ],
+      "steps": 258,
+      "diagnostics": []
+    },
+    {
+      "branch": "saint",
+      "seed": 42,
+      "won": true,
+      "unlocked": [
+        "mechanical",
+        "purification",
+        "chaos"
+      ],
+      "steps": 152,
+      "diagnostics": []
+    },
+    {
+      "branch": "blacksaint",
+      "seed": 42,
+      "won": true,
+      "unlocked": [
+        "mechanical",
+        "purification",
+        "chaos"
+      ],
+      "steps": 199,
+      "diagnostics": []
+    }
+  ],
+  "meta": {
+    "unlockedRoutes": [
+      "mechanical",
+      "purification",
+      "chaos"
+    ],
+    "scans": {
+      "hagurumon": 100,
+      "gotsumon": 100,
+      "sinduramon": 100,
+      "leomon": 100,
+      "seadramon": 100,
+      "picodevimon": 100,
+      "beelzebumon": 100,
+      "andromon": 100,
+      "betamon": 100,
+      "impmon": 100,
+      "machinedramon": 100,
+      "goblimon": 100,
+      "devidramon": 50,
+      "bakemon": 50
+    },
+    "partners": [
+      "hagurumon"
+    ],
+    "games": 7,
+    "wins": 7,
+    "discovered": [
+      "growlmon",
+      "wargrowlmon",
+      "dukemon",
+      "megidramon",
+      "blackgrowmon",
+      "blackwargrowlmon",
+      "kyubimon",
+      "taomon",
+      "sakuyamon",
+      "kuzuhamon",
+      "galgomon",
+      "rapidmon",
+      "saintgalgomon",
+      "blackgalgomon",
+      "blackrapidmon",
+      "blacksaintgalgomon"
+    ]
+  }
+}

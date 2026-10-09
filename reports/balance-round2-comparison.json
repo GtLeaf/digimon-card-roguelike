@@ -1,0 +1,2212 @@
+{
+  "version": 2,
+  "changes": [
+    {
+      "id": "illusion",
+      "name": "狐变虚",
+      "before": {
+        "id": "illusion",
+        "name": "狐变虚",
+        "cost": 1,
+        "kind": "skill",
+        "family": "renamon",
+        "text": "复制手中最左侧可复制牌；复制品耗竭。每回合最多复制 2 次。",
+        "art": "renamon",
+        "upgrade": {
+          "copyChoice": true,
+          "text": "选择手中一张可复制牌；复制品耗竭。每回合最多复制 2 次。"
+        },
+        "unlockForm": "renamon",
+        "special": "copy"
+      },
+      "after": {
+        "id": "illusion",
+        "name": "狐变虚",
+        "cost": 1,
+        "kind": "skill",
+        "family": "renamon",
+        "text": "复制手中最左侧可复制牌；复制品耗竭。每回合最多复制 2 次。",
+        "art": "renamon",
+        "upgrade": {
+          "copyChoice": true,
+          "draw": 1,
+          "text": "选择手中一张可复制牌；复制品耗竭。抽 1 张牌。每回合最多复制 2 次。"
+        },
+        "unlockForm": "renamon",
+        "special": "copy"
+      }
+    },
+    {
+      "id": "bloodedge",
+      "name": "血色利刃",
+      "before": {
+        "id": "bloodedge",
+        "name": "血色利刃",
+        "cost": 1,
+        "kind": "attack",
+        "family": "guilmon",
+        "text": "失去 3 生命，造成 13 伤害。",
+        "art": "blackgrowmon",
+        "upgrade": {
+          "damage": 16,
+          "text": "失去 3 生命，造成 16 伤害。"
+        },
+        "unlockForm": "blackgrowmon",
+        "damage": 13,
+        "special": "sacrifice"
+      },
+      "after": {
+        "id": "bloodedge",
+        "name": "血色利刃",
+        "cost": 1,
+        "kind": "attack",
+        "family": "guilmon",
+        "text": "失去 3 生命，造成 16 伤害。",
+        "art": "blackgrowmon",
+        "upgrade": {
+          "damage": 19,
+          "text": "失去 3 生命，造成 19 伤害。"
+        },
+        "unlockForm": "blackgrowmon",
+        "damage": 16,
+        "special": "sacrifice"
+      }
+    },
+    {
+      "id": "tinyTwister",
+      "name": "小型龙卷风",
+      "before": {
+        "id": "tinyTwister",
+        "name": "小型龙卷风",
+        "cost": 1,
+        "kind": "attack",
+        "family": "terriermon",
+        "text": "对所有敌人造成 4 伤害。",
+        "art": "terriermon",
+        "upgrade": {
+          "damage": 7,
+          "text": "对所有敌人造成 7 伤害。"
+        },
+        "unlockForm": "terriermon",
+        "damage": 4,
+        "all": true
+      },
+      "after": {
+        "id": "tinyTwister",
+        "name": "小型龙卷风",
+        "cost": 1,
+        "kind": "attack",
+        "family": "terriermon",
+        "text": "对所有敌人造成 5 伤害。",
+        "art": "terriermon",
+        "upgrade": {
+          "damage": 8,
+          "text": "对所有敌人造成 8 伤害。"
+        },
+        "unlockForm": "terriermon",
+        "damage": 5,
+        "all": true
+      }
+    }
+  ],
+  "routeRegressions": [
+    {
+      "seed": 435587,
+      "profile": "new",
+      "strategy": "survival",
+      "branch": "chaos",
+      "before": {
+        "form": "chaosdukemon",
+        "counts": {
+          "attacks": 96,
+          "skills": 18,
+          "defenses": 9,
+          "fire": 44,
+          "burnKills": 14,
+          "selfCosts": 18,
+          "heals": 7,
+          "combos": 3
+        },
+        "used": {
+          "rock": 13,
+          "strike": 34,
+          "guard": 5,
+          "fireball": 16,
+          "fortify": 4,
+          "darkflame": 28,
+          "bloodedge": 11,
+          "mend": 4,
+          "sacrifice": 5,
+          "chaoslance": 2
+        }
+      },
+      "after": {
+        "form": "blackwargrowlmon",
+        "counts": {
+          "attacks": 94,
+          "skills": 16,
+          "defenses": 8,
+          "fire": 43,
+          "burnKills": 14,
+          "selfCosts": 16,
+          "heals": 4,
+          "combos": 2
+        },
+        "used": {
+          "rock": 16,
+          "strike": 33,
+          "guard": 5,
+          "fireball": 14,
+          "fortify": 3,
+          "darkflame": 29,
+          "bloodedge": 11,
+          "sacrifice": 5,
+          "mend": 3
+        },
+        "missing": [
+          [
+            {
+              "label": "最终满足条件，但未在剩余进化机会中进化",
+              "current": 0,
+              "goal": 1
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "seed": 768185,
+      "profile": "new",
+      "strategy": "survival",
+      "branch": "chaos",
+      "before": {
+        "form": "chaosdukemon",
+        "counts": {
+          "attacks": 75,
+          "fire": 27,
+          "skills": 17,
+          "defenses": 7,
+          "burnKills": 10,
+          "selfCosts": 19,
+          "heals": 8,
+          "combos": 2
+        },
+        "used": {
+          "fireball": 5,
+          "rock": 19,
+          "strike": 9,
+          "guard": 5,
+          "darkflame": 22,
+          "cannon": 10,
+          "bloodedge": 9,
+          "sacrifice": 6,
+          "mend": 3,
+          "fortify": 2,
+          "roar": 1,
+          "chaoslance": 4
+        }
+      },
+      "after": {
+        "form": "blackwargrowlmon",
+        "counts": {
+          "attacks": 75,
+          "fire": 27,
+          "skills": 15,
+          "defenses": 5,
+          "burnKills": 11,
+          "selfCosts": 16,
+          "heals": 4,
+          "combos": 1
+        },
+        "used": {
+          "fireball": 4,
+          "rock": 24,
+          "strike": 7,
+          "guard": 5,
+          "darkflame": 23,
+          "cannon": 8,
+          "bloodedge": 12,
+          "sacrifice": 4,
+          "mend": 3,
+          "roar": 3
+        },
+        "missing": [
+          [
+            {
+              "label": "最终满足条件，但未在剩余进化机会中进化",
+              "current": 0,
+              "goal": 1
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "seed": 784023,
+      "profile": "new",
+      "strategy": "survival",
+      "branch": "chaos",
+      "before": {
+        "form": "chaosdukemon",
+        "counts": {
+          "attacks": 86,
+          "skills": 31,
+          "defenses": 6,
+          "fire": 41,
+          "burnKills": 14,
+          "selfCosts": 16,
+          "combos": 8,
+          "heals": 8
+        },
+        "used": {
+          "strike": 22,
+          "guard": 4,
+          "fireball": 15,
+          "rock": 11,
+          "battery": 13,
+          "darkflame": 26,
+          "cannon": 8,
+          "bloodedge": 7,
+          "mend": 5,
+          "sacrifice": 7,
+          "fortify": 2,
+          "chaoslance": 2
+        }
+      },
+      "after": {
+        "form": "blackwargrowlmon",
+        "counts": {
+          "attacks": 82,
+          "skills": 28,
+          "defenses": 6,
+          "fire": 38,
+          "burnKills": 14,
+          "selfCosts": 16,
+          "combos": 7,
+          "heals": 4
+        },
+        "used": {
+          "strike": 23,
+          "guard": 4,
+          "fireball": 12,
+          "rock": 10,
+          "battery": 12,
+          "darkflame": 26,
+          "cannon": 9,
+          "bloodedge": 9,
+          "mend": 3,
+          "sacrifice": 7,
+          "fortify": 2
+        },
+        "missing": [
+          [
+            {
+              "label": "最终满足条件，但未在剩余进化机会中进化",
+              "current": 0,
+              "goal": 1
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "seed": 760266,
+      "profile": "new",
+      "strategy": "synergy",
+      "branch": "chaos",
+      "before": {
+        "form": "chaosdukemon",
+        "counts": {
+          "attacks": 79,
+          "fire": 41,
+          "burnKills": 14,
+          "skills": 17,
+          "defenses": 2,
+          "selfCosts": 25,
+          "heals": 9,
+          "combos": 5
+        },
+        "used": {
+          "rock": 16,
+          "strike": 11,
+          "fireball": 15,
+          "guard": 2,
+          "darkflame": 26,
+          "bloodedge": 12,
+          "sacrifice": 11,
+          "mend": 4,
+          "drain": 2,
+          "chaoslance": 2
+        }
+      },
+      "after": {
+        "form": "blackwargrowlmon",
+        "counts": {
+          "attacks": 75,
+          "fire": 40,
+          "burnKills": 12,
+          "skills": 10,
+          "defenses": 2,
+          "selfCosts": 19,
+          "heals": 3,
+          "combos": 1
+        },
+        "used": {
+          "rock": 13,
+          "strike": 9,
+          "fireball": 13,
+          "guard": 2,
+          "darkflame": 27,
+          "bloodedge": 14,
+          "sacrifice": 5,
+          "cannon": 3,
+          "mend": 2,
+          "battery": 1
+        },
+        "missing": [
+          [
+            {
+              "label": "有效治疗",
+              "current": 3,
+              "goal": 4
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "seed": 776104,
+      "profile": "veteran",
+      "strategy": "survival",
+      "branch": "blacksaint",
+      "before": {
+        "form": "blacksaintgalgomon",
+        "counts": {
+          "attacks": 82,
+          "skills": 32,
+          "defenses": 26,
+          "charges": 10,
+          "combos": 10,
+          "cannonShots": 12,
+          "weakens": 13
+        },
+        "used": {
+          "cannon": 22,
+          "strike": 15,
+          "charge": 7,
+          "blazingShot": 15,
+          "battery": 15,
+          "guard": 4,
+          "tinyTwister": 3,
+          "blackGatling": 9,
+          "ambushUpper": 15,
+          "blackMissile": 6,
+          "fortify": 3,
+          "blackReload": 2,
+          "fortressLoad": 1,
+          "heavySalvo": 1
+        }
+      },
+      "after": {
+        "form": "blackrapidmon",
+        "counts": {
+          "attacks": 81,
+          "skills": 31,
+          "defenses": 22,
+          "charges": 9,
+          "combos": 7,
+          "cannonShots": 9,
+          "weakens": 15
+        },
+        "used": {
+          "cannon": 23,
+          "strike": 17,
+          "charge": 5,
+          "blazingShot": 14,
+          "battery": 15,
+          "guard": 4,
+          "tinyTwister": 6,
+          "blackGatling": 6,
+          "ambushUpper": 18,
+          "fortify": 3,
+          "blackMissile": 5,
+          "blackReload": 4
+        },
+        "missing": [
+          [
+            {
+              "label": "最终满足条件，但未在剩余进化机会中进化",
+              "current": 0,
+              "goal": 1
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "seed": 498939,
+      "profile": "veteran",
+      "strategy": "synergy",
+      "branch": "chaos",
+      "before": {
+        "form": "chaosdukemon",
+        "counts": {
+          "attacks": 84,
+          "fire": 19,
+          "burnKills": 9,
+          "skills": 17,
+          "combos": 2,
+          "defenses": 7,
+          "selfCosts": 14,
+          "heals": 8
+        },
+        "used": {
+          "strike": 24,
+          "fireball": 10,
+          "rock": 22,
+          "cannon": 13,
+          "battery": 6,
+          "guard": 5,
+          "darkflame": 9,
+          "bloodedge": 7,
+          "drain": 5,
+          "sacrifice": 4,
+          "chaoslance": 2,
+          "fortify": 1,
+          "chaosward": 1
+        }
+      },
+      "after": {
+        "form": "blackwargrowlmon",
+        "counts": {
+          "attacks": 81,
+          "fire": 19,
+          "burnKills": 9,
+          "skills": 15,
+          "combos": 2,
+          "defenses": 6,
+          "selfCosts": 15,
+          "heals": 1
+        },
+        "used": {
+          "strike": 25,
+          "fireball": 9,
+          "rock": 22,
+          "cannon": 12,
+          "battery": 6,
+          "guard": 5,
+          "darkflame": 10,
+          "bloodedge": 12,
+          "sacrifice": 3,
+          "fortify": 1
+        },
+        "missing": [
+          [
+            {
+              "label": "有效治疗",
+              "current": 1,
+              "goal": 4
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "seed": 649400,
+      "profile": "veteran",
+      "strategy": "synergy",
+      "branch": "blacksaint",
+      "before": {
+        "form": "blacksaintgalgomon",
+        "counts": {
+          "attacks": 73,
+          "skills": 23,
+          "defenses": 28,
+          "charges": 12,
+          "cannonShots": 15,
+          "combos": 4,
+          "heals": 1,
+          "weakens": 7
+        },
+        "used": {
+          "blazingShot": 8,
+          "strike": 9,
+          "tinyTwister": 6,
+          "cannon": 24,
+          "guard": 5,
+          "charge": 8,
+          "battery": 6,
+          "ambushUpper": 8,
+          "blackGatling": 11,
+          "blackMissile": 6,
+          "blackReload": 2,
+          "heavySalvo": 2,
+          "fortressLoad": 2
+        }
+      },
+      "after": {
+        "form": "blackrapidmon",
+        "counts": {
+          "attacks": 74,
+          "skills": 22,
+          "defenses": 21,
+          "charges": 9,
+          "cannonShots": 14,
+          "combos": 3,
+          "heals": 1,
+          "weakens": 12
+        },
+        "used": {
+          "blazingShot": 6,
+          "strike": 9,
+          "tinyTwister": 7,
+          "cannon": 29,
+          "guard": 4,
+          "charge": 6,
+          "battery": 8,
+          "ambushUpper": 14,
+          "blackGatling": 7,
+          "blackMissile": 5,
+          "blackReload": 3,
+          "fortify": 1
+        },
+        "missing": [
+          [
+            {
+              "label": "最终满足条件，但未在剩余进化机会中进化",
+              "current": 0,
+              "goal": 1
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "training": {
+    "label": "调参种子",
+    "n": 1400,
+    "report": [
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 32,
+        "afterTarget": 34,
+        "targetDeltaPP": 4,
+        "targetDelta95": [
+          -4,
+          14.000000000000002
+        ],
+        "pairedMeanLossDelta": 0.2992673992673993,
+        "lossDelta95": [
+          -0.04702464202464203,
+          0.6482637362637363
+        ],
+        "pairedMeanTurnsDelta": -0.10883383283383281,
+        "newTargetWins": 4,
+        "lostTargetWins": 2,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.03127272727272728,
+        "lossDelta95": [
+          -0.12854545454545455,
+          0.056363636363636366
+        ],
+        "pairedMeanTurnsDelta": 0.012606060606060598,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 28,
+        "afterTarget": 28,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.028321678321678315,
+        "lossDelta95": [
+          -0.009545454545454553,
+          0.07541958041958043
+        ],
+        "pairedMeanTurnsDelta": 0.020955710955710957,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.10793939393939393,
+        "lossDelta95": [
+          -0.2366666666666667,
+          0.003757575757575755
+        ],
+        "pairedMeanTurnsDelta": -0.015,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 48,
+        "afterTarget": 48,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          -6,
+          6
+        ],
+        "pairedMeanLossDelta": -0.05695837495837495,
+        "lossDelta95": [
+          -0.1604062604062604,
+          0.036088578088578085
+        ],
+        "pairedMeanTurnsDelta": -0.0170782550782551,
+        "newTargetWins": 1,
+        "lostTargetWins": 1,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 47,
+        "afterTarget": 47,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.34155011655011647,
+        "lossDelta95": [
+          0.1499090909090909,
+          0.5493729603729602
+        ],
+        "pairedMeanTurnsDelta": -0.08295804195804195,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.01745454545454546,
+        "lossDelta95": [
+          -0.0570909090909091,
+          0.08890909090909091
+        ],
+        "pairedMeanTurnsDelta": -0.0018181818181818167,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 34,
+        "afterTarget": 34,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.0013636363636363579,
+        "lossDelta95": [
+          -0.07045454545454545,
+          0.06636363636363636
+        ],
+        "pairedMeanTurnsDelta": 0.020303030303030302,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.11754545454545454,
+        "lossDelta95": [
+          -0.23781818181818182,
+          -0.01609090909090909
+        ],
+        "pairedMeanTurnsDelta": 0.006787878787878796,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.10941025641025641,
+        "lossDelta95": [
+          -0.21615384615384617,
+          -0.02166666666666666
+        ],
+        "pairedMeanTurnsDelta": 0.0035384615384615437,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 49,
+        "afterTarget": 49,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 32,
+        "afterTarget": 30,
+        "targetDeltaPP": -4,
+        "targetDelta95": [
+          -12,
+          4
+        ],
+        "pairedMeanLossDelta": 0.25371461871461876,
+        "lossDelta95": [
+          -0.1005727605727606,
+          0.5942740592740594
+        ],
+        "pairedMeanTurnsDelta": -0.0885764235764236,
+        "newTargetWins": 1,
+        "lostTargetWins": 3,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.03626262626262625,
+        "lossDelta95": [
+          -0.11911111111111111,
+          0.046666666666666676
+        ],
+        "pairedMeanTurnsDelta": 0.02455050505050508,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 30,
+        "afterTarget": 31,
+        "targetDeltaPP": 2,
+        "targetDelta95": [
+          0,
+          6
+        ],
+        "pairedMeanLossDelta": -0.0006480186480186456,
+        "lossDelta95": [
+          -0.06525874125874126,
+          0.054000000000000006
+        ],
+        "pairedMeanTurnsDelta": 0.014125874125874117,
+        "newTargetWins": 1,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.0024040404040403997,
+        "lossDelta95": [
+          -0.2189444444444445,
+          0.19606565656565655
+        ],
+        "pairedMeanTurnsDelta": 0.022308080808080808,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.0028817848817848813,
+        "lossDelta95": [
+          -0.052666666666666674,
+          0.04652480852480853
+        ],
+        "pairedMeanTurnsDelta": -0.012645687645687645,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 47,
+        "afterTarget": 47,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.047326340326340324,
+        "lossDelta95": [
+          -0.16628671328671327,
+          0.25961072261072254
+        ],
+        "pairedMeanTurnsDelta": -0.08656610056610052,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.060833333333333336,
+        "lossDelta95": [
+          -0.15500000000000003,
+          0.01
+        ],
+        "pairedMeanTurnsDelta": 0.004040404040404031,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 43,
+        "afterTarget": 43,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.014722610722610718,
+        "lossDelta95": [
+          -0.05781351981351981,
+          0.018
+        ],
+        "pairedMeanTurnsDelta": 0.005023310023310028,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.00784848484848485,
+        "lossDelta95": [
+          -0.20780808080808083,
+          0.21303030303030304
+        ],
+        "pairedMeanTurnsDelta": -0.009161616161616166,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "调参种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.06769230769230768,
+        "lossDelta95": [
+          0.004813519813519802,
+          0.1392074592074592
+        ],
+        "pairedMeanTurnsDelta": -0.0007758907758907796,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      }
+    ],
+    "wonBefore": 1400,
+    "wonAfter": 1400,
+    "targetBefore": 1290,
+    "targetAfter": 1291
+  },
+  "holdout": {
+    "label": "独立验证种子",
+    "n": 1400,
+    "report": [
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 41,
+        "afterTarget": 38,
+        "targetDeltaPP": -6,
+        "targetDelta95": [
+          -12,
+          0
+        ],
+        "pairedMeanLossDelta": 0.27789943389943395,
+        "lossDelta95": [
+          0.014408591408591414,
+          0.551082917082917
+        ],
+        "pairedMeanTurnsDelta": -0.12837062937062935,
+        "newTargetWins": 0,
+        "lostTargetWins": 3,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.0058181818181818066,
+        "lossDelta95": [
+          -0.07363636363636361,
+          0.06290909090909093
+        ],
+        "pairedMeanTurnsDelta": 0.01090909090909089,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 24,
+        "afterTarget": 25,
+        "targetDeltaPP": 2,
+        "targetDelta95": [
+          0,
+          6
+        ],
+        "pairedMeanLossDelta": -0.01973193473193473,
+        "lossDelta95": [
+          -0.10730769230769231,
+          0.03496503496503497
+        ],
+        "pairedMeanTurnsDelta": 0.006305361305361288,
+        "newTargetWins": 1,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.030727272727272742,
+        "lossDelta95": [
+          -0.05563636363636364,
+          0.13563636363636367
+        ],
+        "pairedMeanTurnsDelta": -0.011484848484848476,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "survival",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 47,
+        "afterTarget": 47,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.005561438561438562,
+        "lossDelta95": [
+          -0.07946386946386946,
+          0.07010989010989009
+        ],
+        "pairedMeanTurnsDelta": -0.018696303696303707,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 47,
+        "afterTarget": 47,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          -6,
+          6
+        ],
+        "pairedMeanLossDelta": 0.1474828504828504,
+        "lossDelta95": [
+          -0.0789393939393939,
+          0.37704995004995007
+        ],
+        "pairedMeanTurnsDelta": -0.09787612387612392,
+        "newTargetWins": 1,
+        "lostTargetWins": 1,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.059454545454545454,
+        "lossDelta95": [
+          0,
+          0.1729090909090909
+        ],
+        "pairedMeanTurnsDelta": 0.0038181818181818273,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 41,
+        "afterTarget": 41,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.003484848484848485,
+        "lossDelta95": [
+          0,
+          0.008787878787878789
+        ],
+        "pairedMeanTurnsDelta": 0.005023310023310028,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.047272727272727265,
+        "lossDelta95": [
+          -0.019000000000000006,
+          0.12163636363636364
+        ],
+        "pairedMeanTurnsDelta": -0.009696969696969706,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "new",
+        "strategy": "synergy",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.025069930069930076,
+        "lossDelta95": [
+          -0.05670163170163168,
+          0.10678088578088576
+        ],
+        "pairedMeanTurnsDelta": 0.007773892773892781,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 29,
+        "afterTarget": 32,
+        "targetDeltaPP": 6,
+        "targetDelta95": [
+          0,
+          14.000000000000002
+        ],
+        "pairedMeanLossDelta": 0.16254745254745248,
+        "lossDelta95": [
+          -0.09803363303363297,
+          0.39897102897102904
+        ],
+        "pairedMeanTurnsDelta": -0.07294205794205795,
+        "newTargetWins": 3,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.013787878787878783,
+        "lossDelta95": [
+          -0.0709090909090909,
+          0.03530303030303031
+        ],
+        "pairedMeanTurnsDelta": 0.0031515151515151807,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 29,
+        "afterTarget": 29,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.07325097125097126,
+        "lossDelta95": [
+          0.009008547008547007,
+          0.15926961926961927
+        ],
+        "pairedMeanTurnsDelta": 0.03325518925518924,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.05214646464646463,
+        "lossDelta95": [
+          -0.08444444444444446,
+          0.1930555555555555
+        ],
+        "pairedMeanTurnsDelta": 0.008055555555555545,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "survival",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 49,
+        "afterTarget": 48,
+        "targetDeltaPP": -2,
+        "targetDelta95": [
+          -6,
+          0
+        ],
+        "pairedMeanLossDelta": -0.03387445887445886,
+        "lossDelta95": [
+          -0.10316350316350315,
+          0.044845154845154854
+        ],
+        "pairedMeanTurnsDelta": 0.0009673659673659608,
+        "newTargetWins": 0,
+        "lostTargetWins": 1,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "duke",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "megidra",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 48,
+        "afterTarget": 48,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0,
+        "lossDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanTurnsDelta": 0,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "chaos",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 47,
+        "afterTarget": 46,
+        "targetDeltaPP": -2,
+        "targetDelta95": [
+          -6,
+          0
+        ],
+        "pairedMeanLossDelta": 0.13570396270396265,
+        "lossDelta95": [
+          -0.11653146853146856,
+          0.4026969696969696
+        ],
+        "pairedMeanTurnsDelta": -0.08297435897435895,
+        "newTargetWins": 0,
+        "lostTargetWins": 1,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "sakuya",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.016666666666666673,
+        "lossDelta95": [
+          -0.08,
+          0.020000000000000007
+        ],
+        "pairedMeanTurnsDelta": 0.006666666666666661,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "kuzuha",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 43,
+        "afterTarget": 43,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": 0.016,
+        "lossDelta95": [
+          0,
+          0.04800000000000001
+        ],
+        "pairedMeanTurnsDelta": 0.0020000000000000104,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "saint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 50,
+        "afterTarget": 50,
+        "targetDeltaPP": 0,
+        "targetDelta95": [
+          0,
+          0
+        ],
+        "pairedMeanLossDelta": -0.04283333333333335,
+        "lossDelta95": [
+          -0.13344444444444445,
+          0.04538888888888888
+        ],
+        "pairedMeanTurnsDelta": 0.014722222222222223,
+        "newTargetWins": 0,
+        "lostTargetWins": 0,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      },
+      {
+        "label": "独立验证种子",
+        "profile": "veteran",
+        "strategy": "synergy",
+        "branch": "blacksaint",
+        "n": 50,
+        "beforeWins": 50,
+        "afterWins": 50,
+        "beforeTarget": 46,
+        "afterTarget": 45,
+        "targetDeltaPP": -2,
+        "targetDelta95": [
+          -6,
+          0
+        ],
+        "pairedMeanLossDelta": -0.03448251748251749,
+        "lossDelta95": [
+          -0.17594405594405596,
+          0.09816783216783218
+        ],
+        "pairedMeanTurnsDelta": -0.018275058275058285,
+        "newTargetWins": 0,
+        "lostTargetWins": 1,
+        "diagnosticsBefore": 0,
+        "diagnosticsAfter": 0
+      }
+    ],
+    "wonBefore": 1400,
+    "wonAfter": 1400,
+    "targetBefore": 1291,
+    "targetAfter": 1289
+  },
+  "combinationSummary": {
+    "sequences": 24,
+    "candidateScenes": 340,
+    "turns": 462,
+    "loops": 12,
+    "loopTruncations": 0,
+    "turnTruncations": 0,
+    "maxTurnPlays": 5
+  },
+  "specificEvidence": {
+    "bloodedgeBefore": {
+      "legal": true,
+      "score": -3,
+      "damage": 13,
+      "prevented": 0,
+      "healing": 0,
+      "cards": 0,
+      "drawn": 0,
+      "energy": -1,
+      "paid": 1,
+      "lifeCost": 3,
+      "future": 0,
+      "burn": 0,
+      "marks": 0,
+      "charge": 0,
+      "strength": 0,
+      "plays": 1,
+      "netLife": -3,
+      "terminal": false,
+      "dead": false,
+      "screen": "battle",
+      "endTurnScreen": "battle",
+      "endTurnHp": 50,
+      "baselineEndTurnHp": 53
+    },
+    "bloodedgeAfter": {
+      "legal": true,
+      "score": 0,
+      "damage": 16,
+      "prevented": 0,
+      "healing": 0,
+      "cards": 0,
+      "drawn": 0,
+      "energy": -1,
+      "paid": 1,
+      "lifeCost": 3,
+      "future": 0,
+      "burn": 0,
+      "marks": 0,
+      "charge": 0,
+      "strength": 0,
+      "plays": 1,
+      "netLife": -3,
+      "terminal": false,
+      "dead": false,
+      "screen": "battle",
+      "endTurnScreen": "battle",
+      "endTurnHp": 50,
+      "baselineEndTurnHp": 53
+    },
+    "copyBatteryBefore": {
+      "legal": true,
+      "score": 4,
+      "damage": 0,
+      "prevented": 0,
+      "healing": 0,
+      "cards": 1,
+      "drawn": 1,
+      "energy": 1,
+      "paid": 1,
+      "lifeCost": 0,
+      "future": 0,
+      "burn": 0,
+      "marks": 0,
+      "charge": 0,
+      "strength": 0,
+      "plays": 2,
+      "netLife": 0,
+      "terminal": false,
+      "dead": false,
+      "screen": "battle",
+      "endTurnScreen": "battle",
+      "endTurnHp": 53,
+      "baselineEndTurnHp": 53
+    },
+    "copyBatteryAfter": {
+      "legal": true,
+      "score": 7,
+      "damage": 0,
+      "prevented": 0,
+      "healing": 0,
+      "cards": 2,
+      "drawn": 2,
+      "energy": 1,
+      "paid": 1,
+      "lifeCost": 0,
+      "future": 0,
+      "burn": 0,
+      "marks": 0,
+      "charge": 0,
+      "strength": 0,
+      "plays": 2,
+      "netLife": 0,
+      "terminal": false,
+      "dead": false,
+      "screen": "battle",
+      "endTurnScreen": "battle",
+      "endTurnHp": 53,
+      "baselineEndTurnHp": 53
+    }
+  },
+  "strategyUsageBefore": {
+    "illusion": {
+      "picked": 70,
+      "used": 64,
+      "upgraded": 12
+    },
+    "bloodedge": {
+      "picked": 50,
+      "used": 1851,
+      "upgraded": 3
+    },
+    "tinyTwister": {
+      "picked": 0,
+      "used": 1302,
+      "upgraded": 1
+    }
+  },
+  "strategyUsageAfter": {
+    "illusion": {
+      "picked": 72,
+      "used": 143,
+      "upgraded": 55
+    },
+    "bloodedge": {
+      "picked": 124,
+      "used": 2160,
+      "upgraded": 8
+    },
+    "tinyTwister": {
+      "picked": 0,
+      "used": 1483,
+      "upgraded": 1
+    }
+  },
+  "limitations": [
+    "配对自助法95%区间为固定策略种子差额的描述，非玩家胜率；50种子仍有较大不确定性。",
+    "每战净失血差额先在每局取均值，再按种子配对；与单份报告的全战斗加权均值不同。",
+    "训练与独立验证种子不重叠；新档案和历史档案分别列示。",
+    "任何目标路线退化、回合延长或失血增加均需结合变化原因，不自动判为统计显著。"
+  ]
+}

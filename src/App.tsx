@@ -1,121 +1,272 @@
-import { HomeScreen } from './components/HomeScreen';
-import { StoryEventView } from './components/StoryEvent';
-import { CampView, RewardView, ShopView } from './components/JourneyScreens';
-import { ExplorationMap } from './components/ExplorationMap';
-import { EvolutionTree, EvolutionTracker } from './components/EvolutionTree';
-import { ItemCodex } from './components/ItemCodex';
-import { DeckViewer } from './components/DeckViewer';
-import type { Pile } from './components/DeckViewer';
-import { EVOLUTIONS, stageName } from './game/evolution';
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
-import { ArrowRight, ArrowLeft, Heart, Shield, Zap, Swords, ScanLine, GitBranch, BookOpen, Backpack, Settings, X, ChevronDown, Coins, Flame, Sparkles, Check, Lock, Radio, Box, Volume2, VolumeX, Download, CircleHelp, RotateCcw, Layers, Crosshair, Activity } from 'lucide-react';
-import { GameCard } from './components/GameCard';
-import { Sprite } from './components/Sprite';
-import { BLESSINGS, BRANCHES, CARDS, CHAPTERS, ENEMIES, FORM_NAMES, RELICS, asset, MAX_COPIES_PER_TURN, cardDefinition, copyCandidates } from './game/data';
-import { cardCost, intent, previewAction, reduceGame } from './game/engine';
+import { useCallback, useEffect, useReducer, useState } from 'react';
+import { Coins, Heart, Layers } from 'lucide-react';
+import { CHAPTERS } from './game/data';
+import { reduceGame } from './game/engine';
 import { loadSave, SAVE_KEY, writeSave } from './game/storage';
-import type { Action, BattleNumber, Partner } from './game/types';
-const inheritance={ember:'余烬：首次施加灼烧额外＋1',ward:'坚守：首次防御额外＋2 护盾',seal:'符心：第一张牌施加符印时额外＋1',flow:'灵巧：第一张牌为技能时获得 2 护盾'};
-type BattleMotion = {actor:'player'|'enemy'|'effect';enemyIds:string[];phase:'windup'|'impact';playerHit:boolean};
-type FloatingNumber = BattleNumber & {key:number;left:number;top:number};
-function Modal({title,children,onClose,wide=false}:{title:string;children:ReactNode;onClose:()=>void;wide?:boolean}){
- const ref=useRef<HTMLDivElement>(null);
- useEffect(()=>{const before=document.activeElement;ref.current?.focus();const handle=(e:KeyboardEvent)=>{if(e.key==='Escape')onClose();if(e.key==='Tab'){const items=ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],input,select');if(!items?.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};document.addEventListener('keydown',handle);return()=>{document.removeEventListener('keydown',handle);if(before instanceof HTMLElement)before.focus();};},[onClose]);
- return <div className="modal-backdrop" onClick={onClose}><div className={`modal ${wide?'wide-modal':''}`} role="dialog" aria-modal="true" aria-label={title} ref={ref} tabIndex={-1} onClick={e=>e.stopPropagation()}><div className="modal-heading"><h2>{title}</h2><button className="icon-btn" onClick={onClose} aria-label="关闭"><X/></button></div>{children}</div></div>;
-}
-function Health({hp,max,block=0}:{hp:number;max:number;block?:number}){return <div className="health"><div className="health-track"><i style={{width:`${100*hp/max}%`}}/></div><span><Heart size={12}/>{hp}<small>/{max}</small>{block>0&&<b><Shield size={12}/>{block}</b>}</span></div>;}
-function SceneDecor({theme}:{theme:string}){return <div className={`scene-decor ${theme}`} aria-hidden="true"><div className="scene-moon"/><div className="horizon h1"/><div className="horizon h2"/><div className="scene-grid"/><i className="particle p1"/><i className="particle p2"/><i className="particle p3"/><i className="particle p4"/></div>;}
-export default function App(){
- const [initial]=useState(loadSave);const [state,dispatch]=useReducer(reduceGame,initial.save);const [saveError,setSaveError]=useState(initial.error);const [screen,setScreen]=useState<'home'|'game'>(()=>initial.save.run&&initial.save.run.screen!=='result'?'game':'home');
- const [homePartner,setHomePartner]=useState<Partner>(initial.save.run?.partner??'guilmon');
- const [modal,setModal]=useState<'deck'|'collection'|'items'|'tree'|'settings'|'help'|'abandon'|'copy'|null>(null);const [selected,setSelected]=useState<string|null>(null);const [target,setTarget]=useState<string|null>(null);const [deckPile,setDeckPile]=useState<Pile>('deck');
- const [motion,setMotion]=useState<BattleMotion|null>(null);const [floatingNumber,setFloatingNumber]=useState<FloatingNumber|null>(null);const [battleBusy,setBattleBusy]=useState(false);const busyRef=useRef(false);const timers=useRef<number[]>([]);const sequence=useRef(0);const enemyStepKey=useRef('');
- const audio=useRef<AudioContext|null>(null);const r=state.run,b=r?.battle;const isActive=!!r&&r.screen!=='result';
- useEffect(()=>{if(initial.error&&state===initial.save)return;setSaveError(writeSave(state));},[state,initial]);
- useEffect(()=>{document.body.classList.toggle('reduce-motion',state.settings.reducedMotion);},[state.settings.reducedMotion]);
- useEffect(()=>()=>{sequence.current++;timers.current.forEach(clearTimeout);timers.current=[];},[]);
- const send=useCallback((action:Action)=>{
-  if(state.settings.sound){try{audio.current??=new AudioContext();void audio.current.resume();const osc=audio.current.createOscillator(),gain=audio.current.createGain();osc.connect(gain);gain.connect(audio.current.destination);osc.type='sine';osc.frequency.value=action.type==='play'?440:620;gain.gain.setValueAtTime(.035,audio.current.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.current.currentTime+.12);osc.start();osc.stop(audio.current.currentTime+.13);}catch{setSaveError('声音无法播放，游戏仍可继续。');}}
-  dispatch(action);setSelected(null);if(action.type==='node'){setTarget(null);}if(action.type==='start')setScreen('game');
- },[state.settings.sound]);
- const queueAction=useCallback((action:Action,actor:BattleMotion['actor'],enemyIds:string[]=[],playerHit=false)=>{
-  if(busyRef.current)return;
-  const feedback=previewAction(state,action);
-  const reduced=state.settings.reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  busyRef.current=true;setBattleBusy(true);
-  const current=++sequence.current;
-  const schedule=(callback:()=>void,delay:number)=>{timers.current.push(window.setTimeout(()=>{if(sequence.current===current)callback();},delay));};
-  if(!reduced)setMotion({actor,enemyIds,phase:'windup',playerHit});
-  const start=reduced?0:170;
-  feedback.forEach((number,index)=>{
-   schedule(()=>{
-    const combatants=document.querySelectorAll('.battle-stage .enemies .enemy');
-    const enemyIndex=state.run?.battle?.enemies.findIndex(enemy=>enemy.uid===number.target)??-1;
-    const element=number.target==='player'?document.querySelector('.battle-stage .player-unit'):combatants[enemyIndex];
-    const bounds=element?.getBoundingClientRect();
-    if(bounds)setFloatingNumber({...number,key:current*100+index,left:Math.max(42,Math.min(window.innerWidth-42,bounds.left+bounds.width/2)),top:Math.max(78,Math.min(window.innerHeight-56,bounds.top+bounds.height*.38))});
-    if(!reduced)setMotion({actor,enemyIds:number.target==='player'?[]:[number.target],phase:'impact',playerHit:number.target==='player'&&number.kind==='damage'});
-    if(index<feedback.length-1&&!reduced)schedule(()=>setMotion({actor,enemyIds,phase:'windup',playerHit}),220);
-   },start+index*(reduced?580:390));
-  });
-  if(!feedback.length&&!reduced)schedule(()=>setMotion({actor,enemyIds,phase:'impact',playerHit}),start);
-  const finish=start+(feedback.length?feedback.length*(reduced?580:390):140);
-  schedule(()=>{send(action);setFloatingNumber(null);setMotion(null);busyRef.current=false;setBattleBusy(false);timers.current=[];},finish);
- },[send,state]);
- useEffect(()=>{
-  if(r?.screen!=='battle'||!b||b.enemyTurnIndex===null||battleBusy)return;
-  const key=`${state.meta.games}-${r.currentNode?.id}-${b.turn}-${b.enemyTurnIndex}`;
-  if(enemyStepKey.current===key)return;
-  enemyStepKey.current=key;
-  if(b.enemyTurnIndex>=b.enemies.length){if(b.enemies.some(enemy=>enemy.hp>0&&enemy.burn>0))queueAction({type:'finishEnemyTurn'},'effect');else dispatch({type:'finishEnemyTurn'});return;}
-  const enemy=b.enemies[b.enemyTurnIndex];
-  if(enemy.hp<=0){dispatch({type:'enemyStep'});return;}
-  queueAction({type:'enemyStep'},'enemy',[enemy.uid],intent(r,enemy).type==='attack');
- },[r,b,battleBusy,queueAction,state.meta.games]);
- function start(partner:Partner){if(initial.error){try{const original=localStorage.getItem(SAVE_KEY);if(original)localStorage.setItem(`${SAVE_KEY}-recovery-${Date.now()}`,original);}catch{setSaveError('旧存档备份失败。');return;}}send({type:'start',partner});}
- const chapter=r?CHAPTERS[Math.min(2,Math.floor(r.row/8))]:CHAPTERS[0];
- const activeCard=b?.hand.find(c=>c.uid===selected);const activeEnemy=b?.enemies.find(e=>e.uid===target&&e.hp>0)??b?.enemies.find(e=>e.hp>0);
- const battleLocked=battleBusy||b?.enemyTurnIndex!==null;
- const copyBlocked=!!activeCard&&CARDS[activeCard.id].special==='copy'&&!!b&&(b.copyUses>=MAX_COPIES_PER_TURN||(cardDefinition(activeCard).copyChoice&&!copyCandidates(b.hand,activeCard.uid).length));
- function playSelectedCard(){if(!activeCard||!b||battleLocked||copyBlocked||cardCost(activeCard)>b.energy)return;const definition=cardDefinition(activeCard);if(definition.special==='copy'){if(b.copyUses>=MAX_COPIES_PER_TURN)return;if(definition.copyChoice){setModal('copy');return;}}const canHit=!!definition.damage||['detonate','markburst','shieldhit','cannon'].includes(definition.special??'');const enemyIds=canHit?(definition.all?b.enemies.filter(e=>e.hp>0).map(e=>e.uid):activeEnemy?[activeEnemy.uid]:[]):[];queueAction({type:'play',uid:activeCard.uid,target:activeEnemy?.uid},'player',enemyIds);}
- const closeModal=useCallback(()=>setModal(null),[]);
- function openDeck(pile:Pile='deck'){setDeckPile(pile);setModal('deck');}
- return <div className="app-shell">
-  <header className={`topbar ${screen==='home'?'home-topbar':''}`}><button className="brand" onClick={()=>setScreen('home')} aria-label="返回首页"><span className="brand-symbol"><ScanLine size={23}/></span><span>数码旅途<small>DIGITAL ODYSSEY</small></span></button><nav aria-label="游戏导航">{screen!=='home'&&<><button className="icon-btn" aria-label="查看进化树" onClick={()=>setModal('tree')}><GitBranch size={18}/></button><button className="icon-btn collection-entry" title="伙伴图鉴" aria-label={`伙伴图鉴，已转化 ${state.meta.partners.length} 位伙伴`} onClick={()=>setModal('collection')}><BookOpen size={18}/><b aria-hidden="true">{state.meta.partners.length}</b></button><button className="icon-btn" title="道具图鉴" aria-label="道具图鉴" onClick={()=>setModal('items')}><Backpack size={19}/></button><button className="icon-btn" aria-label="玩法说明" onClick={()=>setModal('help')}><CircleHelp size={19}/></button></>}<button className="icon-btn" aria-label="设置" onClick={()=>setModal('settings')}><Settings size={19}/></button></nav></header>
-  {floatingNumber&&<output key={floatingNumber.key} className={`battle-number ${floatingNumber.kind} ${floatingNumber.amount===0?'blocked':''}`} style={{left:floatingNumber.left,top:floatingNumber.top}} aria-live="assertive">{floatingNumber.kind==='heal'?'+':'−'}{floatingNumber.amount}</output>}
-  {saveError&&<div className="save-warning" role="alert">{saveError}</div>}
-  {screen==='home'?<HomeScreen run={r} meta={state.meta} partner={homePartner} onSelect={setHomePartner} onStart={start} onContinue={()=>setScreen('game')} onOpen={panel=>panel==='deck'?openDeck():setModal(panel)}/>:r&&<main className="game-layout">
-   <aside className="journey-sidebar"><div className="eyebrow">YOUR JOURNEY</div><h2>{chapter.name}</h2><p>{chapter.subtitle}</p><div className="chapter-steps">{CHAPTERS.map((ch,i)=><div key={ch.name} className={i===Math.floor(r.row/8)?'current':i<Math.floor(r.row/8)?'completed':''}><span>{i<Math.floor(r.row/8)?<Check size={13}/>:String(i+1).padStart(2,'0')}</span><div>{ch.name}<small>{i===Math.floor(r.row/8)?`${r.row%8+1} / 8 节点`:i<Math.floor(r.row/8)?'已穿越':'等待连接'}</small></div></div>)}</div><div className="sidebar-note"><Radio size={20}/><p>选牌塑造战术，<br/>进化决定可能。</p></div><button className="secondary" onClick={()=>setModal('tree')}><GitBranch size={16}/>查看进化路线</button><button className="text-btn" onClick={()=>setScreen('home')}><ArrowLeft size={14}/>返回首页 · 进度已保存</button></aside>
-   <section className={`game-main ${r.screen==='battle'?'is-battle':''} ${['shop','camp','reward','event'].includes(r.screen)?'is-journey':''}`}>
-    <div className="run-status"><div className="status-chapter"><span className="eyebrow">CHAPTER 0{Math.floor(r.row/8)+1}</span><b>{r.screen==='battle'?`第 ${b?.turn??1} 回合`:chapter.name}</b></div><div className="run-resources"><span title="生命"><Heart size={16}/>{r.hp}<small>/{r.maxHp}</small></span><span title="金币"><Coins size={16}/>{r.gold}</span><button aria-label="查看牌组" onClick={()=>openDeck()}><Layers size={17}/><span>卡组</span> {r.deck.length}</button></div></div>
-    {!['shop','camp','reward','event'].includes(r.screen)&&<EvolutionTracker run={r} meta={state.meta} onOpen={()=>setModal('tree')}/> }{r.screen==='map'&&<ExplorationMap run={r} onEnter={id=>send({type:'node',id})} onTree={()=>setModal('tree')}/>}
-    {r.screen==='battle'&&b&&<div className="battle-view"><div className={`battle-stage ${chapter.theme}`}><SceneDecor theme={chapter.theme}/><div className="battle-topline"><span><Crosshair size={13}/>{r.currentNode?.kind==='boss'?'首领战':r.currentNode?.kind==='elite'?'精英遭遇':'数码遭遇'}</span><span>{b.enemyTurnIndex!==null?'敌方行动中':'点击敌人选择目标'}</span></div><div className="enemies">{b.enemies.map(e=>{const plan=intent(r,e);return <button key={e.uid} className={`enemy ${e.hp<=0?'defeated':''} ${activeEnemy?.uid===e.uid?'targeted':''} ${motion?.actor==='enemy'&&motion.enemyIds.includes(e.uid)&&motion.phase==='windup'?'acting':''} ${motion?.actor==='player'&&motion.enemyIds.includes(e.uid)&&motion.phase==='impact'?'taking-hit':''}`} onClick={()=>setTarget(e.uid)} disabled={e.hp<=0||battleLocked} aria-label={`选择目标 ${ENEMIES[e.id].name}`}><span className={`enemy-intent ${plan.type}`} title={plan.detail}>{plan.type==='attack'?<Swords size={14}/>:plan.type==='block'?<Shield size={14}/>:<Sparkles size={14}/>} {plan.name}{plan.type==='attack'&&<b>{plan.damage}{plan.hits>1?`×${plan.hits}`:''}</b>}{plan.shield>0&&<b>{plan.shield}</b>}{plan.heal&&<b>＋{plan.heal}</b>}</span><Sprite id={e.id} size={b.enemies.length>1?175:200}/><span className="enemy-name">{ENEMIES[e.id].name}</span><Health hp={e.hp} max={e.maxHp} block={e.block}/><span className="status-tags">{e.burn>0&&<span><Flame size={12}/>{e.burn}</span>}{e.mark>0&&<span><Sparkles size={12}/>{e.mark}</span>}{e.weakened>0&&<span>虚弱 {e.weakened}</span>}{e.hp<=0&&<span>已击败</span>}</span></button>;})}</div><div className="player-field"><div className={`player-unit ${motion?.actor==='player'&&motion.phase==='windup'?'acting':''} ${motion?.actor==='enemy'&&motion.phase==='impact'&&motion.playerHit?'taking-hit':''}`}><Sprite id={r.form} size={210}/><div className="player-caption"><strong>{FORM_NAMES[r.form]}</strong><span>{r.branch?BRANCHES[r.branch].tag:r.training==='defense'&&r.stage>0?'守护训练':'与你并肩'}</span><Health hp={r.hp} max={r.maxHp} block={b.block}/></div></div><div className="sync-device"><div className="sync-dial"><ScanLine size={23}/><b>{b.sync}<small>/6</small></b></div><span>同步率</span><button disabled={battleLocked||!r.branch||b.sync<6||b.burstUsed} onClick={()=>send({type:'burst'})}>{b.burst>0?`爆发 · ${b.burst} 回合`:b.burstUsed?'本场已爆发':r.branch?'同步爆发':'究极体解锁'}</button></div></div>{b.burst>0&&<div className="burst-banner">同步爆发 · 攻击每段＋2</div>}<div className="battle-log" key={`${b.turn}-${b.played}-${b.log[0]}`} aria-live="polite">{b.log[0]}</div></div>
-     {activeEnemy&&<p className="enemy-mechanic"><strong>{ENEMIES[activeEnemy.id].name} · {intent(r,activeEnemy).name}</strong><span>{intent(r,activeEnemy).detail}</span></p>}<div className="combat-info"><span><Shield size={14}/>护盾 {b.block}</span>{b.strength>0&&<span><Swords size={14}/>力量 {b.strength}</span>}{b.charge>0&&<span><Zap size={14}/>蓄能 {b.charge}</span>}<button className="text-btn" onClick={()=>setModal('help')}>状态说明<CircleHelp size={13}/></button></div>
-     <div className="hand-heading"><span><span className="energy-gem">{b.energy}</span>行动力<small>每回合恢复 3 点</small></span><span className="pile-info"><button onClick={()=>openDeck('draw')}>抽牌 {b.draw.length}</button><button onClick={()=>openDeck('discard')}>弃牌 {b.discard.length}</button><button onClick={()=>openDeck('exhaust')}>耗竭 {b.exhaust.length}</button></span></div>
-     <div className="hand">{b.hand.map(c=><GameCard run={r} key={c.uid} card={c} selected={selected===c.uid} disabled={battleLocked} onClick={()=>selected===c.uid?playSelectedCard():setSelected(c.uid)}/>)}{!b.hand.length&&<p className="empty-hand">手牌已用尽，结束回合抽取新牌。</p>}</div>
-     {copyBlocked&&<p className="enemy-mechanic" role="status">{b.copyUses>=MAX_COPIES_PER_TURN?'本回合复制次数已用完，下一回合恢复。':'手中暂无可复制目标，请先抽牌或选择其他牌。'}</p>}
-     <div className="battle-actions"><button className="support-btn" disabled={battleLocked||b.supportUsed} onClick={()=>queueAction({type:'support',target:activeEnemy?.uid},'effect')}><ScanLine size={17}/><span>{ENEMIES[r.support]?.name??'应急防御'}<small>{b.supportUsed?'本场已使用':r.support==='mushmon'?'虚弱目标':r.support==='picodevimon'?'8 点伤害':r.support==='hagurumon'?'+10 护盾':'+8 护盾'}</small></span></button><button className="potion-btn" disabled={battleLocked||!r.potions||r.hp>=r.maxHp} onClick={()=>queueAction({type:'potion'},'effect')} aria-label={`使用恢复磁盘，剩余${r.potions}个`}><Heart size={18}/><b>{r.potions}</b></button><div className="turn-buttons"><button className="secondary use-card" disabled={!activeCard||battleLocked||copyBlocked||cardCost(activeCard)>b.energy} onClick={playSelectedCard} aria-label={activeCard?`使用 ${CARDS[activeCard.id].name}`:'选择卡片后使用'}><Zap size={16}/>使用</button><button className="primary end-turn" disabled={battleLocked} onClick={()=>send({type:'beginEnemyTurn'})}>结束回合<ArrowRight size={17}/></button></div></div>
-    </div>}
-    {r.screen==='reward'&&<RewardView key={r.currentNode?.id} run={r} meta={state.meta} onAction={send}/>}
-    {r.screen==='blessing'&&<div className="choice-screen"><Sparkles className="large-icon"/><span className="eyebrow">A LITTLE LIGHT FOR THE JOURNEY</span><h1>{r.currentNode?'新的力量，新的旅途。':'带上一份祝福。'}</h1><p>{r.currentNode?'选择新祝福，替换当前祝福。':'选择一种祝福，陪伴这次冒险。'}</p><div className="option-list">{Object.entries(BLESSINGS).map(([id,d])=><button key={id} className="option" onClick={()=>send({type:'bless',id})}><span className="option-icon">{id==='bond'?<Activity/>:id==='guard'?<Shield/>:<Heart/>}</span><span><strong>{d.name}</strong><small>{d.text}</small></span><ArrowRight size={18}/></button>)}</div></div>}
-    {r.screen==='camp'&&<CampView key={r.currentNode?.id} run={r} onAction={send}/>}
-    {r.screen==='shop'&&<ShopView key={r.currentNode?.id} run={r} onAction={send}/>}
-    {r.screen==='event'&&<StoryEventView key={r.currentNode?.id} run={r} meta={state.meta} onAction={send}/>}
+import type { Action, Partner } from './game/types';
+import type { Pile } from './components/DeckViewer';
+import { DeckViewer } from './components/DeckViewer';
+import { EvolutionTree, EvolutionTracker } from './components/EvolutionTree';
+import { ExplorationMap } from './components/ExplorationMap';
+import { ItemCodex } from './components/ItemCodex';
+import { Modal } from './components/Modal';
+import { TopBar } from './components/TopBar';
+import type { ModalKind } from './components/TopBar';
+import { JourneySidebar } from './components/JourneySidebar';
+import { PartnerSidebar } from './components/PartnerSidebar';
+import { CollectionView } from './components/CollectionView';
+import { Codex } from './components/Codex';
+import { HelpView } from './components/HelpView';
+import { SettingsView } from './components/SettingsView';
+import { AbandonView } from './components/AbandonView';
+import { useBattleQueue } from './hooks/useBattleQueue';
+import { HomeScreen } from './components/HomeScreen';
+import { CampView, ShopView, RewardView } from './components/JourneyScreens';
+import { StoryEventView } from './components/StoryEvent';
+import { BattleScreen } from './screens/BattleScreen';
+import { BlessingScreen } from './screens/BlessingScreen';
+import { RestScreen } from './screens/CampScreen';
+import { TreasureScreen } from './screens/TreasureScreen';
+import { EvolutionScreen } from './screens/EvolutionScreen';
+import { ResultScreen } from './screens/ResultScreen';
 
-    {r.screen==='treasure'&&<div className="choice-screen"><Box className="large-icon"/><span className="eyebrow">A GIFT FROM THE DIGITAL WORLD</span><h1>被遗忘的数据。</h1><p>{r.message}</p><div className="treasure-art"><Box size={88}/></div>{r.relics.length>0&&<p>{RELICS[r.relics[r.relics.length-1]]?.text}</p>}<button className="primary" onClick={()=>send({type:'continue'})}>收好，继续前进<ArrowRight size={17}/></button></div>}
-    {r.screen==='evolution'&&<div className="new-evolution-screen"><div className="screen-heading"><span className="eyebrow">DIGIVOLUTION / YOUR CHOICE</span><h1>你们，可以成为谁？</h1><p>{r.evolutionReturn==='camp'?'补进化会消耗本次营地行动；返回不会消耗。':'选择满足条件的下一阶段形态，也可以暂缓，在营地完成。'}</p></div><EvolutionTree key={`${r.form}-${r.evolutionReturn}`} run={r} meta={state.meta} choose onAction={send} onDeck={()=>openDeck()}/></div>}
-    {r.screen==='result'&&<div className="choice-screen final-screen"><span className="eyebrow">{r.won?'UNTIL OUR NEXT ADVENTURE':'THE SIGNAL NEVER FADES'}</span><h1>{r.won?'旅途终点，也是起点。':'这一次，先休息吧。'}</h1><Sprite id={r.form} size={270}/><h2>{FORM_NAMES[r.form]}</h2><p>{r.won?'你们守住了最后的信号。下一次，会选择不同的进化吗？':'搭档的故事还会继续。已获取的扫描数据与伙伴不会丢失。'}</p><div className="run-summary"><span><b>{r.won?24:r.row+1}</b>探索节点</span><span><b>{r.kills}</b>击败敌人</span><span><b>{r.damageDealt}</b>累计伤害</span></div><button className="primary" onClick={()=>setScreen('home')}>开启下一段旅途<ArrowRight size={17}/></button><button className="text-btn" onClick={()=>setModal('collection')}>看看这次收集的伙伴<ScanLine size={15}/></button></div>}
-   </section>
-   <aside className="partner-sidebar"><div className="eyebrow">PARTNER LINK</div><Sprite id={r.form} size={170}/><h2>{FORM_NAMES[r.form]}</h2><p>{r.branch?BRANCHES[r.branch].tag:['成长期','成熟期','完全体'][r.stage]}</p><Health hp={r.hp} max={r.maxHp}/>{r.stage>0&&<div className="passive-note"><GitBranch size={16}/><span>{EVOLUTIONS[r.form]?.passive}<small>{inheritance[r.inherit]}</small></span></div>}<div className="aside-section"><h3><Sparkles size={15}/>旅途祝福</h3><p>{BLESSINGS[r.blessing]?.name??'等待选择'}</p><small>{BLESSINGS[r.blessing]?.text}</small></div><div className="aside-section"><h3><Backpack size={15}/>装置 <span>{r.relics.length}</span></h3>{r.relics.map(id=><div className="relic-item" key={id}><Box size={15}/><span>{RELICS[id].name}<small>{RELICS[id].text}</small></span></div>)}{!r.relics.length&&<small>精英与宝箱中藏着特别的力量。</small>}</div><button className="secondary" onClick={()=>setModal('collection')}><ScanLine size={16}/>{ENEMIES[r.support]?.name??'应急防御程序'}<ChevronDown size={15}/></button><small className="saved-indicator"><span className="signal-dot"/>{saveError?'存档需要处理':'冒险进度已保存'}</small></aside>
-  </main>}
-  {modal==='deck'&&r&&<Modal title={`卡组与牌堆 · ${r.deck.length} 张`} onClose={closeModal} wide><DeckViewer key={deckPile} run={r} initialPile={deckPile}/></Modal>}
-  {modal==='collection'&&<Modal title="扫描与伙伴图鉴" onClose={closeModal}><details className="partner-codex"><summary>搭档形态 · {Object.keys(EVOLUTIONS).length} 种</summary><p className="modal-note">三位初始搭档直接可选；进化形态通过本局成长获得。扫描用于支援伙伴与跨局路线研究。</p><div className="collection-grid">{Object.values(EVOLUTIONS).map(form=><div className="collection-item" key={form.id}><img src={asset(form.id)} alt={FORM_NAMES[form.id]}/><h3>{FORM_NAMES[form.id]}</h3><span>{stageName(form.stage)}</span><p>{form.stage===0?'初始搭档 · 可直接选择':state.meta.discovered.includes(form.id)||r?.formHistory.includes(form.id)?'已到达此形态':'等待进化探索'}</p></div>)}</div><button className="secondary" onClick={()=>setModal('tree')}>查看进化路线<GitBranch size={16}/></button></details><p className="modal-note">战胜普通／精英数码兽＋50% 扫描。三个支援伙伴达到 100% 即可转化；每场支援一次，战斗外可更换。</p>{r&&<button className={`option ${r.support==='default'?'chosen':''}`} disabled={r.screen==='battle'} onClick={()=>send({type:'equip',id:'default'})}><Shield/><span><strong>应急防御程序</strong><small>每场一次，获得 8 护盾。</small></span>{r.support==='default'?<Check/>:<span>装备</span>}</button>}<div className="collection-grid">{Object.values(ENEMIES).filter(e=>e.scan).map(e=>{const progress=state.meta.scans[e.id]??0;const owned=state.meta.partners.includes(e.id);return <div className={`collection-item ${progress===0?'undiscovered':''}`} key={e.id}><img src={asset(e.id)} alt={e.name}/><h3>{e.name}</h3><span>{progress}% <small>{e.support?'支援伙伴':'资料图鉴'}</small></span><progress max={100} value={progress}/><p>{e.support??'收集战斗资料，记录你们的相遇。'}</p>{e.support&&(owned?<button className="secondary" disabled={!r||r.screen==='battle'||r.support===e.id} onClick={()=>send({type:'equip',id:e.id})}>{r?.support===e.id?'已装备':r?.screen==='battle'?'战斗后可更换':'装备支援'}</button>:<button className="secondary" disabled={progress<100} onClick={()=>send({type:'convert',id:e.id})}>{progress<100?<><Lock size={13}/>扫描未完成</>:'转化伙伴'}</button>)}</div>;})}</div></Modal>}
-  {modal==='copy'&&r&&b&&activeCard&&<Modal title="选择复制目标" onClose={closeModal}><p className="modal-note">本回合还可复制 {MAX_COPIES_PER_TURN-b.copyUses} 次。不能复制故障牌、复制品或复制技能牌；取消不会消耗行动力。</p><div className="deck-grid">{copyCandidates(b.hand,activeCard.uid).map(c=><GameCard key={c.uid} run={r} card={c} compact onClick={()=>{setModal(null);queueAction({type:'play',uid:activeCard.uid,copyUid:c.uid},'effect');}}/>)}</div><button className="secondary" onClick={closeModal}>取消复制</button></Modal>}
-  {modal==='items'&&<Modal title="道具图鉴" onClose={closeModal} wide><ItemCodex run={isActive?r:null}/></Modal>}
-  {modal==='tree'&&<Modal title="进化路线与条件" onClose={closeModal} wide><EvolutionTree run={screen==='home'&&!isActive?null:r} initialPartner={homePartner} meta={state.meta} onAction={send}/></Modal>}
-  {modal==='help'&&<Modal title="驯兽师手册" onClose={closeModal}><div className="help-content"><h3>每回合怎么做？</h3><p>先看敌人意图 → 点击卡牌查看详情 → 点击敌人选择目标 →「卡片抽换」。每回合恢复 3 行动力，抽 5 张牌；手牌最多 8 张，抽牌堆用尽会洗回弃牌。</p><h3>护盾、灼烧、符印</h3><p>护盾优先承伤，在你的下回合开始清空。灼烧在敌人行动后造成等层数伤害，再减 1 层。符印由「解印」等卡牌消耗，每层追加伤害。耗竭牌本场不再抽到。</p><h3>路线与条件</h3><p>地图起点在下、首领在上，只能沿连线前进。进化树向右展开；阶段、前置形态、各行行为条件与永久资料需同时满足，同一行“或”满足一项即可。可设定目标追踪。未完成的进化可在营地消耗一次行动补上。</p><h3>行为计数</h3><p>成功出牌才计数：多段、群攻均计一次，技能次数包含强化牌。防御只计算主动出牌，自损与恢复须实际生效。“击败带灼烧的敌人”包含直接攻击击杀带灼烧目标；首次灼烧特性要求实际施加，直接击杀而未叠火不消耗机会。每场每类最多10次，指定卡牌系列最多3次；复制牌不计入指定系列。胜利结算展示本场进度。新局重置行为次数，混沌／净化资料跨局保留。</p><h3>同步与进化</h3><p>每打出一张牌获得 1 同步，每回合最多 3。究极体可消耗 6 同步，开启三回合攻击每段＋2的爆发，并获得强化必杀牌，每场一次。爆发结束不会退化。进化保留到本局结束。</p><h3>扫描与续玩</h3><p>胜利后保存物种扫描度，同场同种只计一次。扫描满 100% 可转化齿轮兽、蘑菇兽、小恶魔兽为支援伙伴。本局失败保留图鉴；换浏览器不会自动同步存档。</p><h3>专属与继承技能</h3><p>通用卡可由任何形态使用。专属技能需在本局到达对应形态后，才会出现在奖励与商店；烈焰引爆由古拉兽与黑古拉兽共享，到达任一形态即可解锁；后续进化仍可使用，标为「继承技能」。未走过的分支不会自动解锁。旧版已经取得的卡牌保留可用，但不会提前再次掉落。</p><h3>状态与强化</h3><p>力量增加每段攻击伤害。蓄能由脉冲炮消耗。强化效果按每张牌独立设置，可在卡组详情查看；功能牌不再统一减费。狐变虚＋可选择复制目标，每回合所有复制牌合计最多生成2个复制品。敌人的「电荷反应」会随当回合出牌数量增加伤害。</p></div></Modal>}
-  {modal==='settings'&&<Modal title="旅途设置" onClose={closeModal}><div className="option-list"><button className="option" onClick={()=>send({type:'settings',key:'sound'})}>{state.settings.sound?<Volume2/>:<VolumeX/>}<span><strong>操作音效</strong><small>{state.settings.sound?'已开启':'已关闭'}</small></span></button><button className="option" onClick={()=>send({type:'settings',key:'reducedMotion'})}><Activity/><span><strong>减少动态效果</strong><small>{state.settings.reducedMotion?'已开启':'已关闭'}</small></span></button><button className="option" onClick={()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='数码旅途-存档备份.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}}><Download/><span><strong>下载存档备份</strong><small>保存当前冒险与图鉴数据</small></span></button></div><p className="modal-note">本地试玩版。角色像素素材来自已有素材档案，帝厉魔代理体为原创程序造型。部分新分支使用官方图鉴静态立绘，其他角色保留像素动画。<a href={`${import.meta.env.BASE_URL}THIRD_PARTY_NOTICES.txt`} target="_blank" rel="noreferrer">查看素材来源</a>。</p></Modal>}
-  {modal==='abandon'&&<Modal title="结束这段旅途？" onClose={closeModal}><p className="modal-note">当前牌组、金币与进化将结束。已获得的扫描数据和伙伴会保留。</p><div className="modal-actions"><button className="secondary" onClick={closeModal}>继续当前旅途</button><button className="primary" onClick={()=>{send({type:'abandon'});setModal(null);setScreen('home');}}><RotateCcw size={16}/>重新出发</button></div></Modal>}
- </div>;
+export default function App() {
+  const [initial] = useState(loadSave);
+  const [state, dispatch] = useReducer(reduceGame, initial.save);
+  const [saveError, setSaveError] = useState(initial.error);
+  const [screen, setScreen] = useState<'home' | 'game'>(() =>
+    initial.save.run && initial.save.run.screen !== 'result' ? 'game' : 'home',
+  );
+  const [homePartner, setHomePartner] = useState<Partner>(initial.save.run?.partner ?? 'guilmon');
+  const [modal, setModal] = useState<ModalKind | null>(null);
+  const [deckPile, setDeckPile] = useState<Pile>('deck');
+  const [audio] = useState<{ current: AudioContext | null }>(() => ({ current: null }));
+  const r = state.run,
+    b = r?.battle;
+  const isActive = !!r && r.screen !== 'result';
+
+  useEffect(() => {
+    if (initial.error && state === initial.save) return;
+    setSaveError(writeSave(state));
+  }, [state, initial]);
+  useEffect(() => {
+    document.body.classList.toggle('reduce-motion', state.settings.reducedMotion);
+  }, [state.settings.reducedMotion]);
+
+  const send = useCallback(
+    (action: Action) => {
+      if (state.settings.sound) {
+        try {
+          audio.current ??= new AudioContext();
+          void audio.current.resume();
+          const osc = audio.current.createOscillator(),
+            gain = audio.current.createGain();
+          osc.connect(gain);
+          gain.connect(audio.current.destination);
+          osc.type = 'sine';
+          osc.frequency.value = action.type === 'play' ? 440 : 620;
+          gain.gain.setValueAtTime(0.035, audio.current.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audio.current.currentTime + 0.12);
+          osc.start();
+          osc.stop(audio.current.currentTime + 0.13);
+        } catch {
+          setSaveError('声音无法播放，游戏仍可继续。');
+        }
+      }
+      dispatch(action);
+      if (action.type === 'start') setScreen('game');
+    },
+    [state.settings.sound, audio],
+  );
+  const { motion, floatingNumber, battleBusy, queueAction } = useBattleQueue(state, dispatch, send);
+
+  function start(partner: Partner) {
+    if (initial.error) {
+      try {
+        const original = localStorage.getItem(SAVE_KEY);
+        if (original) localStorage.setItem(`${SAVE_KEY}-recovery-${Date.now()}`, original);
+      } catch {
+        setSaveError('旧存档备份失败。');
+        return;
+      }
+    }
+    send({ type: 'start', partner });
+  }
+  const chapter = r ? CHAPTERS[Math.floor(r.row / r.chapterRows)] : CHAPTERS[0];
+  const closeModal = useCallback(() => setModal(null), []);
+  function openDeck(pile: Pile = 'deck') {
+    setDeckPile(pile);
+    setModal('deck');
+  }
+
+  return (
+    <div className="app-shell">
+      <TopBar
+        showDeck={screen === 'home' && !!r}
+        partnerCount={state.meta.partners.length}
+        onHome={() => setScreen('home')}
+        onOpenDeck={() => openDeck()}
+        onOpenModal={setModal}
+      />
+      {floatingNumber && (
+        <output
+          key={floatingNumber.key}
+          className={`battle-number ${floatingNumber.kind} ${floatingNumber.amount === 0 ? 'blocked' : ''}`}
+          style={{ left: floatingNumber.left, top: floatingNumber.top }}
+          aria-live="assertive"
+        >
+          {floatingNumber.kind === 'heal' ? '+' : '−'}
+          {floatingNumber.amount}
+        </output>
+      )}
+      {saveError && (
+        <div className="save-warning" role="alert">
+          {saveError}
+        </div>
+      )}
+      {screen === 'home' ? (
+        <HomeScreen
+          run={r}
+          meta={state.meta}
+          partner={homePartner}
+          onSelect={setHomePartner}
+          onStart={start}
+          onContinue={() => setScreen('game')}
+          onOpen={(panel) => (panel === 'deck' ? openDeck() : setModal(panel))}
+        />
+      ) : (
+        r && (
+          <main className="game-layout">
+            <JourneySidebar
+              run={r}
+              onTree={() => setModal('tree')}
+              onHome={() => setScreen('home')}
+            />
+            <section className={`game-main ${r.screen === 'battle' ? 'is-battle' : ''}`}>
+              <div className="run-status">
+                <div className="status-chapter">
+                  <span className="eyebrow">CHAPTER 0{Math.floor(r.row / r.chapterRows) + 1}</span>
+                  <b>{r.screen === 'battle' ? `第 ${b?.turn ?? 1} 回合` : chapter.name}</b>
+                </div>
+                <div className="run-resources">
+                  <span title="生命">
+                    <Heart size={16} />
+                    {r.hp}
+                    <small>/{r.maxHp}</small>
+                  </span>
+                  <span title="金币">
+                    <Coins size={16} />
+                    {r.gold}
+                  </span>
+                  <button aria-label="查看牌组" onClick={() => openDeck()}>
+                    <Layers size={17} />
+                    <span>卡组</span> {r.deck.length}
+                  </button>
+                </div>
+              </div>
+              <EvolutionTracker run={r} meta={state.meta} onOpen={() => setModal('tree')} />
+              {r.screen === 'map' && (
+                <ExplorationMap
+                  run={r}
+                  onEnter={(id) => send({ type: 'node', id })}
+                  onTree={() => setModal('tree')}
+                />
+              )}
+              {r.screen === 'battle' && b && (
+                <BattleScreen
+                  run={r}
+                  battle={b}
+                  theme={chapter.theme}
+                  motion={motion}
+                  battleBusy={battleBusy}
+                  queueAction={queueAction}
+                  send={send}
+                  openDeck={openDeck}
+                  onHelp={() => setModal('help')}
+                />
+              )}
+              {r.screen === 'reward' && r.reward && (
+                <RewardView key={r.currentNode?.id} run={r} meta={state.meta} onAction={send} />
+              )}
+              {r.screen === 'blessing' && <BlessingScreen run={r} send={send} />}
+              {r.screen === 'camp' && <CampView key={r.currentNode?.id} run={r} onAction={send} />}
+              {r.screen === 'rest' && <RestScreen run={r} send={send} />}
+              {r.screen === 'shop' && <ShopView key={r.currentNode?.id} run={r} onAction={send} />}
+              {r.screen === 'event' && (
+                <StoryEventView key={r.currentNode?.id} run={r} meta={state.meta} onAction={send} />
+              )}
+              {r.screen === 'treasure' && <TreasureScreen run={r} send={send} />}
+              {r.screen === 'evolution' && (
+                <EvolutionScreen run={r} meta={state.meta} send={send} onDeck={() => openDeck()} />
+              )}
+              {r.screen === 'result' && (
+                <ResultScreen
+                  run={r}
+                  onHome={() => setScreen('home')}
+                  onCollection={() => setModal('collection')}
+                />
+              )}
+            </section>
+            <PartnerSidebar
+              run={r}
+              saveError={saveError}
+              onCollection={() => setModal('collection')}
+            />
+          </main>
+        )
+      )}
+      {modal === 'deck' && r && (
+        <Modal title={`卡组与牌堆 · ${r.deck.length} 张`} onClose={closeModal} wide>
+          <DeckViewer key={deckPile} run={r} initialPile={deckPile} />
+        </Modal>
+      )}
+      {modal === 'collection' && (
+        <Modal title="扫描与伙伴图鉴" onClose={closeModal}>
+          <CollectionView run={r} meta={state.meta} send={send} onTree={() => setModal('tree')} />
+        </Modal>
+      )}
+      {modal === 'items' && (
+        <Modal title="道具图鉴" onClose={closeModal} wide>
+          <ItemCodex run={isActive ? r : null} />
+        </Modal>
+      )}
+      {modal === 'codex' && (
+        <Modal title="数码图鉴" onClose={closeModal} wide>
+          <Codex meta={state.meta} />
+        </Modal>
+      )}
+      {modal === 'tree' && (
+        <Modal title="进化路线与条件" onClose={closeModal} wide>
+          <EvolutionTree
+            run={isActive ? r : null}
+            initialPartner={homePartner}
+            meta={state.meta}
+            onAction={send}
+          />
+        </Modal>
+      )}
+      {modal === 'help' && (
+        <Modal title="驯兽师手册" onClose={closeModal}>
+          <HelpView />
+        </Modal>
+      )}
+      {modal === 'settings' && (
+        <Modal title="旅途设置" onClose={closeModal}>
+          <SettingsView state={state} send={send} />
+        </Modal>
+      )}
+      {modal === 'abandon' && (
+        <Modal title="结束这段旅途？" onClose={closeModal}>
+          <AbandonView
+            onCancel={closeModal}
+            onConfirm={() => {
+              send({ type: 'abandon' });
+              setModal(null);
+              setScreen('home');
+            }}
+          />
+        </Modal>
+      )}
+    </div>
+  );
 }

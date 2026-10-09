@@ -1,0 +1,11 @@
+dist
+assets
+public
+previews
+tools
+node_modules
+src/game/sprites.json
+*.md
+
+# 审核工具生成的历史样本，保留原始报告与哈希
+reports/*.json

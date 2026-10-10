@@ -24,6 +24,7 @@ import {
 import { stageName } from '../game/evolution';
 import { AttributeLabel } from './AttributeLabel';
 import type { Meta, Partner, Run } from '../game/types';
+import { APP_VERSION } from '../version';
 import './HomeScreen.css';
 
 export type HomePanel = 'codex' | 'deck' | 'tree' | 'collection' | 'items' | 'help' | 'abandon';
@@ -244,7 +245,10 @@ export function HomeScreen({
       </nav>
       <footer className="start-footer">
         <span>每一段旅程，都会留下数据与回忆。</span>
-        <span>本地试玩版 0.2{meta.wins > 0 && ` · ${meta.wins} 次完成旅途`}</span>
+        <span>
+          本地试玩版 {APP_VERSION}
+          {meta.wins > 0 && ` · ${meta.wins} 次完成旅途`}
+        </span>
       </footer>
     </main>
   );

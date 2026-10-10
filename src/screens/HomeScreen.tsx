@@ -13,6 +13,7 @@ import { BRANCHES, CARDS, ENEMIES, FORM_NAMES, PARTNERS, PARTNER_IDS } from '../
 import type { Partner, Run } from '../game/types';
 import { SceneDecor } from '../components/SceneDecor';
 import { Sprite } from '../components/Sprite';
+import { APP_VERSION } from '../version';
 
 export function HomeScreen({
   run,
@@ -197,7 +198,9 @@ export function HomeScreen({
       </section>
       <footer className="home-footer">
         <span>每一段旅程，都会留下数据与回忆。</span>
-        <span>本地试玩版 0.3 · {wins} 次完成旅途</span>
+        <span>
+          本地试玩版 {APP_VERSION} · {wins} 次完成旅途
+        </span>
       </footer>
     </main>
   );

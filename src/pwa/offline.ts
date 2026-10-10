@@ -32,6 +32,26 @@ let registration: ServiceWorkerRegistration | undefined;
 let installPrompt: InstallPrompt | undefined;
 let started = false;
 let lastCheck = 0;
+let retryTimer: number | undefined;
+let automaticRetries = 0;
+
+function cancelRetry() {
+  window.clearTimeout(retryTimer);
+  retryTimer = undefined;
+}
+
+function retryPreparation() {
+  if (!navigator.onLine || automaticRetries >= 2 || retryTimer !== undefined) return;
+  automaticRetries += 1;
+  change({
+    status: 'preparing',
+    message: `资源下载中断，正在自动重试（${automaticRetries}/2）。`,
+  });
+  retryTimer = window.setTimeout(() => {
+    retryTimer = undefined;
+    void checkOffline(false);
+  }, automaticRetries * 1500);
+}
 
 function change(patch: Partial<OfflineState>) {
   snapshot = { ...snapshot, ...patch };
@@ -70,7 +90,17 @@ async function verifyOffline() {
       files.map((file: string) => caches.match(new URL(file, base), { ignoreSearch: true })),
     );
     const ready = cached.every(Boolean);
-    change({ status: ready ? 'ready' : 'error' });
+    if (ready) {
+      cancelRetry();
+      automaticRetries = 0;
+      change({ status: 'ready', message: '' });
+    } else {
+      const missing = files.filter((_, index) => !cached[index]);
+      change({
+        status: 'error',
+        message: `还有 ${missing.length} 个资源未缓存（${missing[0]}），请在设置中重试离线准备。`,
+      });
+    }
     return ready;
   } catch {
     change({ status: 'error', message: '离线资源检查失败，请联网后重试。' });
@@ -91,22 +121,35 @@ function register() {
       if (value?.active) void verifyOffline();
       const watchInstall = () => {
         const worker = value?.installing;
-        worker?.addEventListener('statechange', () => {
-          if (worker.state === 'redundant')
+        if (!worker) return;
+        const stateChanged = () => {
+          if (worker.state === 'installed' || worker.state === 'redundant')
+            worker.removeEventListener('statechange', stateChanged);
+          // 已成功安装的旧 worker 日后被替换也会 redundant，不能误报下载失败。
+          if (worker.state === 'redundant' && value === registration) {
             change({
-              message: '离线资源下载未完成，请联网后重试。',
-              ...(value?.active ? {} : { status: 'error' }),
+              message:
+                snapshot.status === 'ready'
+                  ? '离线资源下载未完成，请联网后重试。'
+                  : '离线资源下载未完成，请在设置中重试离线准备。',
+              ...(snapshot.status === 'ready' ? {} : { status: 'error' }),
             });
-        });
+            if (snapshot.status !== 'ready') retryPreparation();
+          }
+        };
+        worker.addEventListener('statechange', stateChanged);
+        stateChanged();
       };
       watchInstall();
       value?.addEventListener('updatefound', watchInstall);
     },
-    onRegisterError: () =>
+    onRegisterError: () => {
       change({
         status: snapshot.status === 'ready' ? 'ready' : 'error',
         message: '离线资源尚未准备完成，请联网后重试。',
-      }),
+      });
+      if (snapshot.status !== 'ready') retryPreparation();
+    },
   });
 }
 
@@ -134,12 +177,16 @@ export function startOffline() {
   register();
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && Date.now() - lastCheck > 60_000)
-      void checkOffline();
+      void checkOffline(false);
   });
 }
 
-export async function checkOffline() {
+export async function checkOffline(resetRetries = true) {
   if (snapshot.checking || snapshot.status === 'unavailable') return;
+  if (resetRetries) {
+    cancelRetry();
+    automaticRetries = 0;
+  }
   lastCheck = Date.now();
   change({ checking: true, message: '' });
   try {

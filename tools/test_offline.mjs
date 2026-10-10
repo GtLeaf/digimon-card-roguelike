@@ -50,6 +50,8 @@ await generateSW({
 
 let current = versionA;
 let failAsset = false;
+let transientFailures = 1;
+let noticesRequests = 0;
 const types = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.txt': 'text/plain' };
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
@@ -59,7 +61,13 @@ const server = createServer(async (req, res) => {
     return;
   }
   if (!url.pathname.startsWith(prefix)) { res.writeHead(404); res.end(); return; }
-  if (failAsset && url.pathname.endsWith('THIRD_PARTY_NOTICES.txt')) { res.writeHead(503); res.end(); return; }
+  if (url.pathname.endsWith('THIRD_PARTY_NOTICES.txt')) {
+    noticesRequests += 1;
+    if (failAsset || transientFailures > 0) {
+      if (transientFailures > 0) transientFailures -= 1;
+      res.writeHead(503); res.end(); return;
+    }
+  }
   const name = decodeURIComponent(url.pathname.slice(prefix.length)) || 'index.html';
   const file = resolve(current, name);
   if (!file.startsWith(current + '/')) { res.writeHead(404); res.end(); return; }
@@ -89,6 +97,9 @@ try {
   watch(page);
   await page.goto(url);
   await expect(page.getByText('已可离线游玩 · 断网后也能重新打开')).toBeVisible({ timeout: 30_000 });
+  assert.equal(transientFailures, 0);
+  assert.equal(noticesRequests, 2);
+  result('首次资源短暂下载失败后自动重试成功，无需手动刷新且不残留失败提示');
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
   assert.equal(await page.evaluate(async () => (await navigator.serviceWorker.ready).scope), url);
   await page.screenshot({ path: join(screenshots, 'home-390.png'), fullPage: true });
@@ -223,12 +234,16 @@ try {
 
   // 首次下载不完整不能宣称就绪，联网重试后才可以离线使用。
   failAsset = true;
+  const requestsBeforeFailure = noticesRequests;
   const fresh = await browser.newContext();
   try {
     const first = await fresh.newPage();
     watch(first);
     await first.goto(url);
+    await expect.poll(() => noticesRequests - requestsBeforeFailure, { timeout: 15_000 }).toBe(3);
+    await expect(first.getByText('离线资源下载未完成，请在设置中重试离线准备。', { exact: false })).toBeVisible();
     await expect(first.getByText('离线资源尚未准备完成 · 请保持联网', { exact: false })).toBeVisible({ timeout: 30_000 });
+    assert.equal(noticesRequests - requestsBeforeFailure, 3, '持续失败时仅自动重试两次');
     failAsset = false;
     await settings(first);
     await first.getByRole('button', { name: /重试离线准备/ }).click();
@@ -262,7 +277,7 @@ try {
     result('关闭整个浏览器进程后，断网冷启动与存档恢复成功');
   } finally { await cold.close(); }
   assert.deepEqual(errors, [], '存在浏览器未捕获异常');
-  await writeFile(join(screenshots, 'verification.json'), JSON.stringify({ date: '2026-10-09', resources: manifest.length, browser: await browser.version(), results, uncaughtErrors: errors, limits: '桌面Chromium手机视口；未做iOS／Android真机或真实安装验收。' }, null, 2) + '\n');
+  await writeFile(join(screenshots, 'verification.json'), JSON.stringify({ date: '2026-10-10', resources: manifest.length, browser: await browser.version(), results, uncaughtErrors: errors, limits: '桌面Chromium手机视口；未做iOS／Android真机或真实安装验收。' }, null, 2) + '\n');
   console.log(`离线浏览器验收通过，共 ${results.length} 组；报告位于 docs/reports/offline/。`);
 } finally {
   await browser.close();

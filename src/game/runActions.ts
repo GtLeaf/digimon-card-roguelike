@@ -1,7 +1,12 @@
 import { offerEligible, weightedOffers } from './cardSkills';
 import { awardRelic, afterReward, beginBattle, finishNode } from './battle';
 import { BRANCHES, CARDS, PARTNERS, RELICS, inheritanceOptions } from './data';
-import { EVOLUTIONS, evolutionCardGains, evolutionStatus, stageLimit } from './evolution';
+import {
+  EVOLUTIONS,
+  evolutionCardGains,
+  evolutionStatus,
+  hasEvolutionOpportunity,
+} from './evolution';
 import { applyEvent } from './events';
 import { availableNodes } from './map';
 import { makeCard } from './random';
@@ -25,8 +30,13 @@ export function nodeAction(s: Save, action: Extract<Action, { type: 'node' }>): 
   else {
     r.screen = n.kind as Run['screen'];
     if (n.kind === 'evolution') {
+      // 旧地图的究极体休整继续可用；未开放后继的旧节点直接通过，不额外提供治疗。
       if (r.stage >= 3) r.screen = 'rest';
-      else r.evolutionReturn = 'node';
+      else if (hasEvolutionOpportunity(r)) r.evolutionReturn = 'node';
+      else {
+        finishNode(r);
+        r.message = '当前没有已开放的后续进化，已继续探索。';
+      }
     }
     if (n.kind === 'camp') r.supportSpent = false;
     if (n.kind === 'shop') {
@@ -200,7 +210,7 @@ export function evolveAction(s: Save, action: Extract<Action, { type: 'evolve' }
   if (r.evolutionReturn === 'camp') {
     finishNode(r);
     r.evolutionReturn = 'node';
-  } else if (r.stage < stageLimit(r)) {
+  } else if (hasEvolutionOpportunity(r)) {
     r.screen = 'evolution';
   } else if (r.currentNode?.kind === 'boss') r.screen = 'blessing';
   else finishNode(r);

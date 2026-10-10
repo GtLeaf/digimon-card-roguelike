@@ -73,6 +73,8 @@ export function StoryEventView({
           mode={choice.effect.card}
           title={choice.title}
           cost={choice.effect.goldCost}
+          context="event"
+          outcome={eventChoicePreview(run, choice)}
           blocked={eventChoiceBlock(run, choice)}
           onClose={() => setPending(null)}
           onConfirm={(uid) => onAction({ type: 'event', choice: choice.id, uid })}

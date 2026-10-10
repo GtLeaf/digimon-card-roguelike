@@ -6,6 +6,7 @@ import {
   cardTarget,
   emptySave,
   enemyCountdown,
+  enemyEnrage,
   enemyIntents,
   intent,
   makeRun,
@@ -219,11 +220,177 @@ describe('enemy pacing and formation persistence', () => {
       if (n % 4 === 3) expect(enemyCountdown(s.run!, e)).toBe('装填窗口');
       const hp = s.run!.hp;
       s = reduceGame(s, { type: 'endTurn' });
-      expect(hp - s.run!.hp).toBe(n % 4 === 3 ? 0 : 18);
+      expect(hp - s.run!.hp).toBe([18, 15, 21, 0][n % 4]);
       if (n % 4 === 3) expect(s.run!.battle!.enemies[0]).toMatchObject({ devour: 0, block: 12 });
     }
-    expect(names).toEqual(Array(2).fill(['连续射击', '连续射击', '死亡加农', '重新装填']).flat());
-    expect(damage).toEqual([18, 18, 18, 0, 18, 18, 18, 0]);
+    expect(names).toEqual(Array(2).fill(['连续射击', '压制射击', '死亡加农', '重新装填']).flat());
+    expect(damage).toEqual([18, 15, 21, 0, 18, 15, 21, 0]);
+  });
+
+  it.each([
+    [4, 17, 21],
+    [3, 18, 14],
+  ])(
+    'only weakens the cannon when three strikes pass the 18 HP threshold (shield %s)',
+    (shield, stagger, damage) => {
+      let s = fight(['beelzebumon'], 1, 'boss');
+      s.run!.battle!.turn = 3;
+      s.run!.battle!.enemies[0].block = shield;
+      hand(s, ['strike', 'strike', 'strike']);
+      for (let n = 0; n < 3; n++) s = reduceGame(s, { type: 'play', uid: `card${n}` });
+      const e = s.run!.battle!.enemies[0];
+      expect(e.stagger).toBe(stagger);
+      expect(intent(s.run!, e)).toMatchObject({
+        name: '死亡加农',
+        type: 'attack',
+        damage,
+        hits: 1,
+      });
+      expect(enemyCountdown(s.run!, e)).toContain(stagger === 18 ? '已压制' : '17/18');
+      const hp = s.run!.hp;
+      s = reduceGame(s, { type: 'endTurn' });
+      expect(hp - s.run!.hp).toBe(damage);
+    },
+  );
+
+  it('persists a weakened cannon through reload, stacks weakness, clears devour and resets the next cycle', () => {
+    let s = fight(['beelzebumon'], 1, 'boss');
+    s.run!.battle!.turn = 3;
+    s.run!.battle!.enemies[0].devour = 2;
+    s.run!.battle!.enemies[0].block = 3; // 三张攻击指令共21伤害，扣盾后刚好18生命伤害。
+    hand(s, ['strike', 'strike', 'strike', 'taunt']);
+    for (let n = 0; n < 4; n++) s = reduceGame(s, { type: 'play', uid: `card${n}` });
+    s = parseSave(JSON.stringify(s));
+    const e = s.run!.battle!.enemies[0];
+    expect(e).toMatchObject({ stagger: 18, weakened: 2, devour: 2 });
+    expect(intent(s.run!, e)).toMatchObject({ name: '死亡加农', damage: 12, hits: 1 });
+    s = reduceGame(s, { type: 'beginEnemyTurn' });
+    const hp = s.run!.hp;
+    s = reduceGame(s, { type: 'enemyStep' });
+    expect(hp - s.run!.hp).toBe(12);
+    expect(s.run!.battle!.enemies[0]).toMatchObject({ devour: 0, weakened: 0 });
+    s = parseSave(JSON.stringify(s));
+    s = reduceGame(s, { type: 'finishEnemyTurn' });
+    expect(s.run!.battle!.enemies[0].stagger).toBe(0);
+    for (let n = 0; n < 3; n++) s = reduceGame(s, { type: 'endTurn' });
+    expect(s.run!.battle!.turn).toBe(7);
+    expect(enemyCountdown(s.run!, s.run!.battle!.enemies[0])).toContain('0/18');
+    expect(intent(s.run!, s.run!.battle!.enemies[0])).toMatchObject({
+      name: '死亡加农',
+      damage: 21,
+    });
+  });
+
+  it('keeps an old saved early cannon suppressible before the third beat', () => {
+    let s = fight(['beelzebumon'], 1, 'boss');
+    s.run!.battle!.enemies[0].devour = 2;
+    s.run!.battle!.enemies[0].block = 3;
+    s = parseSave(JSON.stringify(s));
+    expect(s.run!.battle!.turn).toBe(1);
+    expect(intent(s.run!, s.run!.battle!.enemies[0])).toMatchObject({
+      name: '死亡加农',
+      damage: 21,
+      hits: 1,
+    });
+    hand(s, ['strike', 'strike', 'strike']);
+    for (let n = 0; n < 3; n++) s = reduceGame(s, { type: 'play', uid: `card${n}` });
+    s = parseSave(JSON.stringify(s));
+    const e = s.run!.battle!.enemies[0];
+    expect(e).toMatchObject({ devour: 2, stagger: 18 });
+    expect(enemyCountdown(s.run!, e)).toBe('加农已压制');
+    expect(intent(s.run!, e)).toMatchObject({ name: '死亡加农', damage: 14, hits: 1 });
+    const hp = s.run!.hp;
+    s = reduceGame(s, { type: 'beginEnemyTurn' });
+    s = reduceGame(s, { type: 'enemyStep' });
+    expect(hp - s.run!.hp).toBe(14);
+    expect(s.run!.battle!.enemies[0].devour).toBe(0);
+    s = reduceGame(s, { type: 'finishEnemyTurn' });
+    expect(s.run!.battle!.enemies[0].stagger).toBe(0);
+  });
+
+  it('neither shield absorption nor an 18-point burn tick contributes to the cannon threshold', () => {
+    let blocked = fight(['beelzebumon'], 1, 'boss');
+    blocked.run!.battle!.turn = 3;
+    blocked.run!.battle!.enemies[0].block = 21;
+    hand(blocked, ['strike', 'strike', 'strike']);
+    for (let n = 0; n < 3; n++) blocked = reduceGame(blocked, { type: 'play', uid: `card${n}` });
+    expect(blocked.run!.battle!.enemies[0]).toMatchObject({ hp: 148, stagger: 0 });
+    expect(intent(blocked.run!, blocked.run!.battle!.enemies[0]).damage).toBe(21);
+
+    let burning = fight(['beelzebumon'], 1, 'boss');
+    burning.run!.battle!.turn = 2;
+    hand(burning, Array(6).fill('apocalypse'));
+    for (let n = 0; n < 6; n++) burning = reduceGame(burning, { type: 'play', uid: `card${n}` });
+    expect(burning.run!.battle!.enemies[0]).toMatchObject({ burn: 18, hp: 148, stagger: 0 });
+    burning = reduceGame(burning, { type: 'beginEnemyTurn' });
+    burning = reduceGame(burning, { type: 'enemyStep' });
+    burning = reduceGame(burning, { type: 'finishEnemyTurn' });
+    expect(burning.run!.battle!.enemies[0]).toMatchObject({ burn: 17, hp: 130, stagger: 0 });
+    expect(burning.run!.damageDealt).toBe(18);
+    expect(intent(burning.run!, burning.run!.battle!.enemies[0]).damage).toBe(21);
+  });
+
+  it('keeps weakness applied during reload for the following volley and then consumes it', () => {
+    let s = fight(['beelzebumon'], 1, 'boss');
+    s.run!.battle!.turn = 4;
+    hand(s, ['taunt']);
+    s = reduceGame(s, { type: 'play', uid: 'card0' });
+    s = reduceGame(s, { type: 'endTurn' });
+    s = parseSave(JSON.stringify(s));
+    expect(s.run!.battle!.enemies[0]).toMatchObject({ weakened: 2, block: 12, devour: 0 });
+    expect(intent(s.run!, s.run!.battle!.enemies[0])).toMatchObject({ damage: 4, hits: 3 });
+    const hp = s.run!.hp;
+    s = reduceGame(s, { type: 'endTurn' });
+    expect(hp - s.run!.hp).toBe(12);
+    expect(s.run!.battle!.enemies[0].weakened).toBe(0);
+    expect(intent(s.run!, s.run!.battle!.enemies[0])).toMatchObject({
+      name: '压制射击',
+      damage: 5,
+      hits: 3,
+    });
+  });
+
+  it('matches the capped total-action rage budget to queued damage from turn 13 through 19', () => {
+    let s = fight(['beelzebumon'], 1, 'boss');
+    s.run!.battle!.turn = 13;
+    const totals = [21, 18, 27, 0, 24, 21, 27];
+    for (let n = 0; n < totals.length; n++) {
+      const r = s.run!;
+      const e = r.battle!.enemies[0];
+      expect(r.battle!.turn).toBe(13 + n);
+      expect(enemyEnrage(r, e)).toBe(n < 2 ? 3 : 6);
+      const before = structuredClone(s);
+      const plan = intent(r, e);
+      expect(s).toEqual(before);
+      expect(plan.damage * plan.hits).toBe(totals[n]);
+      const hp = r.hp;
+      s = reduceGame(s, { type: 'beginEnemyTurn' });
+      s = reduceGame(s, { type: 'enemyStep' });
+      expect(hp - s.run!.hp).toBe(totals[n]);
+      s = reduceGame(s, { type: 'finishEnemyTurn' });
+    }
+    const ordinary = fight(['beelzebumon'], 1);
+    ordinary.run!.battle!.turn = 13;
+    ordinary.run!.battle!.enemies[0].strength = 0;
+    expect(enemyEnrage(ordinary.run!, ordinary.run!.battle!.enemies[0])).toBe(0);
+    expect(intent(ordinary.run!, ordinary.run!.battle!.enemies[0]).damage).toBe(6);
+  });
+
+  it.each([
+    [13, 2, 2, 13, 2],
+    [14, 0, 4, 20, 1],
+    [15, 0, 6, 17, 2],
+    [19, 2, 6, 17, 2],
+  ])('other bosses retain their per-hit rage at turn %s', (turn, offset, rage, damage, hits) => {
+    let s = fight(['diaboromon'], 3, 'boss', [{ phaseOffset: offset }]);
+    s.run!.battle!.turn = turn;
+    const e = s.run!.battle!.enemies[0];
+    expect(enemyEnrage(s.run!, e)).toBe(rage);
+    expect(intent(s.run!, e)).toMatchObject({ damage, hits });
+    const hp = s.run!.hp;
+    s = reduceGame(s, { type: 'beginEnemyTurn' });
+    s = reduceGame(s, { type: 'enemyStep' });
+    expect(hp - s.run!.hp).toBe(damage * hits);
   });
 
   it('stays predictable after saving an offset formation or loading old saves without modifiers', () => {

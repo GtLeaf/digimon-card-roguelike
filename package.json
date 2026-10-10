@@ -1,6 +1,6 @@
 {
   "name": "digimon-card-journey",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,6 +15,8 @@
     "audit:compare": "node tools/compare_balance.mjs",
     "audit:guilmon": "node tools/audit_guilmon_routes.mjs",
     "audit:enemies": "node tools/audit_enemy_ai.mjs",
+    "audit:exploration": "node tools/audit_exploration.mjs",
+    "audit:boss2": "node tools/audit_boss2.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
     "format": "prettier --write .",

@@ -209,15 +209,15 @@ describe('progress, scanning and evolution', () => {
     s.run!.screen = 'map';
     s.run!.battle = null;
     s.run!.currentNode = null;
-    s.run!.row = 5;
-    s.run!.path = [];
-    const camp = s.run!.nodes[5].find((n) => n.kind === 'camp')!;
+    s.run!.row = 8;
+    s.run!.path = [s.run!.nodes[7][0].id];
+    const camp = s.run!.nodes[8].find((n) => n.kind === 'camp')!;
     s = reduceGame(s, { type: 'node', id: camp.id });
     expect(s.run!.screen).toBe('camp');
     expect(s.run!.supportSpent).toBe(false);
     s.run!.hp -= 1; // 验证有效休息；满血治疗不消耗营地行动。
     s = reduceGame(s, { type: 'camp', mode: 'heal' });
-    const foe = availableNodes(s.run!).find((n) => ['battle', 'elite'].includes(n.kind))!;
+    const foe = availableNodes(s.run!).find((n) => ['battle', 'elite', 'boss'].includes(n.kind))!;
     s = reduceGame(s, { type: 'node', id: foe.id });
     expect(s.run!.battle!.supportUsed).toBe(false);
   });
@@ -264,7 +264,7 @@ describe('progress, scanning and evolution', () => {
     expect(boss3.block).toBe(0);
     expect(boss3.strength).toBe(0);
   });
-  it('evolution light at the final stage offers only a one-night small heal', () => {
+  it('an existing-map evolution light at the final stage preserves its one-night small heal', () => {
     const s = start();
     const r = s.run!;
     r.stage = 3;
@@ -274,7 +274,11 @@ describe('progress, scanning and evolution', () => {
     r.row = 14;
     r.hp = 40;
     r.path = [];
+    // 模拟已保存的旧地图：新地图从第二章起不再生成固定进化点。
     const node = r.nodes[14][0];
+    node.kind = 'evolution';
+    node.label = '进化之光';
+    node.enemies = [];
     expect(node.kind).toBe('evolution');
     let next = reduceGame(s, { type: 'node', id: node.id });
     expect(next.run!.screen).toBe('rest');
@@ -951,12 +955,15 @@ describe('rescue event', () => {
     expect(s.run!.hp).toBe(hp - 6);
     expect(s.run!.screen).toBe('map');
   });
-  it('safe choice heals without recruiting lopmon', () => {
+  it('safe choice recycles the beacon for gold without recruiting lopmon', () => {
     let s = withRescue();
     s.run!.hp = 20;
+    const gold = s.run!.gold;
     s = reduceGame(s, { type: 'event', choice: 'safe' });
     expect(s.meta.partners).not.toContain('lopmon');
-    expect(s.run!.hp).toBe(30);
+    expect(s.run!.hp).toBe(20);
+    expect(s.run!.gold).toBe(gold + 6);
+    expect(s.run!.screen).toBe('map');
   });
   it('equips lopmon as support outside battle once recruited', () => {
     let s = withRescue();

@@ -594,6 +594,10 @@ export function nextEvolutions(r: Run): EvolutionDef[] {
     (d) => d.partner === r.partner && d.stage === r.stage + 1 && d.parents.includes(r.form),
   );
 }
+// 行为训练与跨局资料未满足时仍可查看进度；仅排除尚未开放、没有后继或已完成的阶段。
+export function hasEvolutionOpportunity(r: Run): boolean {
+  return nextEvolutions(r).some((d) => d.stage <= stageLimit(r) && !r.formHistory.includes(d.id));
+}
 // 固定两个奖励名额：新形态招式直接赠送，旧招式仅强化一张未强化拷贝。
 // 旧卡不存在或已强化时，补为新形态招式；预览和结算使用同一份确定性计划。
 export function evolutionCardGains(r: Run, form: string) {

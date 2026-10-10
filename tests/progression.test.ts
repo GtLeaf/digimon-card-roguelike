@@ -91,10 +91,10 @@ describe('real connected routes', () => {
   it('cannot jump between disconnected lanes even on the next row', () => {
     const s = start(),
       r = s.run!;
-    r.row = 1;
-    r.path = [r.nodes[0][1].id];
-    expect(availableNodes(r).map((n) => n.id)).toEqual([r.nodes[1][1].id]);
-    expect(reduceGame(s, { type: 'node', id: r.nodes[1][0].id })).toEqual(s);
+    r.row = 2;
+    r.path = [r.nodes[1][1].id];
+    expect(availableNodes(r).map((n) => n.id)).toEqual([r.nodes[2][1].id]);
+    expect(reduceGame(s, { type: 'node', id: r.nodes[2][0].id })).toEqual(s);
   });
   it('a merge opens the next fork and reload preserves the selected branch', () => {
     const s = start();

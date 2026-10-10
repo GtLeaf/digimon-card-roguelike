@@ -15,6 +15,7 @@ import {
   syncRouteData,
   activityGains,
   relevantMetrics,
+  hasEvolutionOpportunity,
 } from './evolution';
 import { enemyPhase, expandedIntent } from './enemyRules';
 import { PASSIVES, devourCap, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
@@ -164,35 +165,43 @@ function currentIntent(r: Run, e: Enemy): Intent {
             damage: 3 + ch,
             hits: 2,
           };
-  // 四拍循环：连射、连射、加农、装填；装填不积攒噬能。
-  if (e.id === 'beelzebumon')
+  // 四拍总伤54：连射、压制射击、加农、装填；炮击回合的直接伤害可削弱加农。
+  if (e.id === 'beelzebumon') {
+    const cycle = enemyPhase(turn, e, 4),
+      suppressed = e.stagger >= 18;
     i =
-      enemyPhase(turn, e, 4) === 3
+      cycle === 3
         ? {
             name: '重新装填',
             type: 'block',
             damage: 0,
             hits: 0,
             shield: 12,
-            detail: '获得12护盾，本回合不攻击；装填后连续两回合三连射，再释放死亡加农。',
+            detail: '获得12护盾，本回合不攻击；装填后连射、压制射击、死亡加农依次循环。',
           }
-        : (e.devour ?? 0) >= 2 || enemyPhase(turn, e, 4) === 2
+        : (e.devour ?? 0) >= 2 || cycle === 2
           ? {
               name: '死亡加农',
               type: 'attack',
-              damage: 18,
+              damage: suppressed ? 14 : 21,
               hits: 1,
               shield: 0,
-              detail: '释放全部噬能的重击，随后清空层数。',
+              detail: suppressed
+                ? '炮击已受压制：基础伤害21降至14，仍会发射并清空噬能。'
+                : `本回合造成18直接生命伤害（${e.stagger}/18），可将本次炮击基础伤害21降至14。攻击、引爆与支援等直接伤害计入；护盾吸收与灼烧持续伤害不计。发射后清空噬能。`,
             }
           : {
-              name: '连续射击',
+              name: cycle === 1 ? '压制射击' : '连续射击',
               type: 'attack',
-              damage: 6,
+              damage: cycle === 1 ? 5 : 6,
               hits: 3,
               shield: 0,
-              detail: '三连射击，并积攒 1 层噬能。',
+              detail:
+                cycle === 1
+                  ? '三连射击，并积攒1层噬能；下回合死亡加农基础伤害21，炮击当回合造成18直接生命伤害可削弱至14。'
+                  : '三连射击，并积攒1层噬能；随后压制射击，再释放死亡加农。',
             };
+  }
   if (style === 'chicken')
     i =
       phase === 0
@@ -246,22 +255,29 @@ function currentIntent(r: Run, e: Enemy): Intent {
       detail: '本回合已承受 20 点攻击伤害，重击被打断。',
     };
   i = expandedIntent(r, e) ?? i;
-  // Boss 软狂暴：第 13 回合起攻击伤害每回合＋2（至多＋6），仅作用于 Boss 本体，召唤物不继承；数值直接体现在意图预告中。
+  // 软狂暴仅作用于首领本体。别西卜兽按整次行动预算分配，其余首领沿用逐段加伤。
   const enrage = enemyEnrage(r, e);
   if (i.type === 'attack') {
     i.damage = Math.max(
       0,
-      Math.round(i.damage * (e.damageScale ?? 1)) + e.strength + enrage - e.weakened,
+      Math.round(i.damage * (e.damageScale ?? 1)) +
+        e.strength +
+        (e.id === 'beelzebumon' ? enrage / i.hits : enrage) -
+        e.weakened,
     );
     if (e.rogue && i.damage > 0) i.damage = Math.max(1, i.damage - 2);
   }
   return i;
 }
 
-export const enemyEnrage = (r: Run, e: Enemy) =>
-  r.currentNode?.kind === 'boss' && e.summonedTurn === undefined
-    ? Math.min(6, Math.max(0, (r.battle?.turn ?? 1) - 12) * 2)
-    : 0;
+// 别西卜兽返回每次行动的额外总伤（13～14回合＋3，15回合起＋6）；其余返回每段增伤。
+export const enemyEnrage = (r: Run, e: Enemy) => {
+  if (r.currentNode?.kind !== 'boss' || e.summonedTurn !== undefined) return 0;
+  const elapsed = Math.max(0, (r.battle?.turn ?? 1) - 12);
+  return e.id === 'beelzebumon'
+    ? Math.min(6, Math.ceil(elapsed / 2) * 3)
+    : Math.min(6, elapsed * 2);
+};
 
 // 预告在副本上按实际行动顺序推演；不改变随机状态、牌堆或日志。
 // 已行动敌人的增益已包含在当前状态中，不能再次应用。
@@ -303,7 +319,11 @@ export function enemyCountdown(r: Run, e: Enemy): string | undefined {
   if (e.id === 'beelzebumon') {
     const phase = enemyPhase(turn, e, 4);
     if (phase === 3) return '装填窗口';
-    return phase === 2 || (e.devour ?? 0) >= 2 ? '加农就绪' : `加农还有${2 - phase}回合`;
+    return phase === 2 || (e.devour ?? 0) >= 2
+      ? e.stagger >= 18
+        ? '加农已压制'
+        : `炮击压制 ${e.stagger}/18`
+      : `加农还有${2 - phase}回合`;
   }
   if (e.id === 'belphemon') {
     const phase = enemyPhase(turn, e);
@@ -587,7 +607,7 @@ export function afterReward(r: Run, meta: Meta) {
       if (!r.path.includes(r.currentNode.id)) r.path.push(r.currentNode.id);
       return;
     }
-    r.screen = 'evolution';
+    r.screen = hasEvolutionOpportunity(r) ? 'evolution' : 'blessing';
     r.evolutionReturn = 'node';
     return;
   }
@@ -1100,7 +1120,12 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   if (r.screen !== 'battle') return;
   b.turn++;
   if (r.currentNode?.kind === 'boss' && b.turn === 13)
-    log(b, '敌方进入狂暴：每段攻击伤害每回合＋2（至多＋6）。');
+    log(
+      b,
+      r.currentNode.enemies.includes('beelzebumon')
+        ? '别西卜兽进入狂暴：每次攻击行动总伤害＋3，第15回合起＋6；连射平均分配。'
+        : '敌方进入狂暴：每段攻击伤害每回合＋2（至多＋6）。',
+    );
   b.energy = 3;
   b.block =
     (r.relics.includes('armor') ? 3 : 0) +

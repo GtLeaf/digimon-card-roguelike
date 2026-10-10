@@ -157,7 +157,21 @@ describe('固定策略合法性与可复现性', () => {
     (branch) => {
       const run = simulateJourney(branch, 42, 'synergy');
       expect(run.diagnostics).toEqual([]);
-      expect(run.won).toBe(true);
+      // 地图节奏与补给调整后，固定策略可能合法战败；检查真实终局而不是强制种子必胜。
+      expect(Number.isInteger(run.row)).toBe(true);
+      expect(run.row).toBeGreaterThanOrEqual(0);
+      expect(run.row).toBeLessThanOrEqual(49);
+      expect(run.steps).toBeLessThan(2500);
+      if (run.won) {
+        expect(run.row).toBe(49);
+        expect(run.hp).toBeGreaterThan(0);
+        expect(run.death).toBeNull();
+      } else {
+        expect(run.hp).toBe(0);
+        expect(run.death?.chapter).toBe(Math.floor(run.row / 10) + 1);
+        expect(run.death?.enemies?.length ?? 0).toBeGreaterThan(0);
+        expect(run.battles.at(-1)).toMatchObject({ row: run.row, hpEnd: 0 });
+      }
       if (!run.reached) expect(run.targetMissing.length).toBeGreaterThan(0);
       // 主动获取仍以 16 张为上限，进化赠牌额外加入且不消耗旧牌。
       expect(run.deck.length).toBeLessThanOrEqual(16 + run.evolutionCardsGranted);

@@ -14,8 +14,6 @@ import { TopBar } from './components/TopBar';
 import type { ModalKind } from './components/TopBar';
 import { JourneySidebar } from './components/JourneySidebar';
 import { PartnerSidebar } from './components/PartnerSidebar';
-import { CollectionView } from './components/CollectionView';
-import { Codex } from './components/Codex';
 import { HelpView } from './components/HelpView';
 import { SettingsView } from './components/SettingsView';
 import { AbandonView } from './components/AbandonView';
@@ -35,6 +33,13 @@ import { commitImport } from './game/saveTransfer';
 
 const SupportCutIn = lazy(() =>
   import('./components/SupportCutIn').then((module) => ({ default: module.SupportCutIn })),
+);
+
+const CollectionView = lazy(() =>
+  import('./components/CollectionView').then((module) => ({ default: module.CollectionView })),
+);
+const Codex = lazy(() =>
+  import('./components/Codex').then((module) => ({ default: module.Codex })),
 );
 
 export default function App() {
@@ -314,7 +319,15 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
       )}
       {modal === 'collection' && (
         <Modal title="扫描与伙伴图鉴" onClose={closeModal}>
-          <CollectionView run={r} meta={state.meta} send={send} onTree={() => setModal('tree')} />
+          <Suspense
+            fallback={
+              <p className="modal-note" role="status">
+                正在加载伙伴图鉴…
+              </p>
+            }
+          >
+            <CollectionView run={r} meta={state.meta} send={send} onTree={() => setModal('tree')} />
+          </Suspense>
         </Modal>
       )}
       {modal === 'items' && (
@@ -324,7 +337,15 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
       )}
       {modal === 'codex' && (
         <Modal title="数码图鉴" onClose={closeModal} wide>
-          <Codex meta={state.meta} />
+          <Suspense
+            fallback={
+              <p className="modal-note" role="status">
+                正在加载数码图鉴…
+              </p>
+            }
+          >
+            <Codex meta={state.meta} />
+          </Suspense>
         </Modal>
       )}
       {modal === 'tree' && (

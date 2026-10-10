@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, GitBranch, Heart, Tent, Zap } from 'lucide-react';
-import { stageLimit } from '../game/evolution';
+import { hasEvolutionOpportunity } from '../game/evolution';
 import type { Action, Run } from '../game/types';
 import { GameCard } from '../components/GameCard';
 import { Sprite } from '../components/Sprite';
@@ -59,7 +59,7 @@ export function CampScreen({ run, send }: { run: Run; send: (action: Action) => 
             </span>
             <ArrowRight />
           </button>
-          {r.stage < stageLimit(r) && (
+          {hasEvolutionOpportunity(r) && (
             <button className="option" onClick={() => send({ type: 'campEvolution' })}>
               <GitBranch />
               <span>

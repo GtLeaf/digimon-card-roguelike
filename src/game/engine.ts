@@ -10,7 +10,7 @@ import {
   applySupport,
 } from './battle';
 import { BLESSINGS, ENEMIES } from './data';
-import { EVOLUTIONS, emptyActivity, stageLimit } from './evolution';
+import { EVOLUTIONS, emptyActivity, hasEvolutionOpportunity } from './evolution';
 import {
   blessAction,
   buyAction,
@@ -159,14 +159,16 @@ function runAction(state: Save, action: Action): Save {
       r.evolutionTarget = action.form;
     return s;
   }
-  if (action.type === 'campEvolution' && r.screen === 'camp' && r.stage < stageLimit(r)) {
+  if (action.type === 'campEvolution' && r.screen === 'camp' && hasEvolutionOpportunity(r)) {
     r.evolutionReturn = 'camp';
     r.screen = 'evolution';
     return s;
   }
   if (action.type === 'deferEvolution' && r.screen === 'evolution') {
-    if (r.evolutionReturn === 'camp') r.screen = 'camp';
-    else if (r.currentNode?.kind === 'boss') r.screen = 'blessing';
+    if (r.evolutionReturn === 'camp') {
+      r.screen = 'camp';
+      r.evolutionReturn = 'node';
+    } else if (r.currentNode?.kind === 'boss') r.screen = 'blessing';
     else finishNode(r);
     return s;
   }

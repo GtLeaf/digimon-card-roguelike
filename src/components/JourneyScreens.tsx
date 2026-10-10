@@ -13,7 +13,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { CARDS, ENEMIES, RELICS, asset } from '../game/data';
-import { stageLimit } from '../game/evolution';
+import { hasEvolutionOpportunity } from '../game/evolution';
 import type { Action, Card, Meta, Run } from '../game/types';
 import { GameCard } from './GameCard';
 import { Sprite } from './Sprite';
@@ -284,7 +284,7 @@ export function CampView({ run, onAction }: NodeProps) {
           </span>
           <ArrowRight />
         </button>
-        {run.stage < stageLimit(run) && (
+        {hasEvolutionOpportunity(run) && (
           <button className="option" onClick={() => onAction({ type: 'campEvolution' })}>
             <GitBranch />
             <span>

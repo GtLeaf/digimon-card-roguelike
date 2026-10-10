@@ -123,17 +123,19 @@ describe('curated world generation', () => {
       layouts.add(JSON.stringify(r.nodes.map((row) => row.map((n) => n.kind))));
       expect(r.nodes).toHaveLength(50);
       const events = r.nodes.flat().flatMap((n) => (n.eventId ? [n.eventId] : []));
-      expect(new Set(events).size).toBe(events.length);
       expect(events).toContain('research');
       for (let ch = 0; ch < 5; ch++) {
         const rows = r.nodes.slice(ch * 10, ch * 10 + 10),
-          encounters = rows.flat().flatMap((n) => (n.encounterId ? [n.encounterId] : []));
+          encounters = rows.flat().flatMap((n) => (n.encounterId ? [n.encounterId] : [])),
+          chapterEvents = rows.flat().flatMap((n) => (n.eventId ? [n.eventId] : []));
+        expect(new Set(chapterEvents).size).toBe(chapterEvents.length);
         encounters.forEach((id) => seen.add(id));
         expect(new Set(encounters).size).toBe(encounters.length);
         expect(rows[8]).toHaveLength(1);
         expect(rows[8][0].kind).toBe('camp');
         expect(rows[4]).toHaveLength(1);
-        expect(rows[4][0].kind).toBe('evolution');
+        expect(rows[4][0].kind).toBe(ch === 0 ? 'evolution' : 'event');
+        if (ch === 1) expect(rows[4][0].eventId).toBe('research');
         expect(rows.some((row) => row.some((n) => n.kind === 'shop'))).toBe(true);
         expect(rows[9][0].kind).toBe('boss');
         expect(rows[0]).toHaveLength(3);
@@ -326,6 +328,7 @@ describe('ten events and persistence', () => {
     for (const choice of ['safe', 'risk'] as const) {
       let s = event('research');
       s = reduceGame(s, { type: 'event', choice });
+      expect(s.run!.hp).toBe(choice === 'safe' ? 40 : 32);
       expect(s.meta.unlockedRoutes).toEqual(
         choice === 'safe' ? ['mechanical', 'purification'] : ['chaos'],
       );
@@ -342,6 +345,8 @@ describe('ten events and persistence', () => {
     expect(s.run!.training).toBe('attack');
     expect(s.run!.hp).toBe(35);
     expect(s.run!.gold).toBe(75);
+    s = reduceGame(event('training'), { type: 'event', choice: 'safe' });
+    expect(s.run).toMatchObject({ training: 'defense', hp: 40, gold: 65 });
     s = event('supply');
     s.run!.potions = 2;
     expect(reduceGame(s, { type: 'event', choice: 'risk' })).toEqual(s);

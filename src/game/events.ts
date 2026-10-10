@@ -88,8 +88,8 @@ export const EVENTS: Record<string, StoryEvent> = {
       {
         id: 'safe',
         title: '练习守护',
-        text: '回复6生命，训练改为守护：成熟期起每回合开始＋3护盾。',
-        effect: { heal: 6, training: 'defense' },
+        text: '训练改为守护：成熟期起每回合开始＋3护盾。',
+        effect: { training: 'defense' },
       },
     ],
   },
@@ -109,8 +109,8 @@ export const EVENTS: Record<string, StoryEvent> = {
       {
         id: 'safe',
         title: '修复并净化档案',
-        text: '回复8生命，永久解锁机械研究与净化资料。',
-        effect: { heal: 8, routes: ['mechanical', 'purification'] },
+        text: '永久解锁机械研究与净化资料；本局进化仍需满足行为条件。',
+        effect: { routes: ['mechanical', 'purification'] },
       },
     ],
   },
@@ -132,8 +132,9 @@ export const EVENTS: Record<string, StoryEvent> = {
   rescue: {
     id: 'rescue',
     title: '幼兽的求救',
-    story: '废墟深处传来微弱的鸣叫：一只黑大耳兽被困在崩塌的数据碎片下，正警惕地望着你们。',
-    hint: '获得支援伙伴 / 安全离开',
+    story:
+      '废墟深处传来微弱的鸣叫：一只黑大耳兽被困在崩塌的数据碎片下。附近的旧信标还能发送救援位置。',
+    hint: '获得支援伙伴 / 求援与回收',
     choices: [
       {
         id: 'risk',
@@ -141,20 +142,26 @@ export const EVENTS: Record<string, StoryEvent> = {
         text: '失去6生命（最低保留1），黑大耳兽加入支援伙伴。',
         effect: { hpCost: 6, partner: 'lopmon' },
       },
-      { id: 'safe', title: '留下食物后离开', text: '回复10生命。', effect: { heal: 10 } },
+      {
+        id: 'safe',
+        title: '发送救援位置后离开',
+        text: '向救援站发送位置，回收信标零件，获得6金币。',
+        effect: { gold: 6 },
+      },
     ],
   },
   spring: {
     id: 'spring',
     title: '数据之泉',
-    story: '一眼清澈的数据泉在废墟间流淌。搭档可以把爪子伸进去，也可以只喝一口就走。',
-    hint: '生命换强化 / 安全恢复',
+    story:
+      '清澈的数据泉在废墟间流淌，泉心能洗去卡片中的冗余数据。搭档可以忍受冲击，引导一张卡片沉入泉心。',
+    hint: '生命换删牌 / 安全恢复',
     choices: [
       {
         id: 'risk',
-        title: '潜入泉底打捞',
-        text: '失去10生命（最低保留1），获得20金币，强化第一张未强化的非防御插件牌。',
-        effect: { hpCost: 10, gold: 20, autoUpgrade: true },
+        title: '让泉心洗去冗余',
+        text: '失去10生命（最低保留1），选择移除一张牌；至少保留5张。',
+        effect: { hpCost: 10, card: 'remove' },
       },
       { id: 'safe', title: '饮一口泉水', text: '回复14生命。', effect: { heal: 14 } },
     ],
@@ -162,14 +169,15 @@ export const EVENTS: Record<string, StoryEvent> = {
   blackmarket: {
     id: 'blackmarket',
     title: '黑市摊位',
-    story: '蒙面商人铺开一块防水布：上面只有一张磁盘，但价格随心情浮动。',
-    hint: '高价消耗品 / 出售零件',
+    story:
+      '蒙面商人摆出来路不明的校准设备。改装价格低廉，但搭档需要承受不稳定电流；商人也收购旧零件。',
+    hint: '低价强化与生命代价 / 出售零件',
     choices: [
       {
         id: 'risk',
-        title: '咬牙买下磁盘',
-        text: '支付25金币，获得1个恢复磁盘，最多携带2个。',
-        effect: { goldCost: 25, potion: true },
+        title: '接受不稳定改装',
+        text: '支付15金币，失去5生命（最低保留1），选择强化一张未强化卡。',
+        effect: { goldCost: 15, hpCost: 5, card: 'upgrade' },
       },
       { id: 'safe', title: '卖点旧零件', text: '获得12金币。', effect: { gold: 12 } },
     ],
@@ -177,8 +185,9 @@ export const EVENTS: Record<string, StoryEvent> = {
   echo: {
     id: 'echo',
     title: '回响信号',
-    story: '一段陌生的信号在你们之间回响，仿佛在邀请搭档模仿它。深听耗神，浅听安心。',
-    hint: '生命换金币 / 安全恢复',
+    story:
+      '一段陌生的信号从旧接收器传来，仿佛在邀请搭档追踪它。深入追踪耗神，拆下接收器则能回收一些零件。',
+    hint: '生命换金币 / 小额回收',
     choices: [
       {
         id: 'risk',
@@ -186,7 +195,7 @@ export const EVENTS: Record<string, StoryEvent> = {
         text: '失去12生命（最低保留1），获得55金币。',
         effect: { hpCost: 12, gold: 55 },
       },
-      { id: 'safe', title: '屏蔽信号休息', text: '回复8生命。', effect: { heal: 8 } },
+      { id: 'safe', title: '回收信号接收器', text: '获得8金币。', effect: { gold: 8 } },
     ],
   },
 };

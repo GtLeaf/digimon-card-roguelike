@@ -178,7 +178,11 @@ export function BattleScreen({
                   {e.hp > 0 && e.strength > 0 && <span>力量 {e.strength}</span>}
                   {e.hp > 0 && ENEMIES[e.id].guard && <span>护卫</span>}
                   {e.hp > 0 && e.id === 'beelzebumon' && <span>噬能 {e.devour ?? 0}/2</span>}
-                  {e.hp > 0 && enemyEnrage(r, e) > 0 && <span>狂暴 ＋{enemyEnrage(r, e)}/段</span>}
+                  {e.hp > 0 && enemyEnrage(r, e) > 0 && (
+                    <span>
+                      狂暴 ＋{enemyEnrage(r, e)}/{e.id === 'beelzebumon' ? '次行动' : '段'}
+                    </span>
+                  )}
                   {e.hp > 0 && countdown && <span>{countdown}</span>}
                   {e.burn > 0 && (
                     <span>

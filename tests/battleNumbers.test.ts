@@ -56,7 +56,35 @@ describe('battle feedback numbers', () => {
     const hpBefore = save.run!.hp;
     stepWholeTurn();
     expect(boss().devour).toBe(0);
-    expect(hpBefore - save.run!.hp).toBe(18);
+    expect(hpBefore - save.run!.hp).toBe(21);
+  });
+
+  it('previews the weakened death cannon after direct damage, weakness and player block', () => {
+    let save = battle();
+    const encounter = save.run!.battle!;
+    encounter.enemies = [
+      { ...encounter.enemies[0], id: 'beelzebumon', hp: 148, maxHp: 148, block: 3 },
+    ];
+    encounter.turn = 3;
+    encounter.energy = 10;
+    encounter.hand = ['strike', 'strike', 'strike', 'taunt'].map((id, i) => ({
+      id,
+      uid: `pressure${i}`,
+      upgraded: false,
+    }));
+    for (let n = 0; n < 4; n++) save = reduceGame(save, { type: 'play', uid: `pressure${n}` });
+    expect(save.run!.battle!.enemies[0]).toMatchObject({ stagger: 18, weakened: 2 });
+    save.run!.battle!.block = 5;
+    save = reduceGame(save, { type: 'beginEnemyTurn' });
+    const before = structuredClone(save);
+    expect(previewAction(save, { type: 'enemyStep' })).toEqual([
+      { target: 'player', kind: 'damage', amount: 7 },
+    ]);
+    expect(save).toEqual(before);
+    const hp = save.run!.hp;
+    save = reduceGame(save, { type: 'enemyStep' });
+    expect(hp - save.run!.hp).toBe(7);
+    expect(save.run!.battle!.enemies[0]).toMatchObject({ devour: 0, weakened: 0 });
   });
 
   it('shows only actual healing for cards, drain, and recovery disks', () => {

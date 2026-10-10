@@ -165,6 +165,8 @@ export function CardChoicePanel({
   title,
   cost = 0,
   blocked = '',
+  context = 'camp',
+  outcome = [],
   onConfirm,
   onClose,
 }: {
@@ -174,6 +176,8 @@ export function CardChoicePanel({
   title: string;
   cost?: number;
   blocked?: string;
+  context?: 'camp' | 'event';
+  outcome?: string[];
   onConfirm: (uid: string) => void;
   onClose: () => void;
 }) {
@@ -216,9 +220,20 @@ export function CardChoicePanel({
     >
       <JourneyResources run={run} />
       <p className="journey-hint">
-        {cost ? `费用 ${cost} 金币，确认前不扣费。` : '确认后消耗本次营地行动。'}
+        {context === 'event'
+          ? '确认后结算本次事件；取消不会扣除生命、金币或修改卡组。'
+          : cost
+            ? `费用 ${cost} 金币，确认前不扣费。`
+            : '确认后消耗本次营地行动。'}
         {mode === 'remove' ? '移除会从本局牌组中删除这张牌。' : '点牌查看强化前后的变化。'}
       </p>
+      {outcome.length > 0 && (
+        <div className="journey-outcome-preview">
+          {outcome.map((text) => (
+            <p key={text}>{text}</p>
+          ))}
+        </div>
+      )}
       <div className="journey-filters" aria-label="卡牌类型筛选">
         {(['all', 'attack', 'skill', 'power', 'status'] as const).map((value) => (
           <button key={value} aria-pressed={kind === value} onClick={() => setKind(value)}>

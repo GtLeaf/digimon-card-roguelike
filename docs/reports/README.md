@@ -19,6 +19,10 @@
 
 ## 当前 v3
 
+第二章首领：[第一轮有效对照](boss2-round1-20261010-verified.md)、[原始数据](boss2-round1-20261010-verified.json)、[手机压制反馈](boss2-round1-mobile.png)、[桌面狂暴预告](boss2-round1-desktop.png)。120场固定牌组对照、140局固定策略旅途；压制阈值、狂暴口径与浏览器验收见[第二章首领优化结果](../balance/第二章首领优化结果.md)。
+
+探索节奏：[第一轮结构与旅途对照](exploration-round1-20261010.md)、[原始数据](exploration-round1-20261010.json)。新旧规则分别检查2000张地图，140局固定策略旅途；实现范围与存档兼容见[探索节点优化结果](../balance/探索节点优化结果.md)。
+
 属性第一阶段：[资料覆盖与页面验收](../design/属性资料与互动设计.md#第一阶段验证记录)、[手机首页截图](attributes-phase1-mobile.png)。仅接入资料展示；同一文档内的第二阶段卡牌与装置仍为设计候选。
 
 离线功能：[实施与浏览器验收](offline/README.md)、[验证数据](offline/verification.json)、[320px设置](offline/settings-320.png)。检查完整缓存、断网冷启动、安全更新与存档导入；尚未做手机真机安装验收。
@@ -38,8 +42,12 @@ npm run audit:balance -- --label latest
 npm run audit:combinations -- --label latest
 npm run audit:journeys -- --label latest --count 1 --offset 0
 npm run audit:enemies -- --label latest --count 8
+npm run audit:exploration -- --label latest --count 5
+npm run audit:boss2 -- --baseline /path/to/frozen/model.mjs --label new-label --count 10 --journey-count 5
 ```
 
 当前默认输出到本目录；新版本结果应使用新标签并注明规则版本。单次旅途冒烟不能替代大规模平衡验证。
 
 `audit:compare` 用于既有第二轮配对样本；`audit:guilmon` 依赖本地冻结基线和完全一致的策略。五章合并后策略与卡牌集合已变化，不能直接与旧样本生成有效对照，需要先重新冻结基线。旧入口 `scripts/cardAudit.ts` 现在只转发到唯一实际结算审核，不再生成独立静态评分。
+
+`audit:boss2` 必须显式提供调整前冻结的 `model.mjs`，默认读取同目录 `source-hashes.json`，也可用 `--baseline-hashes` 指定。基线需包含工具使用的引擎、内容与旅途策略导出；非首领内容和策略必须一致。工具拒绝覆盖同名报告。现有有效报告保留生成时的源码哈希；之后的必填参数检查仅改善入口，不改写历史样本。

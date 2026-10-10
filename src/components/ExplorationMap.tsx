@@ -123,20 +123,24 @@ export function ExplorationMap({
                 {String(row[0].row - start + 1).padStart(2, '0')}
               </span>
               {row.map((n) => {
-                const Icon = icons[n.kind],
+                const legacyRest = n.kind === 'evolution' && run.stage >= 3,
+                  label = legacyRest ? '休整营地' : n.label,
+                  Icon = legacyRest ? Tent : icons[n.kind],
                   visited = run.path.includes(n.id),
                   active = available.includes(n.id);
                 const subtitle = n.enemies.length
                   ? n.enemies.map((id) => ENEMIES[id].name).join(' · ')
-                  : n.kind === 'evolution'
-                    ? '成长的分岔'
-                    : n.kind === 'camp'
-                      ? '恢复 / 强化 / 进化'
-                      : n.eventId
-                        ? EVENTS[n.eventId].hint
-                        : n.kind === 'event' && start === per
-                          ? '可获得净化资料'
-                          : '';
+                  : legacyRest
+                    ? '休整 / 恢复15%生命'
+                    : n.kind === 'evolution'
+                      ? '成长的分岔'
+                      : n.kind === 'camp'
+                        ? '恢复 / 强化 / 进化'
+                        : n.eventId
+                          ? EVENTS[n.eventId].hint
+                          : n.kind === 'event' && start === per
+                            ? '可获得净化资料'
+                            : '';
                 return (
                   <button
                     key={n.id}
@@ -144,12 +148,12 @@ export function ExplorationMap({
                     style={{ left: `${x(n) / 4}%`, top: y(n) - 20 }}
                     onClick={() => onEnter(n.id)}
                     disabled={!active}
-                    aria-label={`${n.row - start + 1}层 ${n.label} ${visited ? '已完成' : active ? '点击出发' : '当前路线不可进入'}`}
+                    aria-label={`${n.row - start + 1}层 ${label} ${visited ? '已完成' : active ? '点击出发' : '当前路线不可进入'}`}
                   >
                     <span className="node-orb">
                       {visited ? <Check size={22} /> : <Icon size={22} />}
                     </span>
-                    <strong>{n.label}</strong>
+                    <strong>{label}</strong>
                     {subtitle && <small>{subtitle}</small>}
                   </button>
                 );

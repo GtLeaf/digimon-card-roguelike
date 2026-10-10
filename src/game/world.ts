@@ -1,20 +1,20 @@
 import { ENEMIES } from './data';
 import { ENCOUNTERS } from './encounters';
 import { EVENTS } from './events';
-import { connectMap, validateMap } from './map';
+import { connectMap, validateExploration } from './map';
 import type { EnemyModifier, MapNode, NodeKind } from './types';
 
-// 五章各10层：第0层三路线起点；第4层进化与第7、8层为汇合点；第8层首领前必有营地。
-// 模板内营地／商店互不相邻且不同层并列，生成后由 validateMap 强制校验。
+// 五章各10层：首章第5层进化，后续为事件；额外营地紧接精英，首领前保留营地。
+// 每条路径4～6战、最多1商店，连续非战斗至多3层；模板仅旋转/镜像路线位置。
 const layouts: NodeKind[][][] = [
   [
     ['battle', 'battle', 'battle'],
     ['battle', 'battle', 'event'],
     ['elite', 'battle', 'shop'],
-    ['battle', 'treasure', 'battle'],
+    ['camp', 'treasure', 'battle'],
     ['evolution'],
-    ['battle', 'camp', 'event'],
-    ['elite', 'battle', 'shop'],
+    ['battle', 'event', 'event'],
+    ['elite', 'battle', 'battle'],
     ['event'],
     ['camp'],
     ['boss'],
@@ -23,10 +23,10 @@ const layouts: NodeKind[][][] = [
     ['battle', 'battle', 'battle'],
     ['event', 'battle', 'battle'],
     ['shop', 'battle', 'elite'],
-    ['battle', 'treasure', 'battle'],
+    ['battle', 'treasure', 'camp'],
     ['evolution'],
-    ['event', 'camp', 'battle'],
-    ['shop', 'battle', 'elite'],
+    ['event', 'event', 'battle'],
+    ['battle', 'battle', 'elite'],
     ['event'],
     ['camp'],
     ['boss'],
@@ -35,11 +35,11 @@ const layouts: NodeKind[][][] = [
     ['battle', 'battle', 'battle'],
     ['battle', 'event', 'battle'],
     ['battle', 'shop', 'elite'],
-    ['treasure', 'battle', 'battle'],
+    ['treasure', 'battle', 'camp'],
     ['evolution'],
-    ['battle', 'event', 'camp'],
-    ['elite', 'shop', 'battle'],
-    ['treasure'],
+    ['event', 'event', 'battle'],
+    ['battle', 'battle', 'elite'],
+    ['event'],
     ['camp'],
     ['boss'],
   ],
@@ -58,19 +58,27 @@ const ELITES = [
   [['sentinel'], ['devourer'], ['armageddemon'], ['daemon'], ['belphemon'], ['barbamon']],
 ];
 export function generateWorld(random: () => number, tutorial: boolean): MapNode[][] {
-  const usedEvents = new Set<string>(),
+  const lastEventChapter = new Map<string, number>(),
     nodes: MapNode[][] = [];
-  const pick = <T>(items: T[]) => items[Math.floor(random() * items.length)];
+  const pick = <T>(items: T[]): T => {
+    if (!items.length) throw new Error('地图生成候选池为空');
+    return items[Math.floor(random() * items.length)];
+  };
+  const freeRecovery = (id: string) =>
+    EVENTS[id].choices.some((choice) =>
+      Boolean(choice.effect.heal && !choice.effect.goldCost && !choice.effect.hpCost),
+    );
   for (let chapter = 0; chapter < 5; chapter++) {
     const layout = pick(layouts),
-      usedEncounters = new Set<string>();
+      usedEncounters = new Set<string>(),
+      usedEvents = new Set<string>();
     const boss = BOSSES[chapter];
-    let researchPlaced = false;
+    let recoveryPlaced = false;
     for (let local = 0; local < 10; local++) {
       const row = chapter * 10 + local;
       const kinds =
         local === 4
-          ? (['evolution'] as NodeKind[])
+          ? ([chapter === 0 ? 'evolution' : 'event'] as NodeKind[])
           : tutorial && row < 2
             ? (['battle', 'battle', 'battle'] as NodeKind[])
             : layout[local];
@@ -115,14 +123,21 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
           }
           if (kind === 'boss') enemies = [boss];
           if (kind === 'event') {
-            eventId =
-              chapter === 1 && !researchPlaced
-                ? 'research'
-                : pick(
-                    Object.keys(EVENTS).filter((id) => id !== 'research' && !usedEvents.has(id)),
-                  );
-            if (eventId === 'research') researchPlaced = true;
+            if (chapter === 1 && local === 4) eventId = 'research';
+            else {
+              const pool = Object.keys(EVENTS).filter(
+                (id) =>
+                  id !== 'research' &&
+                  !usedEvents.has(id) &&
+                  (!recoveryPlaced || !freeRecovery(id)),
+              );
+              // 优先从未出现或最久未出现的事件；只在章内去重，不再耗尽整局事件池。
+              const earliest = Math.min(...pool.map((id) => lastEventChapter.get(id) ?? -1));
+              eventId = pick(pool.filter((id) => (lastEventChapter.get(id) ?? -1) === earliest));
+            }
             usedEvents.add(eventId);
+            lastEventChapter.set(eventId, chapter);
+            recoveryPlaced ||= freeRecovery(eventId);
           }
           const labels: Record<NodeKind, string> = {
             battle: '数码遭遇',
@@ -150,8 +165,8 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
       );
     }
   }
-  connectMap(nodes);
-  const problems = validateMap(nodes);
+  connectMap(nodes, { chapterRows: 10 });
+  const problems = validateExploration(nodes);
   if (problems.length) throw new Error(`地图生成未通过校验：${problems.join('；')}`);
   return nodes;
 }

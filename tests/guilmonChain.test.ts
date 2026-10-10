@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CARDS } from '../src/game/data';
 import { cardPool, skillDescription, skillLabel } from '../src/game/cardSkills';
 import { emptySave, makeRun, reduceGame } from '../src/game/engine';
-import { EVOLUTIONS, evolutionTransition } from '../src/game/evolution';
+import { EVOLUTIONS, evolutionCardGains, evolutionTransition } from '../src/game/evolution';
 import { parseSave } from '../src/game/storage';
 import { balanceScenario } from './helpers/balanceScenario';
 import { simulateJourney } from './helpers/journeySimulation';
@@ -37,6 +37,7 @@ describe('六条基尔兽进化路径的赠牌与获取衔接', () => {
           defenses: 12,
         };
         const before = structuredClone(s.run!.deck);
+        const gains = evolutionCardGains(s.run!, form);
         s = reduceGame(s, {
           type: 'evolve',
           form,
@@ -44,10 +45,13 @@ describe('六条基尔兽进化路径的赠牌与获取衔接', () => {
           inherit: 'ward',
         });
         expect(s.run!.form).toBe(form);
-        expect(s.run!.deck.slice(-2).map((c) => c.id)).toEqual(EVOLUTIONS[form].cards.slice(0, 2));
-        expect(s.run!.deck.slice(-2).map((c) => c.upgraded)).toEqual([false, false]);
-        expect(s.run!.deck).toHaveLength(before.length + 2);
-        expect(s.run!.deck.slice(0, before.length)).toEqual(before);
+        expect(s.run!.deck.slice(before.length).map((c) => c.id)).toEqual(gains.newIds);
+        expect(s.run!.deck.slice(before.length).every((c) => !c.upgraded)).toBe(true);
+        expect(s.run!.deck).toHaveLength(before.length + gains.newIds.length);
+        expect(s.run!.deck.slice(0, before.length)).toEqual(
+          before.map((c) => (gains.upgradeUids.includes(c.uid) ? { ...c, upgraded: true } : c)),
+        );
+        expect(gains.newIds.length + gains.upgradeUids.length).toBe(2);
         expect(cardPool(s.run!)).toContain('ignite');
       }
       expect(s.run!.formHistory).toEqual(['guilmon', ...path]);
@@ -70,12 +74,16 @@ describe('六条基尔兽进化路径的赠牌与获取衔接', () => {
     expect(skillLabel(CARDS.ignite, r)).toBe('继承技能');
     expect(skillDescription(CARDS.ignite, r)).toContain('黑古拉兽');
   });
-  it('黑大古拉兽保底恢复牌与过载构成实际自损恢复序列', () => {
-    const s = balanceScenario([card('sacrifice'), card('drain')], 'blackwargrowlmon');
-    expect(EVOLUTIONS.blackwargrowlmon.cards).toEqual(['sacrifice', 'drain']);
-    const after = play(play(s, 'sacrifice'), 'drain').run!;
+  it.each([false, true])('黑大古拉兽新专属卡强化=%s时实际自损、返能和吸血正确', (upgraded) => {
+    const s = balanceScenario(
+      [card('darkOverload', 'darkOverload', upgraded), card('darkDrain', 'darkDrain', upgraded)],
+      'blackwargrowlmon',
+    );
+    expect(EVOLUTIONS.blackwargrowlmon.cards).toEqual(['darkOverload', 'darkDrain']);
+    const after = play(play(s, 'darkOverload'), 'darkDrain').run!;
     expect(after.hp).toBe(59);
-    expect(after.battle!.energy).toBe(4);
+    expect(after.battle!.energy).toBe(upgraded ? 5 : 4);
+    expect(after.battle!.enemies[0].hp).toBe(upgraded ? 91 : 94);
     expect(after.activity.counts.selfCosts).toBe(1);
     expect(after.activity.counts.heals).toBe(1);
   });

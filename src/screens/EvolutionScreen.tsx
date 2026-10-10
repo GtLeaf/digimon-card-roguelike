@@ -20,7 +20,7 @@ export function EvolutionScreen({
         <p>
           {r.evolutionReturn === 'camp'
             ? '补进化会消耗本次营地行动；返回不会消耗。'
-            : '选择形态，获得新招式。'}
+            : '选择形态，获得新卡或强化旧招式。'}
         </p>
       </div>
       <EvolutionTree

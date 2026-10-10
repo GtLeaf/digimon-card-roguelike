@@ -46,7 +46,7 @@ function scenario(form: string) {
     'rock',
     'ignite',
     'roar',
-  ].map((id, i) => ({ id, uid: `evo-qa-${i}`, upgraded: i % 2 === 0 }));
+  ].map((id, i) => ({ id, uid: `evo-qa-${i}`, upgraded: false }));
   save.meta.unlockedRoutes = ['chaos', 'purification', 'mechanical'];
   return save;
 }
@@ -56,13 +56,19 @@ function Preview() {
     [key, setKey] = useState(0),
     [deck, setDeck] = useState(false),
     [last, setLast] = useState<Action | null>(null);
-  function open(form: string, view = false, mode?: 'blocked' | 'camp') {
+  function open(form: string, view = false, mode?: 'blocked' | 'camp' | 'upgraded' | 'missing') {
     const next = scenario(form);
     if (mode === 'blocked') {
       next.meta.unlockedRoutes = [];
       next.run!.activity.counts = {};
     }
     if (mode === 'camp') next.run!.evolutionReturn = 'camp';
+    if (mode === 'upgraded')
+      next.run!.deck.forEach((card) => {
+        card.upgraded = true;
+      });
+    if (mode === 'missing')
+      next.run!.deck = next.run!.deck.filter((card) => !EVOLUTIONS[form].cards.includes(card.id));
     setSave(next);
     setBrowse(view);
     setKey((k) => k + 1);
@@ -76,9 +82,14 @@ function Preview() {
   return (
     <main style={{ maxWidth: 960, margin: '0 auto', padding: 16 }}>
       <div className="journey-filters">
+        <button onClick={() => open('guilmon')}>古拉兽混合奖励验收</button>
+        <button onClick={() => open('guilmon', false, 'upgraded')}>旧卡已强化补发验收</button>
+        <button onClick={() => open('renamon', false, 'missing')}>旧卡移除补发验收</button>
+        <button onClick={() => open('blackgrowmon')}>黑大古拉兽专属卡验收</button>
         <button onClick={() => open('growlmon')}>完全体赠牌验收</button>
         <button onClick={() => open('blackwargrowlmon')}>究极体赠牌验收</button>
         <button onClick={() => open('renamon')}>招式强化验收</button>
+        <button onClick={() => open('growlmon', true)}>古拉兽招牌展示验收</button>
         <button onClick={() => open('doumon', true)}>进化树浏览验收</button>
         <button onClick={() => open('blackwargrowlmon', false, 'blocked')}>缺少条件验收</button>
         <button onClick={() => open('growlmon', false, 'camp')}>营地补进化验收</button>
@@ -87,7 +98,7 @@ function Preview() {
       {last?.type === 'evolve' ? (
         <section aria-label="进化验收结果">
           <h2>进化成功：{formName(run.form)}</h2>
-          <p className="modal-note">牌组 {run.deck.length} 张 · 新招式直接入组，已有招式自动强化</p>
+          <p className="modal-note">牌组 {run.deck.length} 张 · 两个奖励名额已结算</p>
           <DeckViewer run={run} />
         </section>
       ) : last?.type === 'deferEvolution' ? (

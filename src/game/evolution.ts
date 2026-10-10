@@ -1,4 +1,5 @@
-import { BRANCHES, FORM_NAMES } from './data';
+import { BRANCHES, CARDS, FORM_NAMES } from './data';
+import { skillForms } from './cardSkills';
 import type { Activity, Branch, Meta, Metric, Partner, Run } from './types';
 
 export const emptyActivity = (): Activity => ({ counts: {}, cards: {} });
@@ -59,8 +60,6 @@ export interface EvolutionDef {
   tag: string;
   passive: string;
   cards: string[];
-  /** 进化时自动强化原形态已有的招牌牌；同名收益不重复赠送 */
-  signatureUpgrade?: boolean;
   branch?: Branch;
   /** 止步觉醒：不升阶段的终点形态（如觉醒斗牛士兽），可同步爆发 */
   endpoint?: boolean;
@@ -129,7 +128,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         parents: ['blackgrowmon'],
         tag: '危险过载',
         passive: '每回合首次主动自损，获得 1 行动力。',
-        cards: ['sacrifice', 'drain'],
+        cards: ['darkOverload', 'darkDrain'],
         groups: [
           [{ metric: 'attacks', goal: 48 }],
           [
@@ -202,9 +201,8 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         stage: 1,
         parents: ['renamon'],
         tag: '狐火之路',
-        passive: '招牌牌强化；可选择进攻或守护训练。',
+        passive: '狐叶楔与符咒各强化一张；无法强化时改赠狐火或狐炎龙。可选择进攻或守护训练。',
         cards: ['leaf', 'talisman'],
-        signatureUpgrade: true,
         groups: [],
         slot: 0,
       },
@@ -369,9 +367,8 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         stage: 1,
         parents: ['impmon'],
         tag: '魔人之路',
-        passive: '招牌牌强化；可选择进攻或守护训练。',
+        passive: '获得冰晶魔法与魔术屏障；可选择进攻或守护训练。',
         cards: ['frostSorcery', 'magicShield'],
-        signatureUpgrade: true,
         groups: [],
         slot: 0,
       },
@@ -597,14 +594,37 @@ export function nextEvolutions(r: Run): EvolutionDef[] {
     (d) => d.partner === r.partner && d.stage === r.stage + 1 && d.parents.includes(r.form),
   );
 }
-// 界面预览与结算共用：新招式直接赠送，强化招式作用于已有拷贝。
+// 固定两个奖励名额：新形态招式直接赠送，旧招式仅强化一张未强化拷贝。
+// 旧卡不存在或已强化时，补为新形态招式；预览和结算使用同一份确定性计划。
 export function evolutionCardGains(r: Run, form: string) {
   const d = EVOLUTIONS[form];
-  const upgradeIds = d.signatureUpgrade ? (EVOLUTIONS[r.form]?.cards ?? []) : [];
-  return {
-    newIds: d.cards.filter((id) => !upgradeIds.includes(id)),
-    upgradeIds,
-  };
+  const isNewFormCard = (id: string) => skillForms(CARDS[id]).includes(form);
+  const reserved = new Set(d.cards.filter(isNewFormCard));
+  const candidates = Object.keys(CARDS)
+    .filter((id) => isNewFormCard(id) && !reserved.has(id))
+    .sort(
+      (a, b) =>
+        Number(r.deck.some((card) => card.id === a)) - Number(r.deck.some((card) => card.id === b)),
+    );
+  const newIds: string[] = [];
+  const upgradeUids: string[] = [];
+  for (const id of d.cards) {
+    if (isNewFormCard(id)) {
+      newIds.push(id);
+      continue;
+    }
+    const oldCard = r.deck.find(
+      (card) =>
+        card.id === id && !card.upgraded && !card.temporary && !upgradeUids.includes(card.uid),
+    );
+    if (oldCard) upgradeUids.push(oldCard.uid);
+    else {
+      const replacement = candidates.find((candidate) => !newIds.includes(candidate));
+      if (!replacement) throw new Error(`${d.id}缺少可补发的新形态招式`);
+      newIds.push(replacement);
+    }
+  }
+  return { newIds, upgradeUids };
 }
 export const stageName = (stage: number) => ['成长期', '成熟期', '完全体', '究极体'][stage];
 export const stageRequirement = (stage: number, chapterRows = 10) =>
@@ -649,22 +669,22 @@ export const formName = (id: string) => FORM_NAMES[id] ?? id;
 export function evolutionTransition(from: string, to: string): string | null {
   const hints: Record<string, string> = {
     'guilmon/growlmon':
-      '火球先叠灼烧，再用双刃斩或烈焰引爆追击；每回合首次攻击带灼烧目标额外＋2总伤害。',
+      '强化一张火球并获得双刃斩；火球无法强化时改赠新形态招式。先叠灼烧再追击，每回合首次攻击带灼烧目标额外＋2总伤害。',
     'guilmon/blackgrowmon': '火焰转为暗炎，自损换取更高伤害；解锁共享的烈焰引爆，可主动消费灼烧。',
     'growlmon/wargrowlmon':
       '烈焰追击的＋2总伤害改为首次实际灼烧获得2护盾；余烬护甲兼顾叠火与守护，炎核重炮消耗初始蓄能并施加灼烧。',
     'blackgrowmon/wargrowlmon':
       '暗炎额外＋1改为首次实际灼烧获得2护盾；保留已学暗炎与引爆，获得余烬护甲与炎核重炮，转向灼烧守护和炮击。',
     'blackgrowmon/blackwargrowlmon':
-      '暗炎额外＋1改为首次自损返1行动力；保留暗炎与引爆，获得危险过载和生命汲取，开始自损后恢复。',
+      '暗炎额外＋1改为首次自损返1行动力；保留暗炎与引爆，获得黑暗过载和暗黑汲取，开始自损后恢复。',
     'wargrowlmon/dukemon':
       '首次灼烧护盾与初始蓄能改为首次提供护盾的牌额外＋3护盾；余烬护甲仍能触发，皇家枪击将攻防合为一张牌。',
     'wargrowlmon/megidramon':
       '首次灼烧护盾与初始蓄能改为首次实际灼烧额外＋2；旧火焰和引爆转为群体爆发的准备。',
     'blackwargrowlmon/megidramon':
-      '首次自损返能改为首次实际灼烧额外＋2；危险过载仍返能抽牌，但少了形态额外返能，生命汲取可补偿灭世烈焰的自损。',
+      '首次自损返能改为首次实际灼烧额外＋2；黑暗过载仍返能抽牌，但少了形态额外返能，暗黑汲取可补偿灭世烈焰的自损。',
     'blackwargrowlmon/chaosdukemon':
-      '首次自损返1行动力改为获得6护盾；血色利刃不再由被动抵消费用，危险过载少返1行动力，生命汲取与混沌枪击帮助恢复。',
+      '首次自损返1行动力改为获得6护盾；血色利刃不再由被动抵消费用，黑暗过载少返1行动力，暗黑汲取与混沌枪击帮助恢复。',
   };
   return EVOLUTIONS[to]?.parents.includes(from) ? (hints[`${from}/${to}`] ?? null) : null;
 }

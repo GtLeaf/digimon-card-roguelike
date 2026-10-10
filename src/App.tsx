@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from 'react';
-import { Coins, Heart, Layers } from 'lucide-react';
+import { Coins, Heart, Layers, X } from 'lucide-react';
 import { CHAPTERS } from './game/data';
 import { reduceGame } from './game/engine';
 import { loadSave, SAVE_KEY, writeSave } from './game/storage';
@@ -53,6 +53,7 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
     b = r?.battle;
   const isActive = !!r && r.screen !== 'result';
   const offline = useOffline();
+  const [offlineNoticeDismissed, setOfflineNoticeDismissed] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState('');
 
@@ -165,13 +166,27 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
           {updateError}
         </div>
       )}
-      {screen === 'home' && offline.status !== 'unavailable' && (
-        <div className="save-warning" role="status">
-          {offlineLabel(offline.status)}
-          {offline.status === 'ready' ? ' · 断网后也能重新打开' : ' · 请保持联网'}
-          {offline.message && ` · ${offline.message}`}
-        </div>
-      )}
+      {screen === 'home' &&
+        offline.status !== 'unavailable' &&
+        !(offline.status === 'ready' && offlineNoticeDismissed) && (
+          <div className="save-warning offline-notice" role="status">
+            <span>
+              {offlineLabel(offline.status)}
+              {offline.status === 'ready' ? ' · 断网后也能重新打开' : ' · 请保持联网'}
+              {offline.message && ` · ${offline.message}`}
+            </span>
+            {offline.status === 'ready' && (
+              <button
+                type="button"
+                className="icon-btn"
+                aria-label="隐藏离线提示"
+                onClick={() => setOfflineNoticeDismissed(true)}
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        )}
       {offline.needRefresh && !offline.dismissed && (
         <div className="save-warning" role="status">
           <p>

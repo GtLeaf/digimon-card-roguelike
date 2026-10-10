@@ -97,15 +97,17 @@ export function EvolutionTree({
     ['dukemon', 'megidramon', 'sakuyamon', 'kuzuhamon'].includes(d.id);
   const ready = status.ready || legacy;
   const gains = choose && activeRun ? evolutionCardGains(activeRun, d.id) : null;
-  const rewardCards: Card[] = gains
+  const formSkills = Object.values(CARDS).filter((card) => skillForms(card).includes(d.id));
+  // 浏览招牌卡只展示该形态技能；进化奖励另按当前牌组计算，可能强化旧形态招式。
+  const displayCards: Card[] = gains
     ? [
         ...gains.newIds.map((id) => ({ uid: `evolution-new-${id}`, id, upgraded: false })),
-        ...gains.upgradeIds
-          .filter((id) => activeRun?.deck.some((card) => card.id === id))
-          .map((id) => ({ uid: `evolution-upgrade-${id}`, id, upgraded: true })),
+        ...(activeRun?.deck ?? [])
+          .filter((card) => gains.upgradeUids.includes(card.uid))
+          .map((card) => ({ ...card, upgraded: true })),
       ]
-    : d.cards.map((id) => ({ uid: `evolution-${id}`, id, upgraded: false }));
-  const previewCard = rewardCards.find((card) => card.uid === previewId);
+    : formSkills.map(({ id }) => ({ uid: `evolution-${id}`, id, upgraded: false }));
+  const previewCard = displayCards.find((card) => card.uid === previewId);
   const blocker = !ready ? '当前形态条件未达成' : '条件已达成，可直接进化';
   function locate() {
     locateNode(scroll.current, activeRun?.form ?? partner);
@@ -208,8 +210,7 @@ export function EvolutionTree({
       )}
       <h4>到达此形态后解锁的技能卡池</h4>
       <p className="condition-hint">
-        {Object.values(CARDS)
-          .filter((c) => skillForms(c).includes(d.id))
+        {formSkills
           .map((c) => `${c.name}${skillForms(c).length > 1 ? '（共享技能）' : ''}`)
           .join('、') || '沿用已学技能与通用卡。'}
         。后续进化保留解锁资格。
@@ -425,15 +426,15 @@ export function EvolutionTree({
         <section className="evolution-rewards" aria-label="进化招式">
           <h4>{choose ? '进化招式' : '招牌卡片'}</h4>
           <div className="evolution-new-cards">
-            {rewardCards.map((card) => (
+            {displayCards.map((card) => (
               <div className="evolution-reward-card" key={card.uid}>
                 {choose && (
                   <span className="evolution-reward-label">
-                    {card.upgraded ? '自动强化' : '获得新卡'}
+                    {card.upgraded ? '强化已有一张' : '获得新形态卡'}
                   </span>
                 )}
                 <GameCard
-                  run={!choose || card.upgraded ? activeRun : null}
+                  run={choose && card.upgraded ? activeRun : null}
                   compact
                   card={card}
                   selected={previewId === card.uid}
@@ -442,7 +443,16 @@ export function EvolutionTree({
               </div>
             ))}
           </div>
-          {!rewardCards.length && <p className="condition-hint">当前牌组没有可强化的招牌牌。</p>}
+          {choose && (
+            <p className="condition-hint">
+              共两个奖励名额；旧招式只强化一张，已强化或已移除时改赠新形态卡。
+            </p>
+          )}
+          {!choose && (
+            <p className="condition-hint">
+              展示该形态的专属与共享技能。实际进化固定两个奖励名额，根据当前卡组赠送新卡或强化旧招式。
+            </p>
+          )}
           {previewCard && (
             <div className="evolution-card-preview" ref={cardPreview} aria-live="polite">
               <CardEffectPreview card={previewCard} />

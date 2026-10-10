@@ -89,6 +89,16 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
     draw: 2,
     text: '失去 3 生命，获得 2 行动力，抽 2 张牌。耗竭。',
   },
+  darkOverload: {
+    cost: 0,
+    energy: 2,
+    draw: 2,
+    text: '失去 3 生命，获得 2 行动力，抽 2 张牌。耗竭。',
+  },
+  darkDrain: {
+    damage: 9,
+    text: '造成 9 伤害；若造成生命伤害，回复 2 生命。',
+  },
   flare: {
     shield: 11,
     text: '获得 11 护盾，对所有敌人施加 1 灼烧。',

@@ -168,7 +168,7 @@ export function evolveAction(s: Save, action: Extract<Action, { type: 'evolve' }
   if (!evolutionStatus(r, meta, form).ready && !legacy) return false;
   const gains = evolutionCardGains(r, form);
   r.deck.forEach((c) => {
-    if (gains.upgradeIds.includes(c.id)) c.upgraded = true;
+    if (gains.upgradeUids.includes(c.uid)) c.upgraded = true;
   });
   const newCards = gains.newIds.map((id) => makeCard(r, id));
   r.deck.push(...newCards);

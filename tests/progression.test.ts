@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { emptySave, makeRun, reduceGame } from '../src/game/engine';
 import { availableNodes } from '../src/game/map';
-import { EVOLUTIONS, evolutionStatus, syncRouteData } from '../src/game/evolution';
+import {
+  EVOLUTIONS,
+  evolutionCardGains,
+  evolutionStatus,
+  syncRouteData,
+} from '../src/game/evolution';
 import { parseSave } from '../src/game/storage';
 import { beginBattle } from '../src/game/battle';
 import { CARDS, cardText } from '../src/game/data';
@@ -298,41 +303,27 @@ describe('evolution conditions and branching', () => {
     if (form === 'chaosdukemon') s.meta.unlockedRoutes.push('chaos');
     expect(evolutionStatus(s.run!, s.meta, form).ready).toBe(true);
     s.run!.deck[0].upgraded = true;
+    const size = s.run!.deck.length;
+    const gains = evolutionCardGains(s.run!, form);
     s = reduceGame(s, { type: 'evolve', form, replace: replacements(s) });
     expect(s.run!.form).toBe(form);
-    expect(s.run!.deck).toHaveLength(12);
+    expect(s.run!.deck).toHaveLength(size + gains.newIds.length);
     expect(s.run!.deck[0].upgraded).toBe(true);
-    expect(s.run!.deck.slice(-2).map((c) => c.id)).toEqual(d.cards);
+    expect(s.run!.deck.slice(size).map((c) => c.id)).toEqual(gains.newIds);
+    expect(gains.newIds.length + gains.upgradeUids.length).toBe(2);
   });
   it.each(['growlmon', 'sorcerymon', 'galgomon', 'matadormon'])(
-    'evolving to %s appends un-upgraded new cards',
+    'evolving to %s grants exactly two card benefits',
     (form) => {
       const s = ready(form);
       for (const group of EVOLUTIONS[form].groups)
         for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
       const size = s.run!.deck.length;
+      const gains = evolutionCardGains(s.run!, form);
       const after = reduceGame(s, { type: 'evolve', form }).run!;
-      expect(after.deck.slice(size).map((c) => c.id)).toEqual(EVOLUTIONS[form].cards);
+      expect(after.deck.slice(size).map((c) => c.id)).toEqual(gains.newIds);
+      expect(gains.newIds.length + gains.upgradeUids.length).toBe(2);
       expect(after.deck.slice(size).every((c) => !c.upgraded)).toBe(true);
-    },
-  );
-  it.each([
-    ['growlmon', ['fireball', 'rock']],
-    ['kyubimon', ['leaf', 'talisman']],
-    ['sorcerymon', ['nightfire', 'taunt']],
-  ])(
-    'evolving to %s automatically applies its signature upgrade rule to existing cards',
-    (form, signature) => {
-      const s = ready(form);
-      for (const group of EVOLUTIONS[form].groups)
-        for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
-      const uids = replacements(s);
-      const after = reduceGame(s, { type: 'evolve', form, replace: uids }).run!;
-      const kept = after.deck.filter(
-        (c) => s.run!.deck.some((old) => old.uid === c.uid) && signature.includes(c.id),
-      );
-      expect(kept.length).toBeGreaterThan(0);
-      expect(kept.every((c) => c.upgraded)).toBe(!!EVOLUTIONS[form].signatureUpgrade);
     },
   );
   it('OR alternatives work without also requiring the other option', () => {

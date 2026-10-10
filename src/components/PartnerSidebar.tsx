@@ -4,6 +4,7 @@ import { EVOLUTIONS } from '../game/evolution';
 import type { Run } from '../game/types';
 import { Health } from './Health';
 import { Sprite } from './Sprite';
+import { AttributeLabel } from './AttributeLabel';
 
 const inheritance: Record<Run['inherit'], string> = {
   ember: '余烬：首次施加灼烧额外＋1',
@@ -27,7 +28,10 @@ export function PartnerSidebar({
       <div className="eyebrow">PARTNER LINK</div>
       <Sprite id={r.form} size={170} />
       <h2>{FORM_NAMES[r.form]}</h2>
-      <p>{r.branch ? BRANCHES[r.branch].tag : ['成长期', '成熟期', '完全体'][r.stage]}</p>
+      <p>
+        <AttributeLabel id={r.form} compact /> ·{' '}
+        {r.branch ? BRANCHES[r.branch].tag : ['成长期', '成熟期', '完全体'][r.stage]}
+      </p>
       <Health hp={r.hp} max={r.maxHp} />
       {r.stage > 0 && (
         <div className="passive-note">

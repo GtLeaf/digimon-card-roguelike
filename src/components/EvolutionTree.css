@@ -1,4 +1,134 @@
+.evolution-rewards .evolution-new-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 180px));
+  gap: 14px;
+  overflow: visible;
+  padding: 5px 3px 12px;
+}
+.evolution-reward-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.evolution-reward-label {
+  color: var(--mint);
+  font-size: 12px;
+}
+.evolution-rewards .evolution-new-cards .game-card {
+  width: 100%;
+  min-width: 0;
+  min-height: 260px;
+  flex: 1;
+}
+.evolution-rewards .game-card > strong {
+  font-size: 14px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.evolution-rewards .card-description {
+  font-size: 12px;
+  line-height: 1.65;
+}
+.evolution-rewards .card-art {
+  height: 80px;
+  flex-shrink: 0;
+}
+.evolution-rewards .card-art > img {
+  max-height: 76px;
+}
 /* 复古终端中的进化地图：保留画布，用有限视口浏览阶段与分支。 */
+.evolution-current {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.evolution-candidates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.evolution-candidate {
+  min-width: 0;
+  min-height: 122px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: #21383d;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  text-align: center;
+}
+.evolution-candidate img {
+  width: 68px;
+  height: 56px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.evolution-candidate strong {
+  font-size: 14px;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.evolution-candidate small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.evolution-candidate[aria-pressed='true'] {
+  border-color: var(--orange);
+  background: #30433f;
+  box-shadow: inset 0 0 0 1px var(--orange);
+}
+.evolution-disclosure {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.evolution-disclosure > summary,
+.evolution-config > summary {
+  padding: 12px 0;
+  min-height: 44px;
+  font-size: 13px;
+  color: var(--mint);
+  cursor: pointer;
+}
+.evolution-config > summary > span:last-child {
+  float: right;
+  color: var(--orange);
+}
+.evolution-config .evo-selects {
+  margin: 8px 0 14px;
+}
+.evolution-ready {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mint);
+  font-size: 13px;
+}
+.evolution-requirement-source summary {
+  min-height: 44px;
+  padding: 10px 0;
+  color: var(--orange);
+  cursor: pointer;
+}
+.evolution-requirement-source p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.evolution-choosing .evolution-confirm {
+  padding-top: 0;
+}
+.evolution-choosing .evo-details {
+  padding-top: 8px;
+}
+.evolution-choosing .evo-passive {
+  margin: 8px 0 10px;
+}
+.evolution-choosing .condition-hint {
+  margin: 8px 0 12px;
+}
 .evolution-tree .tree-scroll {
   height: 440px;
   max-height: none;
@@ -15,109 +145,11 @@
 .evolution-tree .tree-toolbar > .text-btn {
   min-height: 44px;
 }
-.evolution-replacement-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
-}
-.evolution-replacement-heading h4 {
-  margin: 0;
-}
-.evolution-replacement-heading .secondary {
-  min-height: 44px;
-  padding: 10px 12px;
-  font-size: 13px;
-}
-.evolution-slots {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-.evolution-slot {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 16px;
-  border: 1px solid #607468;
-  border-radius: 7px;
-  background: #20363b;
-}
-.evolution-slot.complete {
-  border-color: var(--mint);
-}
-.evolution-slot > header {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 18px;
-  font-size: 14px;
-}
-.evolution-slot > header span {
-  color: var(--mint);
-  font-size: 12px;
-}
-.evolution-slot-pair {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-  font-size: 14px;
-  line-height: 1.8;
-  margin-bottom: 14px;
-}
-.evolution-slot-pair strong {
-  color: var(--paper);
-  font-weight: 550;
-}
-.evolution-slot-pair span {
-  color: var(--muted);
-}
 .evolution-effect-label {
   display: block;
   color: var(--orange);
   font-size: 12px;
   line-height: 1.8;
-}
-.evolution-slot .journey-card-effect h3 {
-  font-size: 18px;
-  margin: 8px 0 12px;
-}
-.evolution-slot .effect-comparison p {
-  font-size: 14px;
-  line-height: 1.8;
-}
-.evolution-slot .effect-comparison h4 {
-  font-size: 12px;
-  margin: 0 0 6px;
-}
-.evolution-slot-old {
-  margin: 18px 0;
-  padding-top: 14px;
-  border-top: 1px dashed #607468;
-  flex: 1;
-}
-.evolution-slot-old > p {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.8;
-  padding: 10px 0;
-}
-.evolution-slot-old .evolution-effect-label {
-  color: var(--muted);
-}
-.evolution-slot-old > small {
-  display: block;
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 10px;
-}
-.evolution-slot > .secondary {
-  min-height: 46px;
-  width: 100%;
-  font-size: 14px;
 }
 .evolution-card-preview {
   border: 1px solid var(--line);
@@ -183,11 +215,32 @@
 }
 
 @media (max-width: 700px) {
+  .evolution-rewards .evolution-new-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .evolution-rewards .evolution-new-cards .game-card {
+    padding: 8px;
+  }
+  .evolution-rewards .game-card > strong {
+    font-size: 13px;
+  }
+  .evolution-candidates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .evolution-config .evo-selects {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .evolution-tree .tree-scroll {
     height: clamp(220px, 42dvh, 360px);
   }
-  .evolution-tree.evolution-choosing {
+  .evolution-tree.evolution-choosing,
+  .new-evolution-screen > .evolution-tree.evolution-choosing {
     padding-bottom: calc(142px + env(safe-area-inset-bottom));
+  }
+  .evolution-choosing :is(button, summary, select) {
+    scroll-margin-bottom: calc(142px + env(safe-area-inset-bottom));
   }
   .evolution-tree .tree-toolbar {
     gap: 6px;
@@ -202,13 +255,6 @@
     z-index: 3;
     width: 100%;
     padding: 10px 0;
-  }
-  .evolution-slots {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-  .evolution-slot {
-    padding: 14px;
   }
   .evolution-tree .evo-selects select {
     font-size: 16px;

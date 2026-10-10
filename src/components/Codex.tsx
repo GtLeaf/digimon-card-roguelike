@@ -3,6 +3,7 @@ import { BRANCHES, CARDS, ENEMIES, PARTNERS, PARTNER_IDS, asset } from '../game/
 import { EVOLUTIONS } from '../game/evolution';
 import type { Branch, CardDef, CardKind, Meta, Partner } from '../game/types';
 import { GameCard } from './GameCard';
+import { AttributeLabel } from './AttributeLabel';
 
 type Tab = 'digimon' | 'card';
 type GroupFilter = Partner | 'common' | 'all';
@@ -85,6 +86,7 @@ export function Codex({ meta }: { meta: Meta }) {
                   <h3>{seen ? e.name : '???'}</h3>
                   {seen ? (
                     <>
+                      <AttributeLabel id={e.id} />
                       <span>
                         生命 {e.hp}
                         {e.scan ? (

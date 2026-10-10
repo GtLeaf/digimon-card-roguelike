@@ -5,7 +5,14 @@ import type { Card } from '../../src/game/types';
 // 校准与回归共用的固定场景；不触碰玩家存档。
 export function balanceScenario(cards: Card[], form = 'renamon', enemies = ['goblimon']) {
   const d = EVOLUTIONS[form];
-  let s = reduceGame(reduceGame(emptySave(), { type: 'start', partner: d.partner, seed: 42 }), {
+  const history = (id: string): string[] => [
+    ...(EVOLUTIONS[id].parents.length ? history(EVOLUTIONS[id].parents[0]) : []),
+    id,
+  ];
+  const initial = emptySave();
+  // 固定审核场景包含所有形态；只在夹具内满足小妖兽的开局解锁条件。
+  if (d.partner === 'impmon') initial.meta.scans.beelzebumon = 100;
+  let s = reduceGame(reduceGame(initial, { type: 'start', partner: d.partner, seed: 42 }), {
     type: 'bless',
     id: 'guard',
   });
@@ -15,7 +22,7 @@ export function balanceScenario(cards: Card[], form = 'renamon', enemies = ['gob
     form,
     stage: d.stage,
     branch: d.branch ?? null,
-    formHistory: [d.partner, form],
+    formHistory: history(form),
     hp: 60,
     maxHp: 100,
     blessing: '',

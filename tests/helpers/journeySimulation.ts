@@ -330,6 +330,7 @@ export function simulateJourney(
     removals = 0,
     spent = 0,
     skipped = 0;
+  let evolutionCardsGranted = 0;
   const diagnostics: string[] = [];
   const picked: Record<string, number> = {},
     upgraded: Record<string, number> = {},
@@ -372,6 +373,7 @@ export function simulateJourney(
       firstPicked[action.id] ??= r.row;
     }
     if (action.type === 'remove') removals++;
+    if (action.type === 'evolve') evolutionCardsGranted += next.run!.deck.length - r.deck.length;
     if (action.type === 'camp' && action.mode === 'upgrade') {
       const c = r.deck.find((c) => c.uid === action.uid)!;
       upgraded[c.id] = (upgraded[c.id] ?? 0) + 1;
@@ -496,20 +498,11 @@ export function simulateJourney(
         break;
       }
       case 'evolution': {
-        const replace = [...r.deck]
-          .sort(
-            (a, b) =>
-              acquisitionValue(r, a.id, strategy, branch) -
-              acquisitionValue(r, b.id, strategy, branch),
-          )
-          .slice(0, 2)
-          .map((c) => c.uid);
         action =
           goal && evolutionStatus(r, s.meta, goal).ready
             ? {
                 type: 'evolve',
                 form: goal,
-                replace,
                 training: 'defense',
                 inherit: r.partner === 'renamon' ? 'seal' : 'ward',
               }
@@ -643,6 +636,7 @@ export function simulateJourney(
           }
         : null,
     deck: r.deck.map((c) => ({ id: c.id, upgraded: c.upgraded })),
+    evolutionCardsGranted,
     relics: r.relics,
     counts: r.activity.counts,
     unlocked: s.meta.unlockedRoutes,

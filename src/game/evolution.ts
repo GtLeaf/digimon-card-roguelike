@@ -59,7 +59,7 @@ export interface EvolutionDef {
   tag: string;
   passive: string;
   cards: string[];
-  /** 进化时给强化版招牌牌 */
+  /** 进化时自动强化原形态已有的招牌牌；同名收益不重复赠送 */
   signatureUpgrade?: boolean;
   branch?: Branch;
   /** 止步觉醒：不升阶段的终点形态（如觉醒斗牛士兽），可同步爆发 */
@@ -118,7 +118,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         parents: ['growlmon', 'blackgrowmon'],
         tag: '余烬与守护',
         passive: '每场开始获得 1 蓄能；每回合首次实际施加灼烧，获得 2 护盾。',
-        cards: ['flare', 'cannon'],
+        cards: ['flare', 'emberCannon'],
         groups: [],
         slot: 0,
       },
@@ -597,6 +597,15 @@ export function nextEvolutions(r: Run): EvolutionDef[] {
     (d) => d.partner === r.partner && d.stage === r.stage + 1 && d.parents.includes(r.form),
   );
 }
+// 界面预览与结算共用：新招式直接赠送，强化招式作用于已有拷贝。
+export function evolutionCardGains(r: Run, form: string) {
+  const d = EVOLUTIONS[form];
+  const upgradeIds = d.signatureUpgrade ? (EVOLUTIONS[r.form]?.cards ?? []) : [];
+  return {
+    newIds: d.cards.filter((id) => !upgradeIds.includes(id)),
+    upgradeIds,
+  };
+}
 export const stageName = (stage: number) => ['成长期', '成熟期', '完全体', '究极体'][stage];
 export const stageRequirement = (stage: number, chapterRows = 10) =>
   [
@@ -643,9 +652,9 @@ export function evolutionTransition(from: string, to: string): string | null {
       '火球先叠灼烧，再用双刃斩或烈焰引爆追击；每回合首次攻击带灼烧目标额外＋2总伤害。',
     'guilmon/blackgrowmon': '火焰转为暗炎，自损换取更高伤害；解锁共享的烈焰引爆，可主动消费灼烧。',
     'growlmon/wargrowlmon':
-      '烈焰追击的＋2总伤害改为首次实际灼烧获得2护盾；余烬护甲兼顾叠火与守护，脉冲炮获得一次初始蓄能。',
+      '烈焰追击的＋2总伤害改为首次实际灼烧获得2护盾；余烬护甲兼顾叠火与守护，炎核重炮消耗初始蓄能并施加灼烧。',
     'blackgrowmon/wargrowlmon':
-      '暗炎额外＋1改为首次实际灼烧获得2护盾；保留已学暗炎与引爆，转向余烬守护和炮击。',
+      '暗炎额外＋1改为首次实际灼烧获得2护盾；保留已学暗炎与引爆，获得余烬护甲与炎核重炮，转向灼烧守护和炮击。',
     'blackgrowmon/blackwargrowlmon':
       '暗炎额外＋1改为首次自损返1行动力；保留暗炎与引爆，获得危险过载和生命汲取，开始自损后恢复。',
     'wargrowlmon/dukemon':

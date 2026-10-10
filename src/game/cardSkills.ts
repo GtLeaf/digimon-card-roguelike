@@ -11,15 +11,19 @@ export function skillUnlocked(run: Run, card: CardDef): boolean {
     [run.partner, run.form, ...run.formHistory].includes(form),
   );
 }
+// 攻击指令仅用于起始牌组；可正常使用和强化，不再作为获取候选。
+export function offerEligible(run: Run, card: CardDef): boolean {
+  return card.id !== 'strike' && skillUnlocked(run, card);
+}
 export function cardPool(run: Run): string[] {
   return Object.values(CARDS)
-    .filter((card) => skillUnlocked(run, card))
+    .filter((card) => offerEligible(run, card))
     .map((card) => card.id);
 }
 // 奖励/商店抽样：当前形态专属 ×4、本局继承 ×2、通用 ×1，无放回。
 export function weightedOffers(run: Run, n: number): string[] {
   const pool = Object.values(CARDS)
-    .filter((card) => skillUnlocked(run, card))
+    .filter((card) => offerEligible(run, card))
     .map((card) => ({
       id: card.id,
       weight: skillForms(card).includes(run.form) ? 4 : card.unlockForm ? 2 : 1,
@@ -45,6 +49,7 @@ export function skillLabel(card: CardDef, run?: Run | null): string {
   return '未解锁';
 }
 export function skillDescription(card: CardDef, run?: Run | null): string {
+  if (card.id === 'strike') return '初始基础牌，可使用和强化；不进入战后奖励与商店。';
   if (!card.unlockForm)
     return card.family === 'common' ? '所有形态均可使用。' : '故障状态牌，不进入普通奖励与商店。';
   const forms = skillForms(card),
@@ -58,7 +63,7 @@ export function skillDescription(card: CardDef, run?: Run | null): string {
     return `继承自${owner} · 本局已解锁，继续进化后仍可使用和获取。`;
   return `${owner}${forms.length > 1 ? '共享' : '专属'}技能 · 到达${forms.length > 1 ? '任一对应' : '该'}形态后进入本局奖励和商店卡池。`;
 }
-// 旧存档中尚未领取／购买的提前技能换为合法候选，保持随机状态不变。
+// 旧存档中未领取／购买的提前技能和初始基础牌换为合法候选，保持随机状态不变。
 export function refreshLockedOffers(run: Run): void {
   const pool = cardPool(run);
   function refresh(offers: string[], bought: string[] = []): string[] {

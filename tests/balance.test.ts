@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CARDS, cardDefinition, copyCandidates } from '../src/game/data';
 import { burnValue, calibrateAction } from '../src/game/balance';
-import { cardCost, reduceGame } from '../src/game/engine';
+import { cardCost, emptySave, reduceGame } from '../src/game/engine';
 import { parseSave } from '../src/game/storage';
 import { balanceScenario } from './helpers/balanceScenario';
 import type { Card, Save } from '../src/game/types';
@@ -235,6 +235,15 @@ describe('炮击同形态比较', () => {
 });
 
 describe('校准公式的边界与真实结算', () => {
+  it('独立审核支持小妖兽形态，正常开局仍需要扫描解锁', () => {
+    const initial = emptySave();
+    expect(reduceGame(initial, { type: 'start', partner: 'impmon', seed: 42 })).toEqual(initial);
+    const scene = balanceScenario([card('nightfire')], 'impmon');
+    expect(scene.run!.partner).toBe('impmon');
+    expect(scene.run!.battle!.hand[0].id).toBe('nightfire');
+    expect(calibrateAction(scene, { type: 'play', uid: 'nightfire' }).legal).toBe(true);
+    expect(initial.meta.scans.beelzebumon ?? 0).toBe(0);
+  });
   it('灼烧按边际池、折现、生命上限计算', () => {
     expect(burnValue(5, 3)).toBe(12);
     expect(burnValue(10, 3) - burnValue(5, 3)).toBe(15);
@@ -285,7 +294,7 @@ describe('校准公式的边界与真实结算', () => {
     cannon.run!.battle!.charge = 3;
     expect(calibrateAction(cannon, { type: 'play', uid: 'cannon' })).toMatchObject({
       damage: 26,
-      charge: -9,
+      charge: -12, // v3默认识别手中可支付炮击，兑现系数为1。
       energy: -2,
     });
   });

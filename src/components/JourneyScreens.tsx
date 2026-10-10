@@ -7,11 +7,12 @@ import {
   GitBranch,
   Heart,
   Layers,
+  Package,
   ShoppingBag,
   Tent,
   Zap,
 } from 'lucide-react';
-import { CARDS, ENEMIES, RELICS, asset, cardDefinition } from '../game/data';
+import { CARDS, ENEMIES, RELICS, asset } from '../game/data';
 import { stageLimit } from '../game/evolution';
 import type { Action, Card, Meta, Run } from '../game/types';
 import { GameCard } from './GameCard';
@@ -24,6 +25,8 @@ import {
   JourneyResources,
 } from './JourneyPanel';
 import { ROUTE_DATA } from '../game/evolution';
+import { relicIdFromPurchase, relicPurchaseId, shopPrice } from '../game/shop';
+import { relicIcons } from './relicIcons';
 
 type NodeProps = { run: Run; onAction: (action: Action) => void };
 const sample = (id: string): Card => ({ uid: id, id, upgraded: false });
@@ -31,24 +34,43 @@ const sample = (id: string): Card => ({ uid: id, id, upgraded: false });
 export function ShopView({ run, onAction }: NodeProps) {
   const [item, setItem] = useState<string | null>(null),
     [removing, setRemoving] = useState(false);
-  const price = item === 'potion' ? 30 : item === 'relic' ? 80 : 45;
+  const price = shopPrice(item ?? '');
   function block(id: string) {
-    if (run.shopBought.includes(id)) return '本次已购入';
+    if (run.shopBought.includes(id)) return '已售出';
+    const relicId = relicIdFromPurchase(id);
+    if (relicId && run.relics.includes(relicId)) return '本局已拥有';
     if (id === 'remove' && run.shopRemoved) return '本次已精简';
     if (id === 'remove' && run.deck.length <= 5) return '至少保留 5 张牌';
     if (id === 'potion' && run.potions >= 2) return '磁盘已满 2/2';
     if (id === 'relic' && Object.keys(RELICS).every((key) => run.relics.includes(key)))
       return '已拥有全部装置';
-    const cost = id === 'potion' ? 30 : id === 'relic' ? 80 : 45;
+    const cost = shopPrice(id);
     return run.gold < cost ? `还差 ${cost - run.gold} 金币` : '';
   }
-  const card = item && run.shopStock.includes(item) ? sample(item) : null,
+  const relicId = item ? relicIdFromPurchase(item) : null,
+    relic = relicId ? RELICS[relicId] : null,
+    DetailIcon = relicId ? (relicIcons[relicId] ?? Box) : item === 'potion' ? Heart : Package,
+    card = item && run.shopStock.includes(item) ? sample(item) : null,
     blocked = item ? block(item) : '';
   const title = card
     ? `购买 ${CARDS[card.id].name}`
     : item === 'potion'
       ? '购买恢复磁盘'
-      : '购买未知装置';
+      : relic
+        ? `购买 ${relic.name}`
+        : '购买装置盲盒';
+  const devices = [
+    ...run.shopRelicStock
+      .filter((id) => RELICS[id])
+      .map((id) => ({
+        id: relicPurchaseId(id),
+        name: RELICS[id].name,
+        Icon: relicIcons[id] ?? Box,
+        random: false,
+        owned: run.relics.includes(id),
+      })),
+    { id: 'relic', name: '装置盲盒', Icon: Package, random: true, owned: false },
+  ];
   return (
     <div className="journey-screen shop-screen">
       <JourneyHeader icon={<ShoppingBag />} title="旅途中的补给。" eyebrow="THE WANDERING TRADER">
@@ -61,6 +83,39 @@ export function ShopView({ run, onAction }: NodeProps) {
           {run.message}
         </p>
       )}
+      <section className="journey-device-stock" aria-label="装置货架">
+        <div className="journey-section-title">
+          <h2>装置货架</h2>
+          <span>点选查看效果</span>
+        </div>
+        <div className="journey-device-grid">
+          {devices.map(({ id, name, Icon, random, owned }) => {
+            const sold = run.shopBought.includes(id),
+              status = sold
+                ? '已售出'
+                : owned
+                  ? '本局已拥有'
+                  : random && block(id) === '已拥有全部装置'
+                    ? '已拥有全部装置'
+                    : '';
+            return (
+              <button
+                key={id}
+                className={`journey-device-product ${sold || owned ? 'journey-device-owned' : ''}`}
+                aria-haspopup="dialog"
+                aria-pressed={item === id}
+                onClick={() => setItem(id)}
+              >
+                <Icon size={34} aria-hidden="true" />
+                <strong>{name}</strong>
+                {random && <span className="journey-device-random">随机装置</span>}
+                <span className="journey-device-price">{shopPrice(id)} 金币</span>
+                {status && <small className="journey-device-status">{status}</small>}
+              </button>
+            );
+          })}
+        </div>
+      </section>
       <section className="journey-stock">
         <div className="journey-section-title">
           <h2>卡牌补给</h2>
@@ -86,17 +141,6 @@ export function ShopView({ run, onAction }: NodeProps) {
               </strong>
               <small>获得 1 个 · 战斗中使用回复 18 生命</small>
               {block('potion') && <small className="journey-blocked">{block('potion')}</small>}
-            </span>
-            <ArrowRight />
-          </button>
-          <button className="option" disabled={!!block('relic')} onClick={() => setItem('relic')}>
-            <Box />
-            <span>
-              <strong>
-                未知装置 <b>80 金币</b>
-              </strong>
-              <small>随机获得 1 件未拥有的装置 · 本局持续生效</small>
-              {block('relic') && <small className="journey-blocked">{block('relic')}</small>}
             </span>
             <ArrowRight />
           </button>
@@ -128,10 +172,14 @@ export function ShopView({ run, onAction }: NodeProps) {
           onClose={() => setItem(null)}
           footer={
             <>
-              <p className="journey-action-note">
-                {blocked ||
-                  `金币 ${run.gold} → ${run.gold - price}${item === 'potion' ? ` · 磁盘 ${run.potions} → ${run.potions + 1}/2` : card ? ` · 卡组 ${run.deck.length} → ${run.deck.length + 1} 张` : ''}`}
-              </p>
+              {(blocked || item === 'potion' || card) && (
+                <p className="journey-action-note">
+                  {blocked ||
+                    (item === 'potion'
+                      ? `磁盘 ${run.potions} → ${run.potions + 1}/2`
+                      : `卡组 ${run.deck.length} → ${run.deck.length + 1} 张`)}
+                </p>
+              )}
               <div>
                 <button className="secondary" onClick={() => setItem(null)}>
                   取消
@@ -144,7 +192,7 @@ export function ShopView({ run, onAction }: NodeProps) {
                     setItem(null);
                   }}
                 >
-                  购买 · {price} 金币
+                  {blocked ? '无法购买' : item === 'relic' ? '购买并开启' : '购买'} · {price} 金币
                 </button>
               </div>
             </>
@@ -155,13 +203,20 @@ export function ShopView({ run, onAction }: NodeProps) {
             <CardEffectPreview card={card} />
           ) : (
             <div className="journey-item-detail">
-              {item === 'potion' ? <Heart size={34} /> : <Box size={34} />}
-              <h3>{item === 'potion' ? '恢复磁盘' : '未知装置'}</h3>
+              <DetailIcon size={34} />
+              <h3>{item === 'potion' ? '恢复磁盘' : (relic?.name ?? '装置盲盒')}</h3>
               <p>
                 {item === 'potion'
                   ? '放入行囊，战斗中使用时回复最多 18 生命。购买不会立即回血，最多携带 2 个。'
-                  : '购买后随机获得一件未拥有的装置，效果将在本局持续生效。'}
+                  : (relic?.text ??
+                    '随机获得 1 件未拥有的装置，优先抽取当前牌组可用的装置。购买后立即揭晓，本次到访限购 1 次。')}
               </p>
+              {relic && (
+                <small className="journey-hint">
+                  {relicId && run.relics.includes(relicId) ? '本局已拥有' : '本局尚未持有'} ·
+                  获得后自动生效
+                </small>
+              )}
             </div>
           )}
           {card && (
@@ -292,14 +347,12 @@ export function CampView({ run, onAction }: NodeProps) {
 }
 
 export function RewardView({ run, meta, onAction }: NodeProps & { meta: Meta }) {
-  const [selected, setSelected] = useState<string | null>(null);
   const reward = run.reward;
   if (!reward) return null;
-  const card = selected ? sample(selected) : null;
   return (
     <div className="journey-screen reward-screen">
       <JourneyHeader icon={<Check />} title="漂亮的配合。" eyebrow="CONNECTION RESTORED">
-        选择一张卡牌加入牌组，也可以跳过。
+        点选一张卡牌直接加入牌组，也可以跳过。
       </JourneyHeader>
       <div className="reward-badges">
         <span>
@@ -327,13 +380,8 @@ export function RewardView({ run, meta, onAction }: NodeProps & { meta: Meta }) 
             <GameCard
               run={run}
               card={sample(id)}
-              selected={selected === id}
-              onClick={() => setSelected(id)}
+              onClick={() => onAction({ type: 'reward', card: id })}
             />
-            <button className="text-btn" onClick={() => setSelected(id)}>
-              查看效果
-              <ArrowRight size={14} />
-            </button>
           </div>
         ))}
       </div>
@@ -383,43 +431,12 @@ export function RewardView({ run, meta, onAction }: NodeProps & { meta: Meta }) 
         </details>
       )}
       <footer className="journey-bottom-bar">
-        <span>卡组 {run.deck.length} 张 · 点牌预览</span>
+        <span>卡组 {run.deck.length} 张 · 点牌领取</span>
         <button className="secondary" onClick={() => onAction({ type: 'reward' })}>
           跳过卡牌，继续
           <ArrowRight size={15} />
         </button>
       </footer>
-      {card && (
-        <JourneyPanel
-          title="领取卡牌"
-          onClose={() => setSelected(null)}
-          footer={
-            <>
-              <p className="journey-action-note">
-                卡组 {run.deck.length} → {run.deck.length + 1} 张 · 选择后继续旅程
-              </p>
-              <div>
-                <button className="secondary" onClick={() => setSelected(null)}>
-                  再看看
-                </button>
-                <button
-                  className="primary"
-                  onClick={() => onAction({ type: 'reward', card: card.id })}
-                >
-                  加入牌组
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            </>
-          }
-        >
-          <CardEffectPreview card={card} />
-          <p className="journey-hint">
-            牌组中已有 {run.deck.filter((value) => value.id === card.id).length} 张{' '}
-            {cardDefinition(card).name}。
-          </p>
-        </JourneyPanel>
-      )}
     </div>
   );
 }

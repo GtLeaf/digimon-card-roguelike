@@ -1,11 +1,17 @@
-import { skillUnlocked, weightedOffers } from './cardSkills';
+import { offerEligible, weightedOffers } from './cardSkills';
 import { awardRelic, afterReward, beginBattle, finishNode } from './battle';
 import { BRANCHES, CARDS, PARTNERS, RELICS, inheritanceOptions } from './data';
-import { EVOLUTIONS, evolutionStatus, stageLimit } from './evolution';
+import { EVOLUTIONS, evolutionCardGains, evolutionStatus, stageLimit } from './evolution';
 import { applyEvent } from './events';
 import { availableNodes } from './map';
 import { makeCard } from './random';
 import type { Action, Run, Save } from './types';
+import {
+  relicIdFromPurchase,
+  SHOP_BLIND_BOX_PRICE,
+  SHOP_RELIC_PRICE,
+  shopRelicOffers,
+} from './shop';
 
 // 地图/收益/营地/商店/事件/祝福/进化等节点动作体。
 // 返回 false 表示动作被拒绝，由 runAction 还原为原状态引用。
@@ -25,6 +31,7 @@ export function nodeAction(s: Save, action: Extract<Action, { type: 'node' }>): 
     if (n.kind === 'camp') r.supportSpent = false;
     if (n.kind === 'shop') {
       r.shopStock = weightedOffers(r, 3);
+      r.shopRelicStock = shopRelicOffers(r);
       r.shopBought = [];
       r.shopRemoved = false;
     }
@@ -41,12 +48,12 @@ export function rewardAction(s: Save, action: Extract<Action, { type: 'reward' }
     action.card &&
     (!r.reward!.cards.includes(action.card) ||
       !CARDS[action.card] ||
-      !skillUnlocked(r, CARDS[action.card]))
+      !offerEligible(r, CARDS[action.card]))
   )
     return false;
   if (action.card) {
     r.deck.push(makeCard(r, action.card));
-    r.message = `已加入牌组：${CARDS[action.card].name} · 卡组 ${r.deck.length - 1} → ${r.deck.length} 张`;
+    r.message = '';
   } else r.message = '已跳过卡牌奖励，金币与扫描资料已保留。';
   afterReward(r, s.meta);
   return true;
@@ -75,28 +82,43 @@ export function restAction(s: Save) {
 }
 export function buyAction(s: Save, action: Extract<Action, { type: 'buy' }>) {
   const r = s.run!;
+  const relicId = relicIdFromPurchase(action.id);
   if (
     r.shopStock.includes(action.id) &&
     r.gold >= 45 &&
     CARDS[action.id] &&
-    skillUnlocked(r, CARDS[action.id])
+    offerEligible(r, CARDS[action.id])
   ) {
     r.gold -= 45;
     r.deck.push(makeCard(r, action.id));
     r.shopBought.push(action.id);
-    r.message = `已购入：${CARDS[action.id].name} · 金币 −45 · 余额 ${r.gold} · 卡组 ${r.deck.length} 张`;
+    r.message = `已购入：${CARDS[action.id].name} · 金币 −45 · 卡组 ${r.deck.length} 张`;
   } else if (action.id === 'potion' && r.gold >= 30 && r.potions < 2) {
     r.gold -= 30;
     r.potions++;
     r.shopBought.push(action.id);
-    r.message = `已获得恢复磁盘 · 磁盘 ${r.potions}/2 · 金币 −30 · 余额 ${r.gold} · 战斗中使用回血`;
-  } else if (action.id === 'relic' && r.gold >= 80) {
-    r.gold -= 80;
+    r.message = `已获得恢复磁盘 · 磁盘 ${r.potions}/2 · 金币 −30 · 战斗中使用回血`;
+  } else if (
+    relicId !== null &&
+    r.shopRelicStock.includes(relicId) &&
+    RELICS[relicId] &&
+    !r.relics.includes(relicId) &&
+    r.gold >= SHOP_RELIC_PRICE
+  ) {
+    r.gold -= SHOP_RELIC_PRICE;
+    r.relics.push(relicId);
+    r.shopBought.push(action.id);
+    r.message = `已获得：${RELICS[relicId].name} · ${RELICS[relicId].text} · 金币 −${SHOP_RELIC_PRICE}`;
+  } else if (
+    action.id === 'relic' &&
+    r.gold >= SHOP_BLIND_BOX_PRICE &&
+    Object.keys(RELICS).some((id) => !r.relics.includes(id))
+  ) {
+    r.gold -= SHOP_BLIND_BOX_PRICE;
     const id = awardRelic(r);
     r.shopBought.push(action.id);
-    r.message = id
-      ? `已获得：${RELICS[id].name} · ${RELICS[id].text} · 金币 −80 · 余额 ${r.gold}`
-      : `全部装置已拥有，转为 35 金币 · 余额 ${r.gold}`;
+    if (id)
+      r.message = `盲盒已开启 · 已获得：${RELICS[id].name} · ${RELICS[id].text} · 金币 −${SHOP_BLIND_BOX_PRICE}`;
   }
 }
 export function removeAction(s: Save, action: Extract<Action, { type: 'remove' }>) {
@@ -144,23 +166,13 @@ export function evolveAction(s: Save, action: Extract<Action, { type: 'evolve' }
     d.stage === 3 &&
     ['dukemon', 'megidramon', 'sakuyamon', 'kuzuhamon'].includes(form);
   if (!evolutionStatus(r, meta, form).ready && !legacy) return false;
-  const ids = [...new Set(action.replace ?? [])];
-  if (ids.length !== 2 || ids.some((uid) => !r.deck.some((c) => c.uid === uid))) return false;
-  const previousForm = r.form;
-  if (d.signatureUpgrade) {
-    const signatureIds = EVOLUTIONS[previousForm]?.cards ?? [];
-    r.deck.forEach((c) => {
-      if (signatureIds.includes(c.id)) c.upgraded = true;
-    });
-  }
-  ids.forEach((uid, i) => {
-    const c = r.deck.find((x) => x.uid === uid);
-    if (c) {
-      c.id = d.cards[i];
-      c.upgraded = false; // 新卡一律未强化，被替换的强化牌视为消耗
-    }
+  const gains = evolutionCardGains(r, form);
+  r.deck.forEach((c) => {
+    if (gains.upgradeIds.includes(c.id)) c.upgraded = true;
   });
-  r.spotlight = [...ids]; // 进化获得的新卡：下一场战斗洗入抽牌堆前半段
+  const newCards = gains.newIds.map((id) => makeCard(r, id));
+  r.deck.push(...newCards);
+  r.spotlight = [...new Set([...(r.spotlight ?? []), ...newCards.map((c) => c.uid)])];
   r.form = form;
   r.stage = d.stage;
   r.evolved = d.stage;

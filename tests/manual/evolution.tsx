@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { EvolutionTree } from '../../src/components/EvolutionTree';
+import { EvolutionScreen } from '../../src/screens/EvolutionScreen';
 import { DeckViewer } from '../../src/components/DeckViewer';
 import { JourneyPanel } from '../../src/components/JourneyPanel';
-import { CARDS } from '../../src/game/data';
 import { emptySave, reduceGame } from '../../src/game/engine';
 import { EVOLUTIONS, formName } from '../../src/game/evolution';
 import type { Action } from '../../src/game/types';
@@ -17,8 +17,8 @@ function scenario(form: string) {
     screen: 'evolution',
     form,
     stage: d.stage,
-    row: d.stage === 1 ? 19 : 29,
-    bosses: d.stage === 1 ? 2 : 3,
+    row: d.stage === 0 ? 3 : d.stage === 1 ? 19 : 29,
+    bosses: d.stage === 0 ? 0 : d.stage === 1 ? 2 : 3,
     victories: 6,
     formHistory: [d.partner, form],
     inherit: d.partner === 'renamon' ? 'seal' : 'ember',
@@ -56,8 +56,14 @@ function Preview() {
     [key, setKey] = useState(0),
     [deck, setDeck] = useState(false),
     [last, setLast] = useState<Action | null>(null);
-  function open(form: string, view = false) {
-    setSave(scenario(form));
+  function open(form: string, view = false, mode?: 'blocked' | 'camp') {
+    const next = scenario(form);
+    if (mode === 'blocked') {
+      next.meta.unlockedRoutes = [];
+      next.run!.activity.counts = {};
+    }
+    if (mode === 'camp') next.run!.evolutionReturn = 'camp';
+    setSave(next);
     setBrowse(view);
     setKey((k) => k + 1);
     setLast(null);
@@ -70,35 +76,36 @@ function Preview() {
   return (
     <main style={{ maxWidth: 960, margin: '0 auto', padding: 16 }}>
       <div className="journey-filters">
-        <button onClick={() => open('growlmon')}>完全体替换验收</button>
-        <button onClick={() => open('blackwargrowlmon')}>究极体强化继承验收</button>
+        <button onClick={() => open('growlmon')}>完全体赠牌验收</button>
+        <button onClick={() => open('blackwargrowlmon')}>究极体赠牌验收</button>
+        <button onClick={() => open('renamon')}>招式强化验收</button>
         <button onClick={() => open('doumon', true)}>进化树浏览验收</button>
+        <button onClick={() => open('blackwargrowlmon', false, 'blocked')}>缺少条件验收</button>
+        <button onClick={() => open('growlmon', false, 'camp')}>营地补进化验收</button>
       </div>
       <p className="modal-note">独立内存验收 · 不影响玩家存档</p>
       {last?.type === 'evolve' ? (
         <section aria-label="进化验收结果">
           <h2>进化成功：{formName(run.form)}</h2>
-          <p className="modal-note">牌组 {run.deck.length} 张 · 槽位按提交顺序配对</p>
-          {last.replace?.map((uid, i) => {
-            const card = run.deck.find((c) => c.uid === uid)!;
-            return (
-              <p key={uid}>
-                槽位 {i + 1}：{CARDS[card.id].name}
-                {card.upgraded ? '＋' : ''} · {uid}
-              </p>
-            );
-          })}
+          <p className="modal-note">牌组 {run.deck.length} 张 · 新招式直接入组，已有招式自动强化</p>
           <DeckViewer run={run} />
         </section>
       ) : last?.type === 'deferEvolution' ? (
         <p>已返回旅途，卡牌保持原样。</p>
-      ) : (
+      ) : browse ? (
         <EvolutionTree
           key={key}
           run={run}
           meta={save.meta}
-          choose={!browse}
           onAction={act}
+          onDeck={() => setDeck(true)}
+        />
+      ) : (
+        <EvolutionScreen
+          key={key}
+          run={run}
+          meta={save.meta}
+          send={act}
           onDeck={() => setDeck(true)}
         />
       )}

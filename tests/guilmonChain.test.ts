@@ -36,20 +36,18 @@ describe('六条基尔兽进化路径的赠牌与获取衔接', () => {
           detonations: 4,
           defenses: 12,
         };
-        const replacements = s.run!.deck.slice(0, 2).map((c) => c.uid);
+        const before = structuredClone(s.run!.deck);
         s = reduceGame(s, {
           type: 'evolve',
           form,
-          replace: replacements,
           training: 'defense',
           inherit: 'ward',
         });
         expect(s.run!.form).toBe(form);
-        expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(
-          EVOLUTIONS[form].cards.slice(0, 2),
-        );
-        expect(s.run!.deck.slice(0, 2).map((c) => c.upgraded)).toEqual([false, false]);
-        expect(s.run!.deck).toHaveLength(10);
+        expect(s.run!.deck.slice(-2).map((c) => c.id)).toEqual(EVOLUTIONS[form].cards.slice(0, 2));
+        expect(s.run!.deck.slice(-2).map((c) => c.upgraded)).toEqual([false, false]);
+        expect(s.run!.deck).toHaveLength(before.length + 2);
+        expect(s.run!.deck.slice(0, before.length)).toEqual(before);
         expect(cardPool(s.run!)).toContain('ignite');
       }
       expect(s.run!.formHistory).toEqual(['guilmon', ...path]);

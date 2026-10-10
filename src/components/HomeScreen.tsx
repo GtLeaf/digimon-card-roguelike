@@ -22,6 +22,7 @@ import {
   PORTRAIT_FORMS,
 } from '../game/data';
 import { stageName } from '../game/evolution';
+import { AttributeLabel } from './AttributeLabel';
 import type { Meta, Partner, Run } from '../game/types';
 import './HomeScreen.css';
 
@@ -116,6 +117,7 @@ export function HomeScreen({
           <img className="start-character" key={form} src={asset(form)} alt={name} />
           <div className="start-profile" aria-live="polite" aria-atomic="true">
             <span className="start-form-tag">
+              <AttributeLabel id={form} compact /> ·{' '}
               {activeRun ? (
                 <>
                   {stageName(activeRun.stage)}

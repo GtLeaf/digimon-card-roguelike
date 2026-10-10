@@ -2,7 +2,7 @@ import { ENEMIES } from './data';
 import { ENCOUNTERS } from './encounters';
 import { EVENTS } from './events';
 import { connectMap, validateMap } from './map';
-import type { MapNode, NodeKind } from './types';
+import type { EnemyModifier, MapNode, NodeKind } from './types';
 
 // 五章各10层：第0层三路线起点；第4层进化与第7、8层为汇合点；第8层首领前必有营地。
 // 模板内营地／商店互不相邻且不同层并列，生成后由 validateMap 强制校验。
@@ -46,11 +46,16 @@ const layouts: NodeKind[][][] = [
 ];
 const BOSSES = ['sinduramon', 'beelzebumon', 'machinedramon', 'diaboromon', 'core'];
 const ELITES = [
-  ['devidramon', 'dokugumon', 'devimon'],
-  ['icedevimon', 'vajramon', 'skullgreymon'],
-  ['rookchessmon', 'bishopchessmon', 'vajramon', 'skullgreymon'],
-  ['devimon', 'icedevimon', 'infermon', 'lilithmon', 'leviamon', 'grandracmon'],
-  ['sentinel', 'devourer', 'armageddemon', 'daemon', 'belphemon', 'barbamon'],
+  [['devidramon'], ['dokugumon'], ['devimon']],
+  [['icedevimon'], ['vajramon'], ['skullgreymon']],
+  [
+    ['rookchessmon', 'pawnchessmonwhite'],
+    ['bishopchessmon', 'knightchessmonwhite'],
+    ['vajramon'],
+    ['skullgreymon'],
+  ],
+  [['devimon'], ['icedevimon'], ['infermon'], ['lilithmon'], ['leviamon'], ['grandracmon']],
+  [['sentinel'], ['devourer'], ['armageddemon'], ['daemon'], ['belphemon'], ['barbamon']],
 ];
 export function generateWorld(random: () => number, tutorial: boolean): MapNode[][] {
   const usedEvents = new Set<string>(),
@@ -72,6 +77,7 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
       nodes.push(
         kinds.map((kind, lane) => {
           let enemies: string[] = [],
+            enemyModifiers: EnemyModifier[] | undefined,
             encounterId: string | undefined,
             eventId: string | undefined;
           if (kind === 'battle') {
@@ -90,9 +96,23 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
               usedEncounters.add(encounter.id);
               enemies = encounter.enemies;
               encounterId = encounter.id;
+              enemyModifiers = encounter.enemyModifiers;
             }
           }
-          if (kind === 'elite') enemies = [pick(ELITES[chapter])];
+          if (kind === 'elite') {
+            enemies = pick(ELITES[chapter]);
+            // 按整队预算缩放，护卫／治疗拥有作用对象而非直接叠加一只满强度小怪。
+            if (enemies[0] === 'rookchessmon')
+              enemyModifiers = [
+                { hpScale: 0.62, damageScale: 0.8 },
+                { hpScale: 0.7, damageScale: 0.6, phaseOffset: 1 },
+              ];
+            if (enemies[0] === 'bishopchessmon')
+              enemyModifiers = [
+                { hpScale: 0.72, damageScale: 0.85 },
+                { hpScale: 0.6, damageScale: 0.7, phaseOffset: 1 },
+              ];
+          }
           if (kind === 'boss') enemies = [boss];
           if (kind === 'event') {
             eventId =
@@ -123,6 +143,7 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
             enemies: [...enemies],
             next: [],
             ...(encounterId ? { encounterId } : {}),
+            ...(enemyModifiers ? { enemyModifiers: enemyModifiers.map((m) => ({ ...m })) } : {}),
             ...(eventId ? { eventId } : {}),
           };
         }),

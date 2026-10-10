@@ -4,8 +4,9 @@ public
 previews
 tools
 node_modules
+.pwa-check
 src/game/sprites.json
 *.md
 
 # 审核工具生成的历史样本，保留原始报告与哈希
-reports/*.json
+docs/reports/*.json

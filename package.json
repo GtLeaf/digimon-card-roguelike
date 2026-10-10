@@ -8,11 +8,13 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
+    "test:offline": "npm run build -- --outDir .pwa-check/dist --base=/digimon-card-roguelike/ && node tools/test_offline.mjs",
     "audit:balance": "node tools/audit_card_balance.mjs",
     "audit:journeys": "node tools/simulate_balance.mjs",
     "audit:combinations": "node tools/audit_balance_round2.mjs",
     "audit:compare": "node tools/compare_balance.mjs",
     "audit:guilmon": "node tools/audit_guilmon_routes.mjs",
+    "audit:enemies": "node tools/audit_enemy_ai.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
     "format": "prettier --write .",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.28.0",
+    "@playwright/test": "1.64.0",
     "@tailwindcss/vite": "4.1.10",
     "@types/node": "^22.20.4",
     "@types/react": "19.1.6",
@@ -40,6 +43,7 @@
     "typescript": "5.8.3",
     "typescript-eslint": "8.34.0",
     "vite": "6.3.5",
+    "vite-plugin-pwa": "1.2.0",
     "vitest": "3.2.4"
   }
 }

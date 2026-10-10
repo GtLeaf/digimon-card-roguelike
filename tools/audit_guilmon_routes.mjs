@@ -21,7 +21,7 @@ try {
  const bundle=phase==='before'?join(root,'.backups/guilmon-chain-20261009/baseline.mjs'):join(temp,'after.mjs');
  if(phase==='after')await build({stdin:{contents:"export * from './tests/helpers/journeySimulation';export * from './src/game/data';export * from './src/game/evolution';",resolveDir:root},bundle:true,platform:'node',format:'esm',outfile:bundle,define:{'import.meta.env.BASE_URL':'"/"'}});
  const {simulateJourney,CARDS,EVOLUTIONS}=await import(pathToFileURL(bundle).href);
- const veteran=JSON.parse(await readFile(join(root,'reports/balance-veteran-profile.json'),'utf8')).meta;
+ const veteran=JSON.parse(await readFile(join(root,'docs/reports/balance-veteran-profile.json'),'utf8')).meta;
  const rows=[];
  for(const cohort of ['development','holdout'])for(const profile of ['new','veteran'])for(const strategy of ['survival','synergy'])for(const path of paths){
   const offset=cohort==='development'?0:50;
@@ -33,7 +33,7 @@ try {
  }
  const simulationSource=phase==='before'?'.backups/guilmon-chain-20261009/journeySimulation.ts':'tests/helpers/journeySimulation.ts';
  const policies={seeds:'i*7919+42; development i=0..49; holdout i=50..99',strategies:['survival','synergy'],maxDeck:16,maxShopCardPurchases:2,maxShopRemovals:2,paths,veteran:'balance-veteran-profile.json',simulationHash:createHash('sha256').update(await readFile(join(root,simulationSource))).digest('hex')};
- const out=join(root,'reports');await mkdir(out,{recursive:true});
+ const out=join(root,'docs','reports');await mkdir(out,{recursive:true});
  const file=join(out,`guilmon-chain-${phase}.json`);
  await writeFile(file,JSON.stringify({phase,modelHash:createHash('sha256').update(await readFile(bundle)).digest('hex'),policies,cards:CARDS,evolutions:EVOLUTIONS,rows},null,2)+'\n');
  if(phase==='after'){

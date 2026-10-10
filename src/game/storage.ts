@@ -7,6 +7,7 @@ import { emptyActivity, EVOLUTIONS, syncRouteData } from './evolution';
 import { connectMap } from './map';
 import { CARDS, ENEMIES, PARTNERS } from './data';
 import type { Save } from './types';
+import { shopRelicOffers } from './shop';
 export const SAVE_KEY = 'digimon-journey-v1';
 const activity = z.object({
   counts: z.record(
@@ -62,6 +63,8 @@ const enemy = z.object({
   summonedBy: z.string().optional(),
   rogue: z.boolean().optional(),
   deathDone: z.boolean().optional(),
+  phaseOffset: z.number().int().min(0).max(3).optional(),
+  damageScale: z.number().positive().max(1).optional(),
 });
 const node = z.object({
   eventId: z
@@ -79,6 +82,16 @@ const node = z.object({
   kind: z.enum(['battle', 'elite', 'boss', 'camp', 'shop', 'event', 'treasure', 'evolution']),
   label: z.string(),
   enemies: z.array(z.string().refine((id) => id in ENEMIES)),
+  enemyModifiers: z
+    .array(
+      z.object({
+        hpScale: z.number().positive().max(1).optional(),
+        damageScale: z.number().positive().max(1).optional(),
+        phaseOffset: z.number().int().min(0).max(3).optional(),
+      }),
+    )
+    .max(3)
+    .optional(),
 });
 const reward = z.object({
   gains: z.array(z.string()).optional(),
@@ -202,6 +215,7 @@ const run = z
     battle: battle.nullable(),
     reward: reward.nullable(),
     shopStock: z.array(z.string()),
+    shopRelicStock: z.array(z.string()).optional(),
     shopBought: z.array(z.string()),
     shopRemoved: z.boolean(),
     spotlight: z.array(z.string()).optional(),
@@ -230,7 +244,11 @@ export const saveSchema = z.object({
 export function parseSave(raw: string): Save {
   const parsed = saveSchema.parse(JSON.parse(raw));
   const legacy = parsed.version === 1;
-  const save: Save = { ...parsed, version: 3 };
+  const save: Save = {
+    ...parsed,
+    version: 3,
+    run: parsed.run ? { ...parsed.run, shopRelicStock: parsed.run.shopRelicStock ?? [] } : null,
+  };
   // v2及更早的进行中对局保留8层旧章结构，按旧门槛跑完本局。
   if (parsed.version < 3 && save.run) save.run.chapterRows = 8;
   if (legacy && save.run) {
@@ -254,7 +272,12 @@ export function parseSave(raw: string): Save {
     ];
     r.legacyEvolution = r.screen === 'evolution' && r.stage === 2;
   }
-  if (save.run) refreshLockedOffers(save.run);
+  if (save.run) {
+    refreshLockedOffers(save.run);
+    // 旧商店补建货架，使用随机状态副本，保留原对局后续随机序列。
+    if (save.run.screen === 'shop' && parsed.run?.shopRelicStock === undefined)
+      save.run.shopRelicStock = shopRelicOffers({ ...save.run });
+  }
   syncRouteData(save.meta);
   return save;
 }

@@ -90,6 +90,7 @@ pause.onclick=()=>{let p=document.body.classList.toggle('paused');document.query
 background.onclick=()=>{let light=document.body.classList.toggle('light');background.textContent=light?'切换深色背景':'切换浅色背景';background.setAttribute('aria-pressed',String(light));};
 </script></html>'''
 (PREVIEW/'index.html').write_text(page)
-(PREVIEW/'素材检查记录.md').write_text('# 素材检查记录\n\n固定来源版本：`'+REV+'`\n\n'+'\n'.join('- '+x for x in checks)+'\n\n共 12 个形态、48 帧；帧时长保留。以所有帧联合边界裁切后统一置入 256×256 画布，不缩放、不逐帧重新居中，避免抖动。\n')
+(ROOT/'docs/assets').mkdir(parents=True,exist_ok=True)
+(ROOT/'docs/assets/素材检查记录.md').write_text('# 素材检查记录\n\n固定来源版本：`'+REV+'`\n\n'+'\n'.join('- '+x for x in checks)+'\n\n共 12 个形态、48 帧；帧时长保留。以所有帧联合边界裁切后统一置入 256×256 画布，不缩放、不逐帧重新居中，避免抖动。\n')
 print('\n'.join(checks))
 print('Generated manifest, 12 sprite sheets, 48 frames, 12 portraits, contact sheet and HTML preview.')

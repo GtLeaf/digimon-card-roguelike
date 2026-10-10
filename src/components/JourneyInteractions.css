@@ -83,6 +83,63 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
+.journey-device-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.journey-device-product {
+  position: relative;
+  min-width: 0;
+  min-height: 154px;
+  padding: 18px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #1c3037;
+  text-align: center;
+}
+.journey-device-product > svg {
+  flex-shrink: 0;
+  color: var(--mint);
+  margin-bottom: 4px;
+}
+.journey-device-product strong {
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.journey-device-price {
+  color: var(--orange);
+  font-size: 13px;
+}
+.journey-device-random {
+  color: var(--muted);
+  font-size: 11px;
+}
+.journey-device-product:hover,
+.journey-device-product[aria-pressed='true'] {
+  border-color: var(--orange);
+  background: #263a3d;
+}
+.journey-device-status {
+  color: var(--mint);
+  font-size: 12px;
+}
+.journey-device-owned {
+  background: #192a30;
+  border-style: dashed;
+}
+.journey-device-owned > svg,
+.journey-device-owned strong,
+.journey-device-owned .journey-device-price {
+  color: var(--muted);
+}
 .journey-stock-cards > div {
   min-width: 0;
   display: flex;
@@ -437,6 +494,15 @@
 }
 
 @media (max-width: 700px) {
+  .journey-device-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .journey-device-product {
+    min-height: 138px;
+    padding: 14px 8px 12px;
+    gap: 6px;
+  }
   .journey-screen {
     padding: 22px 16px 100px;
     min-height: calc(100dvh - 126px);

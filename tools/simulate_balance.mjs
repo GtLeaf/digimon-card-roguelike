@@ -21,7 +21,7 @@ try {
   if(Object.keys(old).length!==Object.keys(CARDS).length||Object.keys(CARDS).some(id=>!old[id]||old[id].id!==id))throw Error('Invalid card snapshot');
   Object.assign(CARDS,old);
  }
- const out=join(root,'reports');await mkdir(out,{recursive:true});
+ const out=join(root,'docs','reports');await mkdir(out,{recursive:true});
  let veteran;
  try{veteran=JSON.parse(await readFile(join(out,'balance-veteran-profile.json'),'utf8')).meta;}
  catch{

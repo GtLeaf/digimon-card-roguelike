@@ -174,6 +174,8 @@ export interface Enemy {
   summonedBy?: string;
   rogue?: boolean;
   deathDone?: boolean;
+  phaseOffset?: number;
+  damageScale?: number;
 }
 export interface Intent {
   name: string;
@@ -186,6 +188,8 @@ export interface Intent {
   drain?: number;
   jam?: number;
   strength?: number;
+  strengthTarget?: 'self' | 'all';
+  strengthCap?: number;
   summon?: string[];
   pierce?: boolean;
 }
@@ -259,6 +263,11 @@ export interface Battle {
   log: string[];
   feedback: BattleNumber[];
 }
+export interface EnemyModifier {
+  hpScale?: number;
+  damageScale?: number;
+  phaseOffset?: number;
+}
 export interface MapNode {
   id: string;
   row: number;
@@ -266,6 +275,7 @@ export interface MapNode {
   kind: NodeKind;
   label: string;
   enemies: string[];
+  enemyModifiers?: EnemyModifier[];
   next: string[];
   encounterId?: string;
   eventId?: string;
@@ -312,6 +322,7 @@ export interface Run {
   battle: Battle | null;
   reward: Reward | null;
   shopStock: string[];
+  shopRelicStock: string[];
   shopBought: string[];
   shopRemoved: boolean;
   /** 进化后获得的新卡 uid，下一场战斗洗入抽牌堆前半段后清空 */
@@ -364,6 +375,7 @@ export type Action =
       form?: string;
       branch?: Branch;
       training?: 'attack' | 'defense';
+      /** 兼容旧调用；进化不再替换旧牌，此字段已忽略。 */
       replace?: string[];
       inherit?: Run['inherit'];
     }

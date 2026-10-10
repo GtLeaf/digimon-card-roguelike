@@ -1,7 +1,7 @@
 import { readFile,writeFile } from 'node:fs/promises';
 import { dirname,join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-const root=dirname(dirname(fileURLToPath(import.meta.url))),out=join(root,'reports');
+const root=dirname(dirname(fileURLToPath(import.meta.url))),out=join(root,'docs','reports');
 const load=async name=>JSON.parse(await readFile(join(out,name),'utf8'));
 const trainingOld=await load('journeys-baseline.json'),trainingNew=await load('journeys-round2.json'),testOld=await load('journeys-holdout-baseline.json'),testNew=await load('journeys-holdout.json');
 const oldCards=await load('cards-baseline.json'),newCards=await load('cards-round2.json');

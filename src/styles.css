@@ -951,6 +951,8 @@ progress::-moz-progress-bar {
   gap: 6px;
   color: #f8c383;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .status-tags > span {
   display: flex;
@@ -1188,6 +1190,8 @@ progress::-moz-progress-bar {
   font-family: Georgia, serif;
   font-size: 17px;
   font-weight: bold;
+  line-height: 1;
+  text-align: center;
   z-index: 2;
 }
 .card-category {
@@ -3465,16 +3469,6 @@ progress::-moz-progress-bar {
     transition: none;
   }
 }
-.map-message {
-  padding: 12px 18px;
-  margin: 0 18px 12px;
-  border: 1px solid #7d9d72;
-  background: #29413b;
-  color: var(--mint);
-  font-size: 13px;
-  line-height: 1.8;
-  border-radius: 5px;
-}
 .collapse-evo-detail {
   display: none;
 }
@@ -3913,25 +3907,6 @@ progress::-moz-progress-bar {
 }
 
 /* 内容扩充沿用深青 #101d23、米白 #f1ead9、橙 #ef9958 与现有中文字体。 */
-.chapter-boss-preview {
-  margin: 0 18px 14px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--orange);
-  background: var(--panel);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-size: 12px;
-}
-.chapter-boss-preview strong {
-  color: var(--paper);
-}
-.chapter-boss-preview small {
-  color: var(--muted);
-  font-size: 10px;
-}
 .enemy-mechanic {
   padding: 10px 16px;
   background: #14272e;
@@ -3989,10 +3964,6 @@ progress::-moz-progress-bar {
   margin-right: 4px;
 }
 @media (max-width: 700px) {
-  .chapter-boss-preview {
-    margin: 0 12px 12px;
-    padding: 10px;
-  }
   .enemy-mechanic {
     padding: 8px 12px;
     font-size: 11px;

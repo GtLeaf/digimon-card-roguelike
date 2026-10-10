@@ -1,0 +1,678 @@
+{
+  "date": "2026-10-09",
+  "method": "人工构造5张合法归属牌的战斗起始夹具；此后只调用正式出牌规则。不代表整局获取概率，不修改玩家存档。",
+  "sourceHashes": {
+    "src/game/balance.ts": "23314b7254aca520e32920ffeb33d9a9f7f481f86e7cc35ded2eaa96440514fc",
+    "src/game/data.ts": "51cb6cfd666db17b985ce7d930b56c7127beeeaebf15b51dd6b77254939c9769",
+    "src/game/cardUpgrades.ts": "d779537f318c8fcecda8ce7c327a3073d420bf0ef11bc8ebeda2b6f4154257ef",
+    "src/game/battle.ts": "0fe2377ec165b6e894cf23a7393f0d39a629181b309ec9dd8867ff0c00d3e253",
+    "src/game/hooks.ts": "2c3ea3cc7898b3c0b57384b23a7d4263861f00122e307eb36479cbe3e3602c93",
+    "src/game/evolution.ts": "21aa98a37d7adb60984caddbdc560d8d69b0d5aaeede437a29878fb6da13152e"
+  },
+  "loops": [
+    {
+      "id": "kaguraBell",
+      "form": "sakuyamon",
+      "history": [
+        "renamon",
+        "youkomon",
+        "doumon",
+        "sakuyamon"
+      ],
+      "deck": [
+        {
+          "id": "kaguraBell",
+          "uid": "a",
+          "upgraded": true
+        },
+        {
+          "id": "kaguraBell",
+          "uid": "b",
+          "upgraded": true
+        },
+        {
+          "id": "runeShard",
+          "uid": "finisher",
+          "upgraded": false
+        },
+        {
+          "id": "guard",
+          "uid": "g1",
+          "upgraded": false
+        },
+        {
+          "id": "guard",
+          "uid": "g2",
+          "upgraded": false
+        }
+      ],
+      "before": {
+        "hp": 60,
+        "energy": 3,
+        "turn": 1,
+        "played": 0,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 100,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "kaguraBell",
+          "kaguraBell",
+          "runeShard",
+          "guard",
+          "guard"
+        ],
+        "exhaust": 0,
+        "screen": "battle"
+      },
+      "after120": {
+        "hp": 60,
+        "energy": 3,
+        "turn": 1,
+        "played": 120,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 100,
+            "mark": 240,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "runeShard",
+          "guard",
+          "guard",
+          "kaguraBell"
+        ],
+        "exhaust": 0,
+        "screen": "battle"
+      },
+      "finish": {
+        "hp": 60,
+        "energy": 3,
+        "turn": 1,
+        "played": 121,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 0,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "guard",
+          "guard",
+          "kaguraBell",
+          "kaguraBell"
+        ],
+        "exhaust": 0,
+        "screen": "reward"
+      },
+      "finishActions": 1
+    },
+    {
+      "id": "izuna",
+      "form": "kuzuhamon",
+      "history": [
+        "renamon",
+        "youkomon",
+        "doumon",
+        "kuzuhamon"
+      ],
+      "deck": [
+        {
+          "id": "izuna",
+          "uid": "a",
+          "upgraded": true
+        },
+        {
+          "id": "izuna",
+          "uid": "b",
+          "upgraded": true
+        },
+        {
+          "id": "runeShard",
+          "uid": "finisher",
+          "upgraded": false
+        },
+        {
+          "id": "guard",
+          "uid": "g1",
+          "upgraded": false
+        },
+        {
+          "id": "guard",
+          "uid": "g2",
+          "upgraded": false
+        }
+      ],
+      "before": {
+        "hp": 60,
+        "energy": 3,
+        "turn": 1,
+        "played": 0,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 100,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "izuna",
+          "izuna",
+          "runeShard",
+          "guard",
+          "guard"
+        ],
+        "exhaust": 0,
+        "screen": "battle"
+      },
+      "after120": {
+        "hp": 60,
+        "energy": 3,
+        "turn": 1,
+        "played": 120,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 96,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "runeShard",
+          "guard",
+          "guard",
+          "izuna"
+        ],
+        "exhaust": 0,
+        "screen": "battle"
+      },
+      "finish": {
+        "hp": 60,
+        "energy": 3,
+        "turn": 1,
+        "played": 183,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 0,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "guard",
+          "guard",
+          "izuna"
+        ],
+        "exhaust": 0,
+        "screen": "reward"
+      },
+      "finishActions": 63
+    },
+    {
+      "id": "curtainSpin",
+      "form": "matadormonAwakened",
+      "history": [
+        "impmon",
+        "sorcerymon",
+        "matadormon",
+        "matadormonAwakened"
+      ],
+      "deck": [
+        {
+          "id": "curtainSpin",
+          "uid": "a",
+          "upgraded": true
+        },
+        {
+          "id": "curtainSpin",
+          "uid": "b",
+          "upgraded": true
+        },
+        {
+          "id": "strike",
+          "uid": "finisher",
+          "upgraded": false
+        },
+        {
+          "id": "guard",
+          "uid": "g1",
+          "upgraded": false
+        },
+        {
+          "id": "guard",
+          "uid": "g2",
+          "upgraded": false
+        }
+      ],
+      "before": {
+        "hp": 60,
+        "energy": 2,
+        "turn": 1,
+        "played": 1,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 93,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "curtainSpin",
+          "curtainSpin",
+          "guard",
+          "guard"
+        ],
+        "exhaust": 0,
+        "screen": "battle"
+      },
+      "after120": {
+        "hp": 60,
+        "energy": 122,
+        "turn": 1,
+        "played": 121,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 93,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "guard",
+          "guard",
+          "strike",
+          "curtainSpin"
+        ],
+        "exhaust": 0,
+        "screen": "battle"
+      },
+      "finish": {
+        "hp": 60,
+        "energy": 122,
+        "turn": 1,
+        "played": 148,
+        "copyUses": 0,
+        "enemies": [
+          {
+            "hp": 0,
+            "mark": 0,
+            "burn": 0
+          }
+        ],
+        "hand": [
+          "guard",
+          "guard",
+          "curtainSpin"
+        ],
+        "exhaust": 0,
+        "screen": "reward"
+      },
+      "finishActions": 27
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "abyssLance",
+      "form": "chaosdukemon",
+      "upgraded": false,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 22,
+      "hpChange": -3,
+      "shield": 0,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 1
+    },
+    {
+      "id": "abyssLance",
+      "form": "chaosdukemon",
+      "upgraded": true,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 25,
+      "hpChange": -3,
+      "shield": 0,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 1
+    },
+    {
+      "id": "chaoslance",
+      "form": "chaosdukemon",
+      "upgraded": false,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 23,
+      "hpChange": 2,
+      "shield": 0,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 0
+    },
+    {
+      "id": "chaoslance",
+      "form": "chaosdukemon",
+      "upgraded": true,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 26,
+      "hpChange": 2,
+      "shield": 0,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 0
+    },
+    {
+      "id": "gramLance",
+      "form": "dukemon",
+      "upgraded": false,
+      "initialBlock": 20,
+      "initialDevour": 0,
+      "hpDamage": 18,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 0
+    },
+    {
+      "id": "gramLance",
+      "form": "dukemon",
+      "upgraded": true,
+      "initialBlock": 20,
+      "initialDevour": 0,
+      "hpDamage": 21,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 0
+    },
+    {
+      "id": "royal",
+      "form": "dukemon",
+      "upgraded": false,
+      "initialBlock": 20,
+      "initialDevour": 0,
+      "hpDamage": 22,
+      "hpChange": 0,
+      "shield": 13,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 0
+    },
+    {
+      "id": "royal",
+      "form": "dukemon",
+      "upgraded": true,
+      "initialBlock": 20,
+      "initialDevour": 0,
+      "hpDamage": 25,
+      "hpChange": 0,
+      "shield": 16,
+      "energy": -2,
+      "devour": 0,
+      "exhaust": 0
+    },
+    {
+      "id": "batSwarm",
+      "form": "vamdemon",
+      "upgraded": false,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 9,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -1,
+      "devour": 1,
+      "exhaust": 0
+    },
+    {
+      "id": "batSwarm",
+      "form": "vamdemon",
+      "upgraded": true,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 18,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -1,
+      "devour": 2,
+      "exhaust": 0
+    },
+    {
+      "id": "nightfire",
+      "form": "vamdemon",
+      "upgraded": false,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 5,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -1,
+      "devour": 1,
+      "exhaust": 0
+    },
+    {
+      "id": "nightfire",
+      "form": "vamdemon",
+      "upgraded": true,
+      "initialBlock": 0,
+      "initialDevour": 0,
+      "hpDamage": 8,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -1,
+      "devour": 1,
+      "exhaust": 0
+    },
+    {
+      "id": "gustCannon",
+      "form": "beelzebumonblaster",
+      "upgraded": false,
+      "initialBlock": 0,
+      "initialDevour": 3,
+      "hpDamage": 69,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -1,
+      "devour": 0,
+      "exhaust": 0
+    },
+    {
+      "id": "gustCannon",
+      "form": "beelzebumonblaster",
+      "upgraded": true,
+      "initialBlock": 0,
+      "initialDevour": 3,
+      "hpDamage": 84,
+      "hpChange": 0,
+      "shield": 0,
+      "energy": -1,
+      "devour": 0,
+      "exhaust": 0
+    }
+  ],
+  "formula": [
+    {
+      "id": "prank",
+      "upgraded": true,
+      "metric": {
+        "legal": true,
+        "score": -3,
+        "damage": 0,
+        "prevented": 0,
+        "healing": 0,
+        "cards": 0,
+        "drawn": 0,
+        "energy": 0,
+        "paid": 0,
+        "lifeCost": 0,
+        "future": 0,
+        "burn": 0,
+        "marks": 0,
+        "charge": 0,
+        "strength": 0,
+        "plays": 1,
+        "netLife": 0,
+        "terminal": false,
+        "dead": false,
+        "screen": "battle",
+        "endTurnScreen": "battle",
+        "endTurnHp": 53,
+        "baselineEndTurnHp": 53
+      },
+      "gain": {
+        "devour": 2,
+        "vulnerable": 0,
+        "nextAttackHits": 0
+      }
+    },
+    {
+      "id": "devourAura",
+      "upgraded": true,
+      "metric": {
+        "legal": true,
+        "score": -3,
+        "damage": 0,
+        "prevented": 0,
+        "healing": 0,
+        "cards": 0,
+        "drawn": 0,
+        "energy": 0,
+        "paid": 0,
+        "lifeCost": 0,
+        "future": 0,
+        "burn": 0,
+        "marks": 0,
+        "charge": 0,
+        "strength": 0,
+        "plays": 1,
+        "netLife": 0,
+        "terminal": false,
+        "dead": false,
+        "screen": "battle",
+        "endTurnScreen": "battle",
+        "endTurnHp": 53,
+        "baselineEndTurnHp": 53
+      },
+      "gain": {
+        "devour": 3,
+        "vulnerable": 0,
+        "nextAttackHits": 0
+      }
+    },
+    {
+      "id": "devourCorrode",
+      "upgraded": true,
+      "metric": {
+        "legal": true,
+        "score": -3,
+        "damage": 0,
+        "prevented": 0,
+        "healing": 0,
+        "cards": 0,
+        "drawn": 0,
+        "energy": 0,
+        "paid": 0,
+        "lifeCost": 0,
+        "future": 0,
+        "burn": 0,
+        "marks": 0,
+        "charge": 0,
+        "strength": 0,
+        "plays": 1,
+        "netLife": 0,
+        "terminal": false,
+        "dead": false,
+        "screen": "battle",
+        "endTurnScreen": "battle",
+        "endTurnHp": 53,
+        "baselineEndTurnHp": 53
+      },
+      "gain": {
+        "devour": 0,
+        "vulnerable": 2,
+        "nextAttackHits": 0
+      }
+    },
+    {
+      "id": "windPressure",
+      "upgraded": true,
+      "metric": {
+        "legal": true,
+        "score": -3,
+        "damage": 0,
+        "prevented": 0,
+        "healing": 0,
+        "cards": 0,
+        "drawn": 0,
+        "energy": 0,
+        "paid": 0,
+        "lifeCost": 0,
+        "future": 0,
+        "burn": 0,
+        "marks": 0,
+        "charge": 0,
+        "strength": 0,
+        "plays": 1,
+        "netLife": 0,
+        "terminal": false,
+        "dead": false,
+        "screen": "battle",
+        "endTurnScreen": "battle",
+        "endTurnHp": 53,
+        "baselineEndTurnHp": 53
+      },
+      "gain": {
+        "devour": 0,
+        "vulnerable": 0,
+        "nextAttackHits": 2
+      }
+    },
+    {
+      "id": "second-attack-lethal",
+      "printed": 1,
+      "actualCost": 0,
+      "metric": {
+        "legal": true,
+        "score": -0.25,
+        "damage": 1,
+        "prevented": 7,
+        "healing": 0,
+        "cards": 0,
+        "drawn": 0,
+        "energy": -1,
+        "paid": 1,
+        "lifeCost": 0,
+        "future": 0,
+        "burn": 0,
+        "marks": 0,
+        "charge": 0,
+        "strength": 0,
+        "plays": 1,
+        "netLife": 0,
+        "terminal": true,
+        "dead": false,
+        "screen": "reward",
+        "endTurnScreen": "reward",
+        "endTurnHp": 60,
+        "baselineEndTurnHp": 53
+      }
+    }
+  ]
+}

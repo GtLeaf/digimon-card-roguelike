@@ -59,8 +59,8 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
     text: '造成 9 伤害，施加 2 灼烧。',
   },
   rock: {
-    damage: 14,
-    text: '造成 14 点伤害。',
+    damage: 13,
+    text: '造成 13 点伤害。',
   },
   ignite: {
     damage: 6,
@@ -92,6 +92,10 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
   flare: {
     shield: 11,
     text: '获得 11 护盾，对所有敌人施加 1 灼烧。',
+  },
+  emberCannon: {
+    damage: 15,
+    text: '造成 15 伤害，施加 2 灼烧；消耗全部蓄能，每层额外 4 伤害。',
   },
   leaf: {
     damage: 5,
@@ -219,8 +223,8 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
     text: '失去 3 生命，获得 21 护盾，抽 1 张牌。',
   },
   abyssLance: {
-    damage: 17,
-    text: '失去 3 生命，造成 17 伤害；若本回合已自损过，额外＋8 伤害。耗竭。',
+    damage: 20,
+    text: '失去 3 生命，造成 20 伤害；若本回合已自损过，额外＋16 伤害。耗竭。',
   },
   tinyTwister: {
     damage: 8,

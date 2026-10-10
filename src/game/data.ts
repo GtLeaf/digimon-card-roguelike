@@ -86,7 +86,7 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       damage: 6,
       burn: 2,
     }),
-    card('rock', '岩石粉碎', 1, 'attack', 'guilmon', '造成 11 点伤害。', 'guilmon', { damage: 11 }),
+    card('rock', '岩石粉碎', 1, 'attack', 'guilmon', '造成 10 点伤害。', 'guilmon', { damage: 10 }),
     card(
       'ignite',
       '烈焰引爆',
@@ -151,6 +151,16 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       '获得 8 护盾，对所有敌人施加 1 灼烧。',
       'wargrowlmon',
       { shield: 8, burn: 1, all: true },
+    ),
+    card(
+      'emberCannon',
+      '炎核重炮',
+      2,
+      'attack',
+      'guilmon',
+      '造成 12 伤害，施加 2 灼烧；消耗全部蓄能，每层额外 4 伤害。',
+      'wargrowlmon',
+      { damage: 12, burn: 2, special: 'cannon' },
     ),
     card('leaf', '狐叶楔', 1, 'attack', 'renamon', '造成 3×2 段伤害，施加 1 符印。', 'renamon', {
       damage: 3,
@@ -228,7 +238,7 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
     card(
       'gramLance',
       '圣枪格拉墨',
-      2,
+      1,
       'attack',
       'duke',
       '造成 12 伤害；当前护盾每 3 点追加 1 伤害。',
@@ -421,14 +431,14 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       2,
       'attack',
       'chaos',
-      '失去 3 生命，造成 14 伤害；若本回合已自损过，额外＋8 伤害。耗竭。',
+      '失去 3 生命，造成 16 伤害；若本回合已自损过，额外＋16 伤害。耗竭。',
       'chaosdukemon',
       {
-        damage: 14,
+        damage: 16,
         special: 'sacrifice',
-        selfCostBonus: 8,
+        selfCostBonus: 16,
         exhaust: true,
-        upgradeText: '失去 3 生命，造成 17 伤害；若本回合已自损过，额外＋8 伤害。耗竭。',
+        upgradeText: '失去 3 生命，造成 20 伤害；若本回合已自损过，额外＋16 伤害。耗竭。',
       },
     ),
     card(

@@ -1,9 +1,12 @@
+import type { EnemyModifier } from './types';
+
 export interface Encounter {
   id: string;
   chapter: number;
   name: string;
   enemies: string[];
   opening?: boolean;
+  enemyModifiers?: EnemyModifier[];
 }
 const encounter = (
   id: string,
@@ -11,8 +14,16 @@ const encounter = (
   name: string,
   enemies: string[],
   opening = false,
-): Encounter => ({ id, chapter, name, enemies, opening });
-// 人工安排角色组合，避免随机拼出多只干扰者或同种重复阵容；第三、四章引入一对三，至多3只且至多1只干扰者。
+  enemyModifiers?: EnemyModifier[],
+): Encounter => ({
+  id,
+  chapter,
+  name,
+  enemies,
+  opening,
+  ...(enemyModifiers ? { enemyModifiers } : {}),
+});
+// 人工安排角色组合；至多3只且至多1只干扰者，允许同种敌人的固定主题编队。
 export const ENCOUNTERS: Encounter[] = [
   encounter('city-ore', 0, '矿石岗哨', ['gotsumon'], true),
   encounter('city-electric', 0, '水边电光', ['betamon'], true),
@@ -38,7 +49,11 @@ export const ENCOUNTERS: Encounter[] = [
   encounter('steel-gears', 2, '齿轮车间', ['hagurumon'], true),
   encounter('steel-clock', 2, '校准警报', ['clockmon'], true),
   encounter('steel-wall', 2, '防线演习', ['andromon', 'knightmon'], true),
-  encounter('steel-trio', 2, '流水线三班', ['hagurumon', 'hagurumon', 'andromon']),
+  encounter('steel-trio', 2, '流水线三班', ['hagurumon', 'hagurumon', 'andromon'], false, [
+    { phaseOffset: 0, damageScale: 0.85 },
+    { phaseOffset: 1, damageScale: 0.85 },
+    { phaseOffset: 2, damageScale: 0.85 },
+  ]),
   encounter('steel-rush', 2, '锋刃突击', ['monodramon', 'knightmon']),
   encounter('steel-mix', 2, '碎石与齿轮', ['gotsumon', 'hagurumon', 'impmon']),
   encounter('steel-guard', 2, '护卫阵列', ['knightmon', 'clockmon']),

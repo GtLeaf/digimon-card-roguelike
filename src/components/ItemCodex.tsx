@@ -1,21 +1,9 @@
 import { useState } from 'react';
-import {
-  BatteryCharging,
-  BookOpen,
-  Compass,
-  Disc3,
-  Flame,
-  Heart,
-  MemoryStick,
-  Shield,
-  Snowflake,
-  Sparkles,
-  Syringe,
-  Zap,
-} from 'lucide-react';
+import { Disc3, Heart, MemoryStick, Shield, Sparkles, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { BLESSINGS, RELICS } from '../game/data';
 import type { Run } from '../game/types';
+import { relicIcons } from './relicIcons';
 
 type Category = 'all' | 'relic' | 'blessing' | 'consumable';
 const categories: { id: Category; name: string }[] = [
@@ -24,19 +12,6 @@ const categories: { id: Category; name: string }[] = [
   { id: 'blessing', name: '祝福' },
   { id: 'consumable', name: '消耗品' },
 ];
-const relicIcons: Record<string, LucideIcon> = {
-  reader: BookOpen,
-  cooler: Snowflake,
-  firewall: Flame,
-  memory: MemoryStick,
-  battery: BatteryCharging,
-  armor: Shield,
-  capacitor: Zap,
-  magazine: Disc3,
-  firebrand: Sparkles,
-  compass: Compass,
-  fang: Syringe,
-};
 const blessingIcons: Record<string, LucideIcon> = { bond: Zap, guard: Shield, growth: Heart };
 
 export function ItemCodex({ run }: { run: Run | null }) {
@@ -49,7 +24,7 @@ export function ItemCodex({ run }: { run: Run | null }) {
       icon: relicIcons[id] ?? MemoryStick,
       owned: !!run?.relics.includes(id),
       status: '本局持有',
-      source: '精英／首领战胜利、数据宝箱，或商店花费80金币随机获得。',
+      source: '精英／首领战胜利、数据宝箱；或在商店花费100金币选购、80金币购买装置盲盒。',
       note: '获得后自动生效，同种装置不重复持有，本局结束后清空。',
     })),
     ...Object.entries(BLESSINGS).map(([id, item]) => ({

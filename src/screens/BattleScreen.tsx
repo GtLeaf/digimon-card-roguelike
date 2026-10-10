@@ -20,7 +20,7 @@ import {
   copyCandidates,
   MAX_COPIES_PER_TURN,
 } from '../game/data';
-import { playCost, intent } from '../game/engine';
+import { cardTarget, playCost, enemyIntents, enemyEnrage, enemyCountdown } from '../game/engine';
 import { EVOLUTIONS } from '../game/evolution';
 import type { Action, Battle, Run } from '../game/types';
 import type { Pile } from '../components/DeckViewer';
@@ -29,6 +29,8 @@ import { Modal } from '../components/Modal';
 import { Health } from '../components/Health';
 import { SceneDecor } from '../components/SceneDecor';
 import { Sprite } from '../components/Sprite';
+import { AttributeLabel } from '../components/AttributeLabel';
+import { attributeText } from '../game/attributes';
 import type { BattleMotion, QueueAction } from '../hooks/useBattleQueue';
 
 const SUPPORT_HINTS: Record<string, string> = {
@@ -66,6 +68,13 @@ export function BattleScreen({
 }) {
   const r = run,
     b = battle;
+  const plans = enemyIntents(r);
+  const incoming = b.enemies
+    .filter((e) => e.hp > 0)
+    .reduce((n, e) => {
+      const plan = plans.get(e.uid)!;
+      return n + plan.damage * plan.hits;
+    }, 0);
   const [selected, setSelected] = useState<string | null>(null);
   const [copyOpen, setCopyOpen] = useState(false);
   const [target, setTarget] = useState<string | null>(null);
@@ -105,7 +114,7 @@ export function BattleScreen({
       ? definition.all
         ? b.enemies.filter((e) => e.hp > 0).map((e) => e.uid)
         : activeEnemy
-          ? [activeEnemy.uid]
+          ? [cardTarget(r, definition, activeEnemy.uid)!.uid]
           : []
       : [];
     queue({ type: 'play', uid: activeCard.uid, target: activeEnemy?.uid }, 'player', enemyIds);
@@ -123,18 +132,21 @@ export function BattleScreen({
                 ? '精英遭遇'
                 : '数码遭遇'}
           </span>
-          <span>{b.enemyTurnIndex !== null ? '敌方行动中' : '点击敌人选择目标'}</span>
+          <span>
+            {b.enemyTurnIndex !== null ? '敌方行动中' : `攻击合计 ${incoming} · 点击敌人选目标`}
+          </span>
         </div>
         <div className="enemies">
           {b.enemies.map((e) => {
-            const plan = intent(r, e);
+            const plan = plans.get(e.uid)!;
+            const countdown = enemyCountdown(r, e);
             return (
               <button
                 key={e.uid}
                 className={`enemy ${e.hp <= 0 ? 'defeated' : ''} ${activeEnemy?.uid === e.uid ? 'targeted' : ''} ${motion?.actor === 'enemy' && motion.enemyIds.includes(e.uid) && motion.phase === 'windup' ? 'acting' : ''} ${motion?.actor === 'player' && motion.enemyIds.includes(e.uid) && motion.phase === 'impact' ? 'taking-hit' : ''}`}
                 onClick={() => setTarget(e.uid)}
                 disabled={e.hp <= 0 || battleLocked}
-                aria-label={`选择目标 ${ENEMIES[e.id].name}`}
+                aria-label={`选择目标 ${ENEMIES[e.id].name} · ${attributeText(e.id)} · ${plan.name} ${plan.damage * plan.hits}伤害 · ${plan.detail}`}
               >
                 <span className={`enemy-intent ${plan.type}`} title={plan.detail}>
                   {plan.type === 'attack' ? (
@@ -162,6 +174,12 @@ export function BattleScreen({
                 <span className="enemy-name">{ENEMIES[e.id].name}</span>
                 <Health hp={e.hp} max={e.maxHp} block={e.block} />
                 <span className="status-tags">
+                  <AttributeLabel id={e.id} compact />
+                  {e.hp > 0 && e.strength > 0 && <span>力量 {e.strength}</span>}
+                  {e.hp > 0 && ENEMIES[e.id].guard && <span>护卫</span>}
+                  {e.hp > 0 && e.id === 'beelzebumon' && <span>噬能 {e.devour ?? 0}/2</span>}
+                  {e.hp > 0 && enemyEnrage(r, e) > 0 && <span>狂暴 ＋{enemyEnrage(r, e)}/段</span>}
+                  {e.hp > 0 && countdown && <span>{countdown}</span>}
                   {e.burn > 0 && (
                     <span>
                       <Flame size={12} />
@@ -191,6 +209,7 @@ export function BattleScreen({
             <div className="player-caption">
               <strong>{FORM_NAMES[r.form]}</strong>
               <span>
+                <AttributeLabel id={r.form} compact /> ·{' '}
                 {r.branch
                   ? BRANCHES[r.branch].tag
                   : r.training === 'defense' && r.stage > 0
@@ -236,9 +255,10 @@ export function BattleScreen({
       {activeEnemy && (
         <p className="enemy-mechanic">
           <strong>
-            {ENEMIES[activeEnemy.id].name} · {intent(r, activeEnemy).name}
+            {ENEMIES[activeEnemy.id].name} · <AttributeLabel id={activeEnemy.id} compact /> ·{' '}
+            {plans.get(activeEnemy.uid)!.name}
           </strong>
-          <span>{intent(r, activeEnemy).detail}</span>
+          <span>{plans.get(activeEnemy.uid)!.detail}</span>
         </p>
       )}
       <div className="combat-info">

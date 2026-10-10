@@ -32,11 +32,13 @@ describe('form skill unlocks', () => {
       s.run!.battle!.hand = [{ id: 'strike', uid: 'finish', upgraded: false }];
       s = reduceGame(s, { type: 'play', uid: 'finish' });
       expect(s.run!.reward!.cards.every((id) => skillUnlocked(s.run!, CARDS[id]))).toBe(true);
+      expect(s.run!.reward!.cards).not.toContain('strike');
       s = reduceGame(s, { type: 'reward' });
       s.run!.row = 2;
       s.run!.path = [s.run!.nodes[1][0].id];
       s = reduceGame(s, { type: 'node', id: s.run!.nodes[2][1].id });
       expect(s.run!.shopStock.every((id) => skillUnlocked(s.run!, CARDS[id]))).toBe(true);
+      expect(s.run!.shopStock).not.toContain('strike');
     }
   });
   it('unlocks only visited forms and retains skills through later evolution', () => {
@@ -143,6 +145,69 @@ describe('form skill unlocks', () => {
     expect(cardPool(s.run!)).toContain('guard');
     expect(cardPool(s.run!)).toContain('cannon');
     expect(cardPool(s.run!)).not.toContain('fault');
+  });
+});
+
+describe('starter attacks', () => {
+  it.each(['guilmon', 'renamon', 'terriermon', 'impmon'] as const)(
+    '%s keeps starting attacks playable but excludes them from acquisition',
+    (partner) => {
+      const r = makeRun(partner, 42);
+      expect(r.deck.filter((card) => card.id === 'strike')).toHaveLength(
+        partner === 'guilmon' || partner === 'renamon' ? 4 : 3,
+      );
+      expect(skillUnlocked(r, CARDS.strike)).toBe(true);
+      expect(cardPool(r)).not.toContain('strike');
+      expect(cardPool(r)).toContain('guard');
+      const offers = weightedOffers(r, Object.keys(CARDS).length);
+      expect(offers).not.toContain('strike');
+      expect(new Set(offers)).toEqual(new Set(cardPool(r)));
+    },
+  );
+  it('rejects acquisition from stale reward and shop screens', () => {
+    const s = start();
+    s.run!.screen = 'shop';
+    s.run!.shopStock = ['strike'];
+    s.run!.gold = 100;
+    expect(reduceGame(s, { type: 'buy', id: 'strike' })).toEqual(s);
+    s.run!.screen = 'reward';
+    s.run!.reward = { cards: ['strike'], gold: 0, scans: [] };
+    expect(reduceGame(s, { type: 'reward', card: 'strike' })).toEqual(s);
+  });
+  it('replaces pending old offers while preserving owned attacks, purchases and RNG', () => {
+    const s = start('guilmon'),
+      r = s.run!;
+    r.screen = 'shop';
+    r.shopStock = ['strike', 'guard', 'rock'];
+    r.reward = { cards: ['strike', 'guard', 'rock'], gold: 24, scans: [] };
+    r.deck[0].upgraded = true;
+    const loaded = parseSave(JSON.stringify(s)).run!;
+    expect(loaded.shopStock).not.toContain('strike');
+    expect(loaded.reward!.cards).not.toContain('strike');
+    expect(loaded.shopStock).toHaveLength(3);
+    expect(loaded.reward!.cards).toHaveLength(3);
+    expect(new Set(loaded.shopStock).size).toBe(3);
+    expect(new Set(loaded.reward!.cards).size).toBe(3);
+    expect(loaded.deck).toEqual(r.deck);
+    expect(loaded.rng).toBe(r.rng);
+    expect(loaded.gold).toBe(r.gold);
+    expect(parseSave(JSON.stringify({ ...s, run: loaded })).run).toEqual(loaded);
+    r.shopBought = ['strike'];
+    const bought = parseSave(JSON.stringify(s)).run!;
+    expect(bought.shopStock).toContain('strike');
+    expect(bought.shopBought).toEqual(['strike']);
+    expect(bought.deck).toEqual(r.deck);
+    expect(bought.rng).toBe(r.rng);
+    expect(bought.gold).toBe(r.gold);
+  });
+  it('an upgraded attack from an old save still deals its normal damage', () => {
+    let s = start('guilmon');
+    s = reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
+    s.run!.battle!.hand = [{ id: 'strike', uid: 'old-attack', upgraded: true }];
+    s = parseSave(JSON.stringify(s));
+    const hp = s.run!.battle!.enemies[0].hp;
+    s = reduceGame(s, { type: 'play', uid: 'old-attack' });
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 10);
   });
 });
 

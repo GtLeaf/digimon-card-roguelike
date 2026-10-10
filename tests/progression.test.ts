@@ -41,7 +41,7 @@ function ready(form: string) {
 const replacements = (s: Save) => s.run!.deck.slice(0, 2).map((c) => c.uid);
 
 describe('endpoint awakening', () => {
-  it('matadormon awakening needs its activity goals, swaps signature cards, stays branchless', () => {
+  it('matadormon awakening needs its activity goals, grants signature cards, stays branchless', () => {
     let s = ready('matadormonAwakened');
     expect(evolutionStatus(s.run!, s.meta, 'matadormonAwakened').ready).toBe(false);
     expect(
@@ -300,38 +300,41 @@ describe('evolution conditions and branching', () => {
     s.run!.deck[0].upgraded = true;
     s = reduceGame(s, { type: 'evolve', form, replace: replacements(s) });
     expect(s.run!.form).toBe(form);
-    expect(s.run!.deck).toHaveLength(10);
-    expect(s.run!.deck[0].upgraded).toBe(false);
-    expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(d.cards);
+    expect(s.run!.deck).toHaveLength(12);
+    expect(s.run!.deck[0].upgraded).toBe(true);
+    expect(s.run!.deck.slice(-2).map((c) => c.id)).toEqual(d.cards);
   });
-  it.each([['growlmon'], ['kyubimon'], ['sorcerymon'], ['galgomon'], ['matadormon']])(
-    'evolving to %s grants un-upgraded new cards',
+  it.each(['growlmon', 'sorcerymon', 'galgomon', 'matadormon'])(
+    'evolving to %s appends un-upgraded new cards',
     (form) => {
       const s = ready(form);
       for (const group of EVOLUTIONS[form].groups)
         for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
-      const uids = replacements(s);
-      const after = reduceGame(s, { type: 'evolve', form, replace: uids }).run!;
-      expect(after.deck.filter((c) => uids.includes(c.uid)).map((c) => c.upgraded)).toEqual([
-        false,
-        false,
-      ]);
+      const size = s.run!.deck.length;
+      const after = reduceGame(s, { type: 'evolve', form }).run!;
+      expect(after.deck.slice(size).map((c) => c.id)).toEqual(EVOLUTIONS[form].cards);
+      expect(after.deck.slice(size).every((c) => !c.upgraded)).toBe(true);
     },
   );
   it.each([
     ['growlmon', ['fireball', 'rock']],
     ['kyubimon', ['leaf', 'talisman']],
     ['sorcerymon', ['nightfire', 'taunt']],
-  ])('evolving to %s applies its signature upgrade rule to retained cards', (form, signature) => {
-    const s = ready(form);
-    for (const group of EVOLUTIONS[form].groups)
-      for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
-    const uids = replacements(s);
-    const after = reduceGame(s, { type: 'evolve', form, replace: uids }).run!;
-    const kept = after.deck.filter((c) => !uids.includes(c.uid) && signature.includes(c.id));
-    expect(kept.length).toBeGreaterThan(0);
-    expect(kept.every((c) => c.upgraded)).toBe(!!EVOLUTIONS[form].signatureUpgrade);
-  });
+  ])(
+    'evolving to %s automatically applies its signature upgrade rule to existing cards',
+    (form, signature) => {
+      const s = ready(form);
+      for (const group of EVOLUTIONS[form].groups)
+        for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
+      const uids = replacements(s);
+      const after = reduceGame(s, { type: 'evolve', form, replace: uids }).run!;
+      const kept = after.deck.filter(
+        (c) => s.run!.deck.some((old) => old.uid === c.uid) && signature.includes(c.id),
+      );
+      expect(kept.length).toBeGreaterThan(0);
+      expect(kept.every((c) => c.upgraded)).toBe(!!EVOLUTIONS[form].signatureUpgrade);
+    },
+  );
   it('OR alternatives work without also requiring the other option', () => {
     const s = ready('megidramon');
     s.run!.activity.counts = { fire: 32, burnKills: 18 };
@@ -341,8 +344,8 @@ describe('evolution conditions and branching', () => {
     let s = ready('sorcerymon');
     for (const group of EVOLUTIONS['sorcerymon'].groups)
       for (const t of group) if (t.metric) s.run!.activity.counts[t.metric] = t.goal;
-    const uids = replacements(s);
-    s = reduceGame(s, { type: 'evolve', form: 'sorcerymon', replace: uids });
+    s = reduceGame(s, { type: 'evolve', form: 'sorcerymon' });
+    const uids = s.run!.deck.slice(-2).map((c) => c.uid);
     expect(s.run!.spotlight).toEqual(uids);
     // 直接开启下一场战斗（真实 beginBattle 路径会应用 spotlight 重排）
     const node = s.run!.nodes.flat().find((n) => n.kind === 'battle')!;
@@ -397,7 +400,7 @@ describe('evolution conditions and branching', () => {
       expect(evolutionStatus(s.run!, s.meta, to).ready).toBe(true);
     }
   });
-  it('camp evolution consumes one camp and preserves replacement upgrades', () => {
+  it('camp evolution consumes one camp and grants new cards', () => {
     let s = ready('blackgrowmon');
     s.run!.row = 5;
     s.run!.currentNode = s.run!.nodes[5][0];

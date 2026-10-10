@@ -159,7 +159,8 @@ describe('固定策略合法性与可复现性', () => {
       expect(run.diagnostics).toEqual([]);
       expect(run.won).toBe(true);
       if (!run.reached) expect(run.targetMissing.length).toBeGreaterThan(0);
-      expect(run.deck.length).toBeLessThanOrEqual(16);
+      // 主动获取仍以 16 张为上限，进化赠牌额外加入且不消耗旧牌。
+      expect(run.deck.length).toBeLessThanOrEqual(16 + run.evolutionCardsGranted);
       expect(run.purchases).toBeLessThanOrEqual(2);
       expect(run.removals).toBeLessThanOrEqual(2);
     },

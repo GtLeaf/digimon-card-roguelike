@@ -317,7 +317,7 @@ describe('progress, scanning and evolution', () => {
     expect(reduceGame(s, { type: 'node', id: s.run!.nodes[7][0].id })).toEqual(s);
   });
   it.each(['duke', 'megidra', 'sakuya', 'kuzuha'] as Branch[])(
-    'evolves %s, swaps two cards and the new ones arrive un-upgraded',
+    'evolves %s, keeps old cards and grants two un-upgraded new ones',
     (branch) => {
       let s = start(BRANCHES[branch].partner);
       const r = s.run!;
@@ -332,15 +332,15 @@ describe('progress, scanning and evolution', () => {
       const uids = r.deck.slice(0, 2).map((c) => c.uid);
       s = reduceGame(s, { type: 'evolve', branch, replace: uids });
       expect(s.run!.form).toBe(BRANCHES[branch].art);
-      expect(s.run!.deck).toHaveLength(10);
-      expect(s.run!.deck[0].upgraded).toBe(false);
-      expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(BRANCHES[branch].cards);
+      expect(s.run!.deck).toHaveLength(12);
+      expect(s.run!.deck[0].upgraded).toBe(true);
+      expect(s.run!.deck.slice(-2).map((c) => c.id)).toEqual(BRANCHES[branch].cards);
       expect(s.run!.screen).toBe('blessing');
       s = reduceGame(s, { type: 'bless', id: 'bond' });
       expect(s.run!.row).toBe(30);
     },
   );
-  it('rejects wrong-partner evolution and duplicate replacement cards', () => {
+  it('rejects wrong-partner and unavailable-stage evolution', () => {
     const s = start();
     s.run!.row = 15;
     s.run!.screen = 'evolution';
@@ -1444,7 +1444,7 @@ describe('impmon partner line', () => {
       s = reduceGame(s, { type: 'evolve', branch, replace: uids });
       expect(s.run!.branch).toBe(branch);
       expect(s.run!.form).toBe(BRANCHES[branch].art);
-      expect(s.run!.deck.slice(0, 2).map((c) => c.id)).toEqual(BRANCHES[branch].cards);
+      expect(s.run!.deck.slice(-2).map((c) => c.id)).toEqual(BRANCHES[branch].cards);
     }
   });
 });
@@ -1454,17 +1454,29 @@ describe('ultimate third cards', () => {
     const s = start(partner);
     return reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
   };
-  it('gram lance converts block into bonus damage at three to one', () => {
-    let s = partnerFight('guilmon');
-    hand(s, ['gramLance']);
-    const e = s.run!.battle!.enemies[0];
-    e.block = 0;
-    e.hp = 200;
-    e.maxHp = 200;
-    s.run!.battle!.block = 9;
-    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
-    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 15); // 12＋9÷3
-  });
+  it.each([false, true])(
+    'gram lance costs one energy and converts block at three to one (upgraded=%s)',
+    (upgraded) => {
+      for (const block of [0, 9, 10, 20, 30]) {
+        let s = partnerFight('guilmon');
+        hand(s, ['gramLance']);
+        const b = s.run!.battle!,
+          e = b.enemies[0];
+        b.hand[0].upgraded = upgraded;
+        b.energy = 1;
+        e.block = 0;
+        e.hp = e.maxHp = 200;
+        b.block = block;
+        s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
+        expect(s.run!.battle!.enemies[0].hp).toBe(
+          200 - (upgraded ? 15 : 12) - Math.floor(block / 3),
+        );
+        expect(s.run!.battle!.energy).toBe(0);
+        expect(s.run!.battle!.block).toBe(block);
+        expect(s.run!.battle!.discard.some((c) => c.uid === 'test0')).toBe(true);
+      }
+    },
+  );
   it('judgment adds burn stacks as damage without consuming them', () => {
     let s = partnerFight('guilmon');
     s.run!.branch = 'megidra';
@@ -1507,29 +1519,32 @@ describe('ultimate third cards', () => {
     expect(s.run!.battle!.enemies[0].hp).toBe(200 - 15); // 6＋3×3
     expect(s.run!.battle!.charge).toBe(0);
   });
-  it('abyss lance gains bonus damage when a self-cost already happened this turn', () => {
-    let s = partnerFight('guilmon');
-    s.run!.branch = 'chaos';
-    hand(s, ['abyssLance', 'chaosward']);
-    const e = s.run!.battle!.enemies[0];
-    e.block = 0;
-    e.hp = 200;
-    e.maxHp = 200;
-    s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
-    expect(s.run!.battle!.enemies[0].hp).toBe(200 - 14); // 未自损过，无追加
-    s = reduceGame(s, { type: 'play', uid: 'test1' });
-    expect(s.run!.battle!.selfCostThisTurn).toBe(true);
-    let t = partnerFight('guilmon');
-    t.run!.branch = 'chaos';
-    hand(t, ['chaosward', 'abyssLance']);
-    const w = t.run!.battle!.enemies[0];
-    w.block = 0;
-    w.hp = 200;
-    w.maxHp = 200;
-    t = reduceGame(t, { type: 'play', uid: 'test0' });
-    t = reduceGame(t, { type: 'play', uid: 'test1', target: w.uid });
-    expect(t.run!.battle!.enemies[0].hp).toBe(200 - 22); // 14＋8
-  });
+  it.each([false, true])(
+    'abyss lance rewards prior self-cost and keeps its payment/exhaust (upgraded=%s)',
+    (upgraded) => {
+      for (const priorSelfCost of [false, true]) {
+        let s = partnerFight('guilmon');
+        s.run!.branch = 'chaos';
+        hand(s, ['chaosward', 'abyssLance']);
+        const b = s.run!.battle!,
+          e = b.enemies[0];
+        b.hand[1].upgraded = upgraded;
+        e.block = 0;
+        e.hp = e.maxHp = 200;
+        if (priorSelfCost) s = reduceGame(s, { type: 'play', uid: 'test0' });
+        const hp = s.run!.hp,
+          energy = s.run!.battle!.energy;
+        s = reduceGame(s, { type: 'play', uid: 'test1', target: e.uid });
+        expect(s.run!.battle!.enemies[0].hp).toBe(
+          200 - (upgraded ? 20 : 16) - (priorSelfCost ? 16 : 0),
+        );
+        expect(s.run!.hp).toBe(hp - 3);
+        expect(s.run!.battle!.energy).toBe(energy - 2);
+        expect(s.run!.battle!.exhaust.some((c) => c.uid === 'test1')).toBe(true);
+        expect(s.run!.battle!.selfCostThisTurn).toBe(true);
+      }
+    },
+  );
   it('kagura bell applies more marks after a mark burst this turn', () => {
     let s = partnerFight('renamon');
     s.run!.branch = 'sakuya';
@@ -1626,9 +1641,11 @@ describe('enemy pressure', () => {
     b.turn = 2;
     b.block = 20;
     const hp = r.hp;
+    const attack = intent(r, b.enemies[0]);
+    expect(attack.pierce).toBe(true);
     s = reduceGame(s, { type: 'beginEnemyTurn' });
     s = reduceGame(s, { type: 'enemyStep' });
-    expect(s.run!.hp).toBe(hp - 10);
+    expect(s.run!.hp).toBe(hp - attack.damage * attack.hits);
     expect(s.run!.battle!.block).toBe(20);
   });
 });

@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -8,9 +9,10 @@ const args=process.argv.slice(2);
 const label=args.includes('--label')?args[args.indexOf('--label')+1]:'latest';
 if(!/^[a-z0-9-]+$/.test(label))throw Error('Invalid label');
 try{
+ const sourceHashes=Object.fromEntries(await Promise.all(['src/game/balance.ts','src/game/data.ts','src/game/cardUpgrades.ts','src/game/battle.ts','src/game/hooks.ts','src/game/evolution.ts','src/game/enemyRules.ts','src/game/engine.ts','src/game/cardSkills.ts','tests/helpers/balanceScenario.ts','tests/helpers/balanceLoop.ts','tools/audit_balance_round2.mjs'].map(async p=>[p,createHash('sha256').update(await readFile(join(root,p))).digest('hex')])));
  const bundle=join(temp,'audit.mjs');
- await build({stdin:{contents:`export * from './src/game/balance';export * from './src/game/data';export * from './src/game/engine';export * from './src/game/evolution';export * from './src/game/cardSkills';export * from './tests/helpers/balanceScenario';export * from './tests/helpers/journeySimulation';`,resolveDir:root},bundle:true,platform:'node',format:'esm',outfile:bundle,define:{'import.meta.env.BASE_URL':'"/"'}});
- const {CARDS,EVOLUTIONS,cardDefinition,skillUnlocked,calibrateAction,calibrateSequence,contextualBalanceOptions,reduceGame,combatCandidates,balanceScenario}=await import(pathToFileURL(bundle).href);
+ await build({stdin:{contents:`export * from './src/game/balance';export * from './src/game/data';export * from './src/game/engine';export * from './src/game/evolution';export * from './src/game/cardSkills';export * from './tests/helpers/balanceScenario';export * from './tests/helpers/balanceLoop';export * from './tests/helpers/journeySimulation';`,resolveDir:root},bundle:true,platform:'node',format:'esm',outfile:bundle,define:{'import.meta.env.BASE_URL':'"/"'}});
+ const {inspectDrawCycle,playCost,BALANCE_VERSION,CARDS,EVOLUTIONS,cardDefinition,skillUnlocked,calibrateAction,calibrateSequence,contextualBalanceOptions,reduceGame,combatCandidates,balanceScenario}=await import(pathToFileURL(bundle).href);
  const card=(id,uid,upgraded)=>({id,uid,upgraded});
  const history=form=>EVOLUTIONS[form].parents.length?[...history(EVOLUTIONS[form].parents[0]),form]:[form];
  function scenario(ids,form,upgraded,variant={}){
@@ -76,7 +78,7 @@ try{
   const s=scenario(ids,form,true,{size,enemyHp:100});let next=s;const actions=[],trajectory=[];
   while(actions.length<120&&next.run.screen==='battle'){
    const b=next.run.battle;
-   const viable=b.hand.filter(c=>cardDefinition(c).cost<=b.energy&&!(c.id==='illusion'&&(b.copyUses>=2||!b.hand.some(n=>n.id===source&&!n.copied))));
+   const viable=b.hand.filter(c=>playCost(next.run,c)<=b.energy&&!(c.id==='illusion'&&(b.copyUses>=2||!b.hand.some(n=>n.id===source&&!n.copied))));
    const rank=c=>c.copied?0:c.id==='illusion'?1:c.id===source?2:c.id==='study'?3:4;
    const c=viable.sort((a,b)=>rank(a)-rank(b))[0];if(!c)break;
    const target=b.hand.find(c=>c.id===source&&!c.copied);
@@ -86,8 +88,9 @@ try{
   }
   loops.push({source,size,upgraded:true,form,ids,steps:actions.length,truncated:actions.length>=120,actions,trajectory});
  }
- const out=join(root,'reports');await mkdir(out,{recursive:true});
- const summary={sequences:sequenceRows.length,candidateScenes:candidates.length,turns:turns.length,loops:loops.length,loopTruncations:loops.filter(r=>r.truncated).length,turnTruncations:turns.filter(r=>r.reason==='step-limit'||r.reason==='repeated-state').length,maxTurnPlays:Math.max(...turns.map(r=>r.actions.length))};
- await writeFile(join(out,`combinations-${label}.json`),JSON.stringify({version:2,label,summary,limitations:['固定场景由正式引擎运行，人工构造初始牌堆；不是玩家试玩或胜率。','单牌默认使用有/无消费出口估计；序列初末资源池只核算一次。','各主题均验证本局来源形态解锁；场景为第一回合/指定意图，不能覆盖所有组合。','循环测试120步为诊断上限；有限策略检验不证明所有可构造循环不存在。'],sequenceRows,candidates,turns,loops},null,2)+'\n');
+ const cycleWitnesses = [['kaguraBell','sakuyamon'],['izuna','kuzuhamon'],['curtainSpin','matadormonAwakened']].flatMap(([id,form]) => [false,true].map(upgraded => inspectDrawCycle(id,form,upgraded)));
+ const out=join(root,'docs','reports');await mkdir(out,{recursive:true});
+ const summary={cycleWitnesses:cycleWitnesses.length,cycleRisks:cycleWitnesses.filter(r=>r.verdict==='sustained-cycle-risk').length,sequences:sequenceRows.length,candidateScenes:candidates.length,turns:turns.length,loops:loops.length,loopTruncations:loops.filter(r=>r.truncated).length,turnTruncations:turns.filter(r=>r.reason==='step-limit'||r.reason==='repeated-state').length,maxTurnPlays:Math.max(...turns.map(r=>r.actions.length))};
+ await writeFile(join(out,`combinations-${label}.json`),JSON.stringify({version:BALANCE_VERSION,label,sourceHashes,summary,limitations:['固定场景由正式引擎运行，人工构造初始牌堆；不是玩家试玩或胜率。','单牌默认使用有/无消费出口估计；序列初末资源池只核算一次。','各主题均验证本局来源形态解锁；场景为第一回合/指定意图，不能覆盖所有组合。','循环测试120步为诊断上限；有限策略检验不证明所有可构造循环不存在。'],sequenceRows,candidates,turns,loops,cycleWitnesses},null,2)+'\n');
  console.log(JSON.stringify(summary));
 }finally{await rm(temp,{recursive:true,force:true});}

@@ -26,7 +26,15 @@ import { makeCard, rand } from './random';
 import { generateWorld } from './world';
 import type { Action, BattleNumber, Partner, Run, Save } from './types';
 
-export { cardCost, playCost, intent } from './battle';
+export {
+  cardCost,
+  playCost,
+  cardTarget,
+  intent,
+  enemyIntents,
+  enemyEnrage,
+  enemyCountdown,
+} from './battle';
 
 export const emptySave = (): Save => ({
   version: 3,
@@ -69,6 +77,7 @@ export function makeRun(partner: Partner, seed: number, tutorial = true): Run {
     battle: null,
     reward: null,
     shopStock: [],
+    shopRelicStock: [],
     shopBought: [],
     shopRemoved: false,
     spotlight: [],

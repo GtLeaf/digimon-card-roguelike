@@ -16,10 +16,21 @@ import {
   activityGains,
   relevantMetrics,
 } from './evolution';
-import { expandedIntent } from './enemyRules';
+import { enemyPhase, expandedIntent } from './enemyRules';
 import { PASSIVES, devourCap, gainDevour, type HookCtx, type PassiveHooks } from './hooks';
 import { choose, makeCard, rand, shuffle } from './random';
-import type { Battle, Card, CardDef, Enemy, Intent, MapNode, Meta, Metric, Run } from './types';
+import type {
+  Battle,
+  BattleNumber,
+  Card,
+  CardDef,
+  Enemy,
+  Intent,
+  MapNode,
+  Meta,
+  Metric,
+  Run,
+} from './types';
 
 // —— 被动钩子发射 ——
 const passiveList = (r: Run) =>
@@ -63,10 +74,10 @@ export function playCost(r: Run | null | undefined, c: Card): number {
     return 0;
   return cardCost(c);
 }
-export function intent(r: Run, e: Enemy): Intent {
+function currentIntent(r: Run, e: Enemy): Intent {
   const b = r.battle;
   const turn = b?.turn ?? 1;
-  const phase = (turn - 1) % 3;
+  const phase = enemyPhase(turn, e);
   const ch = Math.floor(r.row / r.chapterRows);
   const style = ENEMIES[e.id].style;
   let i: Intent = {
@@ -126,7 +137,12 @@ export function intent(r: Run, e: Enemy): Intent {
             damage: 0,
             hits: 0,
             shield: 0,
-            detail: '所有存活敌人攻击伤害＋2。',
+            detail:
+              e.id === 'replica' && e.summonedBy
+                ? '所有存活敌人每段攻击伤害＋1，力量至多6；击败复制体可阻止后续鼓舞。'
+                : '所有存活敌人每段攻击伤害＋2。',
+            strength: e.id === 'replica' && e.summonedBy ? 1 : 2,
+            ...(e.id === 'replica' && e.summonedBy ? { strengthCap: 6 } : {}),
           }
         : { ...i, name: '恶魔飞镖', damage: 5 + ch * 2 };
   if (style === 'evade')
@@ -148,32 +164,33 @@ export function intent(r: Run, e: Enemy): Intent {
             damage: 3 + ch,
             hits: 2,
           };
-  // 别西卜兽：连续射击积攒噬能，叠满 2 层后下一动释放死亡加农并重置。
+  // 四拍循环：连射、连射、加农、装填；装填不积攒噬能。
   if (e.id === 'beelzebumon')
     i =
-      (e.devour ?? 0) >= 2
+      enemyPhase(turn, e, 4) === 3
         ? {
-            name: '死亡加农',
-            type: 'attack',
-            damage: 18,
-            hits: 1,
-            shield: 0,
-            detail: '释放全部噬能的重击，随后清空层数。',
+            name: '重新装填',
+            type: 'block',
+            damage: 0,
+            hits: 0,
+            shield: 12,
+            detail: '获得12护盾，本回合不攻击；装填后连续两回合三连射，再释放死亡加农。',
           }
-        : phase === 2
+        : (e.devour ?? 0) >= 2 || enemyPhase(turn, e, 4) === 2
           ? {
-              name: '重新装填',
-              type: 'block',
-              damage: 0,
-              hits: 0,
-              shield: 12,
-              detail: '重新装填弹药，获得 12 护盾，并积攒 1 层噬能。',
+              name: '死亡加农',
+              type: 'attack',
+              damage: 18,
+              hits: 1,
+              shield: 0,
+              detail: '释放全部噬能的重击，随后清空层数。',
             }
           : {
-              ...i,
               name: '连续射击',
+              type: 'attack',
               damage: 6,
               hits: 3,
+              shield: 0,
               detail: '三连射击，并积攒 1 层噬能。',
             };
   if (style === 'chicken')
@@ -230,15 +247,79 @@ export function intent(r: Run, e: Enemy): Intent {
     };
   i = expandedIntent(r, e) ?? i;
   // Boss 软狂暴：第 13 回合起攻击伤害每回合＋2（至多＋6），仅作用于 Boss 本体，召唤物不继承；数值直接体现在意图预告中。
-  const enrage =
-    r.currentNode?.kind === 'boss' && e.summonedTurn === undefined
-      ? Math.min(6, Math.max(0, turn - 12) * 2)
-      : 0;
+  const enrage = enemyEnrage(r, e);
   if (i.type === 'attack') {
-    i.damage = Math.max(0, i.damage + e.strength + enrage - e.weakened);
+    i.damage = Math.max(
+      0,
+      Math.round(i.damage * (e.damageScale ?? 1)) + e.strength + enrage - e.weakened,
+    );
     if (e.rogue && i.damage > 0) i.damage = Math.max(1, i.damage - 2);
   }
   return i;
+}
+
+export const enemyEnrage = (r: Run, e: Enemy) =>
+  r.currentNode?.kind === 'boss' && e.summonedTurn === undefined
+    ? Math.min(6, Math.max(0, (r.battle?.turn ?? 1) - 12) * 2)
+    : 0;
+
+// 预告在副本上按实际行动顺序推演；不改变随机状态、牌堆或日志。
+// 已行动敌人的增益已包含在当前状态中，不能再次应用。
+export function enemyIntents(r: Run): Map<string, Intent> {
+  const b = r.battle;
+  if (!b) return new Map();
+  const simulated: Run = { ...r, battle: { ...b, enemies: b.enemies.map((e) => ({ ...e })) } };
+  const next = simulated.battle!;
+  const plans = new Map(b.enemies.map((e) => [e.uid, currentIntent(r, e)]));
+  for (let index = b.enemyTurnIndex ?? 0; index < next.enemies.length; index++) {
+    const e = next.enemies[index];
+    if (e.hp <= 0) continue;
+    if (e.summonedTurn === b.turn) {
+      plans.set(e.uid, {
+        name: '增援待机',
+        type: 'block',
+        damage: 0,
+        hits: 0,
+        shield: 0,
+        detail: '入场当回合不行动，下回合开始行动。',
+      });
+      continue;
+    }
+    const plan = currentIntent(simulated, e);
+    plans.set(e.uid, plan);
+    const before = simulated.hp;
+    if (plan.type === 'attack') applyEnemyAttack(simulated, e, plan);
+    applyEnemyEffects(next, e, plan, before - simulated.hp);
+  }
+  return plans;
+}
+
+export function intent(r: Run, e: Enemy): Intent {
+  return enemyIntents(r).get(e.uid) ?? currentIntent(r, e);
+}
+
+export function enemyCountdown(r: Run, e: Enemy): string | undefined {
+  const turn = r.battle?.turn ?? 1;
+  if (e.id === 'beelzebumon') {
+    const phase = enemyPhase(turn, e, 4);
+    if (phase === 3) return '装填窗口';
+    return phase === 2 || (e.devour ?? 0) >= 2 ? '加农就绪' : `加农还有${2 - phase}回合`;
+  }
+  if (e.id === 'belphemon') {
+    const phase = enemyPhase(turn, e);
+    return phase === 2 ? '本回合觉醒' : `觉醒还有${2 - phase}回合`;
+  }
+  if (e.id === 'core') {
+    const phase = enemyPhase(turn, e, 4);
+    return phase === 3 ? '脉冲就绪' : `脉冲还有${3 - phase}回合`;
+  }
+}
+
+export function cardTarget(r: Run, d: CardDef, target?: string): Enemy | undefined {
+  const enemies = r.battle?.enemies ?? [];
+  const chosen = enemies.find((e) => e.uid === target && e.hp > 0) ?? enemies.find((e) => e.hp > 0);
+  if (!chosen || d.kind !== 'attack' || d.all || ENEMIES[chosen.id].guard) return chosen;
+  return enemies.find((e) => e.hp > 0 && e.uid !== chosen.uid && ENEMIES[e.id].guard) ?? chosen;
 }
 export const log = (b: Battle, s: string) => {
   b.log = [s, ...b.log].slice(0, 12);
@@ -260,8 +341,10 @@ function draw(r: Run, n: number) {
 export function beginBattle(r: Run, node: MapNode) {
   const ch = Math.floor(r.row / r.chapterRows);
   const boss = node.kind === 'boss';
-  const scaled = (id: string) => {
-    const hp = boss ? ENEMIES[id].hp : Math.ceil(ENEMIES[id].hp * (1 + 0.08 * ch));
+  const scaled = (id: string, index: number) => {
+    const hp = Math.ceil(
+      ENEMIES[id].hp * (node.enemyModifiers?.[index]?.hpScale ?? 1) * (boss ? 1 : 1 + 0.08 * ch),
+    );
     return { hp, maxHp: hp, block: boss ? 0 : 2 * ch, strength: Math.max(0, ch - (boss ? 3 : 2)) };
   };
   r.battle = {
@@ -270,7 +353,7 @@ export function beginBattle(r: Run, node: MapNode) {
     selfCostThisTurn: false,
     countedKills: [],
     enemies: node.enemies.map((id, index) => {
-      const s = scaled(id);
+      const s = scaled(id, index);
       return {
         uid: `${node.id}-e${index}`,
         id,
@@ -284,6 +367,12 @@ export function beginBattle(r: Run, node: MapNode) {
         opening: true,
         stagger: 0,
         devour: 0,
+        ...(node.enemyModifiers?.[index]?.phaseOffset !== undefined
+          ? { phaseOffset: node.enemyModifiers[index].phaseOffset }
+          : {}),
+        ...(node.enemyModifiers?.[index]?.damageScale !== undefined
+          ? { damageScale: node.enemyModifiers[index].damageScale }
+          : {}),
       };
     }),
     hand: [],
@@ -364,7 +453,7 @@ function burnKill(r: Run, e: Enemy) {
     count(r, 'burnKills');
   }
 }
-// 击败触发：亡语（自爆／激励）与召唤者死亡时召唤物撤退；撤退不再连锁触发亡语。
+// 击败触发：亡语（自爆／激励）；召唤者死亡后增援失控，每段伤害降低2但继续战斗。
 function deathTrigger(r: Run, e: Enemy) {
   const b = r.battle;
   if (!b || e.deathDone) return;
@@ -525,14 +614,8 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
   const original = d.copyChoice ? copies.find((card) => card.uid === copyUid) : copies[0];
   if (d.special === 'copy' && b.copyUses >= MAX_COPIES_PER_TURN) return;
   if (d.copyChoice && !original) return;
-  const chosen0 =
-    b.enemies.find((e) => e.uid === target && e.hp > 0) ?? b.enemies.find((e) => e.hp > 0);
-  if (needsTarget(d) && !chosen0) return;
-  // 护卫：存活时同伴的指定目标攻击改由护卫承受；群攻不受影响。
-  const guard = chosen0
-    ? b.enemies.find((e) => e.hp > 0 && e.uid !== chosen0.uid && ENEMIES[e.id].guard)
-    : undefined;
-  const chosen = guard ?? chosen0;
+  const chosen = cardTarget(r, d, target);
+  if (needsTarget(d) && !chosen) return;
   b.energy -= cost;
   b.hand.splice(index, 1);
   if (d.kind === 'attack') {
@@ -725,6 +808,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
     return 2;
   };
   if (d.scatter) {
+    const struck = new Set<Enemy>();
     // 散射攻击：第 1 段锁定所选目标，其余段从存活敌人中随机索敌。
     // 逐段独立调用 hit()，每段产生独立伤害反馈，前端按段播放攻击动画。
     const totalSegs = (d.hits ?? 1) + devourHitsSpent + windupSpent;
@@ -734,6 +818,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
       if (!alive.length) break;
       const t =
         h === 0 && chosen && chosen.hp > 0 ? chosen : alive[Math.floor(rand(r) * alive.length)];
+      const hpBefore = t.hp;
       hit(
         r,
         t,
@@ -745,7 +830,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
         true,
         h,
       );
+      if (t.hp < hpBefore) struck.add(t);
     }
+    if (d.kind === 'attack')
+      for (const e of struck) e.effectiveAttacks = (e.effectiveAttacks ?? 0) + 1;
     tacticalBonus = 0;
   }
   for (const e of d.scatter ? [] : targets) {
@@ -896,32 +984,54 @@ export function enemyStep(r: Run, meta: Meta) {
   if (!b || b.enemyTurnIndex === null || b.enemyTurnIndex >= b.enemies.length) return;
   const e = b.enemies[b.enemyTurnIndex++];
   if (e.hp <= 0 || e.summonedTurn === b.turn) return;
-  const i = intent(r, e);
-  if (!(e.id === 'machinedramon' && (b.turn - 1) % 3 === 1)) e.block = 0;
+  const i = currentIntent(r, e);
   const playerHpBefore = r.hp;
   if (i.type === 'attack') {
-    for (let h = 0; h < i.hits; h++) {
-      const absorbed = i.pierce ? 0 : Math.min(b.block, i.damage);
-      b.block -= absorbed;
-      const before = r.hp;
-      r.hp = Math.max(0, r.hp - i.damage + absorbed);
-      b.feedback.push({ target: 'player', kind: 'damage', amount: before - r.hp });
-    }
-    e.weakened = 0;
+    b.feedback.push(...applyEnemyAttack(r, e, i));
     log(b, `${ENEMIES[e.id].name} · ${i.name} ${i.damage}${i.hits > 1 ? `×${i.hits}` : ''}`);
   }
-  if (i.shield) e.block = i.shield;
-  if (e.id === 'machinedramon' && (b.turn - 1) % 3 === 0) e.armorBroken = false;
-  // 别西卜兽：每动积攒 1 层噬能；死亡加农出手后清空。
-  if (e.id === 'beelzebumon') {
-    const fired = (e.devour ?? 0) >= 2;
-    e.devour = fired ? 0 : (e.devour ?? 0) + 1;
-    if (fired) log(b, '别西卜兽的噬能已倾泻一空。');
+  const effects = applyEnemyEffects(b, e, i, playerHpBefore - r.hp);
+  b.feedback.push(...effects.feedback);
+  for (const message of effects.messages) log(b, message);
+  if (i.type === 'debuff') {
+    const n = i.jam ?? (['spider', 'core'].includes(ENEMIES[e.id].style) ? 2 : 1);
+    for (let j = 0; j < n; j++) b.discard.push(makeCard(r, 'fault', false, true));
   }
-  if (i.drain && playerHpBefore > r.hp) {
-    const healed = Math.min(i.drain, playerHpBefore - r.hp, e.maxHp - e.hp);
+  if (r.hp <= 0) resolve(r, meta);
+}
+
+function applyEnemyAttack(r: Run, e: Enemy, i: Intent): BattleNumber[] {
+  const b = r.battle!;
+  const feedback: BattleNumber[] = [];
+  for (let h = 0; h < i.hits; h++) {
+    const absorbed = i.pierce ? 0 : Math.min(b.block, i.damage);
+    b.block -= absorbed;
+    const before = r.hp;
+    r.hp = Math.max(0, r.hp - i.damage + absorbed);
+    feedback.push({ target: 'player', kind: 'damage', amount: before - r.hp });
+  }
+  e.weakened = 0;
+  return feedback;
+}
+
+// 实际结算与意图推演共用非攻击效果，避免增益、治疗、召唤各维护一套规则。
+function applyEnemyEffects(b: Battle, e: Enemy, i: Intent, lifeDamage: number) {
+  const feedback: BattleNumber[] = [],
+    messages: string[] = [];
+  if (i.type !== 'attack' && !i.heal && !i.summon)
+    messages.push(`${ENEMIES[e.id].name} · ${i.name}`);
+  if (!(e.id === 'machinedramon' && enemyPhase(b.turn, e) === 1)) e.block = 0;
+  if (i.shield) e.block = i.shield;
+  if (e.id === 'machinedramon' && enemyPhase(b.turn, e) === 0) e.armorBroken = false;
+  if (e.id === 'beelzebumon') {
+    const fired = i.name === '死亡加农';
+    e.devour = fired || i.type === 'block' ? 0 : Math.min(2, (e.devour ?? 0) + 1);
+    if (fired) messages.push('别西卜兽的噬能已倾泻一空。');
+  }
+  if (i.drain && lifeDamage > 0) {
+    const healed = Math.min(i.drain, lifeDamage, e.maxHp - e.hp);
     e.hp += healed;
-    if (healed) b.feedback.push({ target: e.uid, kind: 'heal', amount: healed });
+    if (healed) feedback.push({ target: e.uid, kind: 'heal', amount: healed });
   }
   if (i.heal) {
     const patient = b.enemies
@@ -930,17 +1040,17 @@ export function enemyStep(r: Run, meta: Meta) {
     if (patient) {
       const healed = Math.min(i.heal, patient.maxHp - patient.hp);
       patient.hp += healed;
-      if (healed) b.feedback.push({ target: patient.uid, kind: 'heal', amount: healed });
+      if (healed) feedback.push({ target: patient.uid, kind: 'heal', amount: healed });
     }
-    log(b, `${ENEMIES[e.id].name} · ${i.name}`);
+    messages.push(`${ENEMIES[e.id].name} · ${i.name}`);
   }
-  if (i.strength) b.enemies.filter((x) => x.hp > 0).forEach((x) => (x.strength += i.strength!));
-  if (i.type === 'buff' && ENEMIES[e.id].style === 'buff')
-    b.enemies.filter((x) => x.hp > 0).forEach((x) => (x.strength += 2));
-  if (i.type === 'debuff') {
-    const n = i.jam ?? (['spider', 'core'].includes(ENEMIES[e.id].style) ? 2 : 1);
-    for (let j = 0; j < n; j++) b.discard.push(makeCard(r, 'fault', false, true));
-    if (e.id === 'core') e.block += 8;
+  if (i.strength) {
+    const recipients = i.strengthTarget === 'self' ? [e] : b.enemies.filter((x) => x.hp > 0);
+    for (const x of recipients)
+      x.strength = Math.max(
+        x.strength,
+        Math.min(i.strengthCap ?? Infinity, x.strength + i.strength),
+      );
   }
   if (i.summon) {
     let spawned = 0;
@@ -964,12 +1074,11 @@ export function enemyStep(r: Run, meta: Meta) {
       spawned++;
     }
     e.summons = (e.summons ?? 0) + 1;
-    log(
-      b,
+    messages.push(
       `${ENEMIES[e.id].name} · ${i.name}${spawned ? `：${spawned}只增援入场，下回合行动` : ''}`,
     );
   }
-  if (r.hp <= 0) resolve(r, meta);
+  return { feedback, messages };
 }
 export function finishEnemyTurn(r: Run, meta: Meta) {
   const b = r.battle;
@@ -991,7 +1100,7 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   if (r.screen !== 'battle') return;
   b.turn++;
   if (r.currentNode?.kind === 'boss' && b.turn === 13)
-    log(b, '敌方进入狂暴：攻击伤害每回合＋2（至多＋6）。');
+    log(b, '敌方进入狂暴：每段攻击伤害每回合＋2（至多＋6）。');
   b.energy = 3;
   b.block =
     (r.relics.includes('armor') ? 3 : 0) +

@@ -2,6 +2,7 @@ import { Check, GitBranch, Lock, Shield } from 'lucide-react';
 import { ENEMIES, FORM_NAMES, asset } from '../game/data';
 import { EVOLUTIONS, stageName } from '../game/evolution';
 import type { Action, Meta, Run } from '../game/types';
+import { AttributeLabel } from './AttributeLabel';
 
 export function CollectionView({
   run,
@@ -28,7 +29,9 @@ export function CollectionView({
             <div className="collection-item" key={form.id}>
               <img src={asset(form.id)} alt={FORM_NAMES[form.id]} />
               <h3>{FORM_NAMES[form.id]}</h3>
-              <span>{stageName(form.stage)}</span>
+              <span>
+                {stageName(form.stage)} · <AttributeLabel id={form.id} compact />
+              </span>
               <p>
                 {form.stage === 0
                   ? '初始搭档 · 可直接选择'
@@ -72,6 +75,7 @@ export function CollectionView({
               <div className={`collection-item ${progress === 0 ? 'undiscovered' : ''}`} key={e.id}>
                 <img src={asset(e.id)} alt={e.name} />
                 <h3>{e.name}</h3>
+                {progress > 0 && <AttributeLabel id={e.id} />}
                 <span>
                   {progress}% <small>{e.support ? '支援伙伴' : '资料图鉴'}</small>
                 </span>
@@ -112,6 +116,7 @@ export function CollectionView({
         <div className="collection-item">
           <img src={asset('lopmon')} alt="黑大耳兽" />
           <h3>黑大耳兽</h3>
+          <AttributeLabel id="lopmon" />
           <span>
             <small>救援事件伙伴</small>
           </span>

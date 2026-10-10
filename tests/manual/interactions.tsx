@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import App from '../../src/App';
 import { emptySave, reduceGame } from '../../src/game/engine';
 import { EVENTS } from '../../src/game/events';
+import { RELICS } from '../../src/game/data';
 import { writeSave } from '../../src/game/storage';
 import type { MapNode } from '../../src/game/types';
 import '../../src/styles.css';
@@ -12,6 +13,8 @@ const scenarios = [
   '商店',
   '低金币商店',
   '长牌组商店',
+  '仅剩一件装置商店',
+  '全部装置已拥有商店',
   '营地',
   '满血营地',
   '无行动营地',
@@ -45,7 +48,16 @@ function Preview() {
       kind = 'shop';
       run.screen = 'shop';
       run.shopStock = ['strike', 'guard', 'charge'];
+      run.shopRelicStock = ['armor', 'firewall', 'reader'];
       run.gold = scenario === '低金币商店' ? 20 : 180;
+      if (scenario === '仅剩一件装置商店') {
+        run.relics = Object.keys(RELICS).filter((id) => id !== 'armor');
+        run.shopRelicStock = ['armor'];
+      }
+      if (scenario === '全部装置已拥有商店') {
+        run.relics = Object.keys(RELICS);
+        run.shopRelicStock = [];
+      }
       if (scenario === '长牌组商店') {
         run.deck = Array.from({ length: 32 }, (_, i) => ({
           ...run.deck[i % run.deck.length],

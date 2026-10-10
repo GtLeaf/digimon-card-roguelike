@@ -16,12 +16,11 @@ export function EvolutionScreen({
   return (
     <div className="new-evolution-screen">
       <div className="screen-heading">
-        <span className="eyebrow">DIGIVOLUTION / YOUR CHOICE</span>
-        <h1>你们，可以成为谁？</h1>
+        <h1>选择进化</h1>
         <p>
           {r.evolutionReturn === 'camp'
             ? '补进化会消耗本次营地行动；返回不会消耗。'
-            : '选择满足条件的下一阶段形态，也可以暂缓，在营地完成。'}
+            : '选择形态，获得新招式。'}
         </p>
       </div>
       <EvolutionTree

@@ -29,8 +29,16 @@ import { RestScreen } from './screens/CampScreen';
 import { TreasureScreen } from './screens/TreasureScreen';
 import { EvolutionScreen } from './screens/EvolutionScreen';
 import { ResultScreen } from './screens/ResultScreen';
+import { activateUpdate, dismissUpdate, ensureSingleWindow, useOffline } from './pwa/offline';
+import { offlineLabel } from './components/OfflineSettings';
+import { commitImport } from './game/saveTransfer';
 
 export default function App() {
+  const [generation, setGeneration] = useState(0);
+  return <GameApp key={generation} onRestored={() => setGeneration((value) => value + 1)} />;
+}
+
+function GameApp({ onRestored }: { onRestored: () => void }) {
   const [initial] = useState(loadSave);
   const [state, dispatch] = useReducer(reduceGame, initial.save);
   const [saveError, setSaveError] = useState(initial.error);
@@ -44,6 +52,9 @@ export default function App() {
   const r = state.run,
     b = r?.battle;
   const isActive = !!r && r.screen !== 'result';
+  const offline = useOffline();
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState('');
 
   useEffect(() => {
     if (initial.error && state === initial.save) return;
@@ -55,6 +66,7 @@ export default function App() {
 
   const send = useCallback(
     (action: Action) => {
+      if (updating) return;
       if (state.settings.sound) {
         try {
           audio.current ??= new AudioContext();
@@ -76,9 +88,33 @@ export default function App() {
       dispatch(action);
       if (action.type === 'start') setScreen('game');
     },
-    [state.settings.sound, audio],
+    [state.settings.sound, audio, updating],
   );
   const { motion, floatingNumber, battleBusy, queueAction } = useBattleQueue(state, dispatch, send);
+  const transferLocked = r?.screen === 'battle' || battleBusy;
+  async function updateGame() {
+    if (transferLocked || updating) return;
+    setUpdating(true);
+    setUpdateError('');
+    try {
+      await ensureSingleWindow();
+      if (initial.error && state === initial.save)
+        throw new Error('当前存档未能读取，请先备份原记录或导入有效存档，再更新。');
+      const error = writeSave(state);
+      if (error) throw new Error(error);
+      await activateUpdate();
+    } catch (reason) {
+      setUpdateError(reason instanceof Error ? reason.message : '暂时无法更新，当前旅途仍可继续。');
+      setUpdating(false);
+    }
+  }
+  async function restoreGame(raw: string, expectedRaw: string | null) {
+    if (transferLocked || updating) throw new Error('请在战斗结束后导入存档。');
+    await ensureSingleWindow();
+    commitImport(raw, expectedRaw);
+    // 整个对局组件重新挂载，清理原行动队列并从新存档初始化。
+    onRestored();
+  }
 
   function start(partner: Partner) {
     if (initial.error) {
@@ -122,6 +158,37 @@ export default function App() {
       {saveError && (
         <div className="save-warning" role="alert">
           {saveError}
+        </div>
+      )}
+      {updateError && (
+        <div className="save-warning" role="alert">
+          {updateError}
+        </div>
+      )}
+      {screen === 'home' && offline.status !== 'unavailable' && (
+        <div className="save-warning" role="status">
+          {offlineLabel(offline.status)}
+          {offline.status === 'ready' ? ' · 断网后也能重新打开' : ' · 请保持联网'}
+          {offline.message && ` · ${offline.message}`}
+        </div>
+      )}
+      {offline.needRefresh && !offline.dismissed && (
+        <div className="save-warning" role="status">
+          <p>
+            新版本已准备好。{transferLocked ? '战斗结束后可保存并更新。' : '可保存进度后更新。'}
+          </p>
+          <div className="modal-actions">
+            <button className="secondary" onClick={dismissUpdate}>
+              稍后
+            </button>
+            <button
+              className="primary"
+              disabled={transferLocked || updating}
+              onClick={() => void updateGame()}
+            >
+              {updating ? '正在保存并更新' : '保存并更新'}
+            </button>
+          </div>
         </div>
       )}
       {screen === 'home' ? (
@@ -252,7 +319,14 @@ export default function App() {
       )}
       {modal === 'settings' && (
         <Modal title="旅途设置" onClose={closeModal}>
-          <SettingsView state={state} send={send} />
+          <SettingsView
+            state={state}
+            send={send}
+            locked={transferLocked}
+            updating={updating}
+            onUpdate={() => void updateGame()}
+            onRestore={restoreGame}
+          />
         </Modal>
       )}
       {modal === 'abandon' && (

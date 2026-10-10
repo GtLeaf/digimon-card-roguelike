@@ -80,18 +80,6 @@ export function ExplorationMap({
           <GitBranch size={16} />
         </button>
       </div>
-      <div className="chapter-boss-preview">
-        <Flag size={16} />
-        <span>
-          本章首领：<strong>{ENEMIES[rows[per - 1][0].enemies[0]].name}</strong>
-        </span>
-        <small>已侦测 · 可提前准备卡组</small>
-      </div>
-      {run.message && (
-        <p className="map-message" role="status">
-          {run.message}
-        </p>
-      )}
       <div className="map-toolbar">
         <span>
           <ArrowUp size={15} />第 {(run.row % per) + 1} / {per} 层

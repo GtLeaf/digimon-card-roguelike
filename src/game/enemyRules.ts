@@ -1,9 +1,12 @@
 import type { Enemy, Intent, Run } from './types';
 
+export const enemyPhase = (turn: number, enemy: Enemy, cycle = 3) =>
+  (turn - 1 + (enemy.phaseOffset ?? 0)) % cycle;
+
 export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
   const b = run.battle;
   const turn = b?.turn ?? 1,
-    phase = (turn - 1) % 3,
+    phase = enemyPhase(turn, enemy),
     ch = Math.floor(run.row / run.chapterRows);
   const alive = b ? b.enemies.filter((x) => x.hp > 0).length : 1;
   const canSummon = (enemy.summons ?? 0) < 2 && alive < 3;
@@ -226,7 +229,12 @@ export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
         ? pause('暗黑领域', 'block', '获得10护盾，领域展开时无法被打断。', 10)
         : phase === 1
           ? {
-              ...attack('全力破坏', 15 + ch, 1, '穿透：无视护盾，用虚弱或高生命硬接。'),
+              ...attack(
+                '全力破坏',
+                12 + ch,
+                1,
+                '穿透：无视护盾，可用虚弱、提前击败或生命资源应对。',
+              ),
               pierce: true,
             }
           : attack('灭世咆哮', 8 + ch, 2, '领域、破坏、咆哮三段循环。');
@@ -240,7 +248,7 @@ export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
           ? {
               ...attack(
                 '娜扎尔之爪',
-                10 + ch,
+                8 + ch,
                 1,
                 '穿透：无视护盾。回复本次造成的生命伤害，最多6点；用虚弱压低伤害可阻止回复。',
               ),
@@ -279,19 +287,24 @@ export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
     case 'daemon':
       return phase === 0
         ? {
-            ...pause('愤怒积聚', 'buff', '攻击伤害＋2，可叠加；愤怒每三回合积聚一次。'),
+            ...pause('愤怒积聚', 'buff', '自身每段攻击伤害＋2，可叠加；愤怒每三回合积聚一次。'),
             strength: 2,
+            strengthTarget: 'self',
           }
         : phase === 1
           ? attack('火焰扫荡', 7 + ch, 2)
           : attack('炼狱爪', 12 + ch, 1, '愤怒会持续推高魔王的所有攻击。');
     case 'belphemon':
       return phase === 2
-        ? attack('觉醒咆哮', 9 + ch, 3, '沉睡两回合后觉醒，三段咆哮倾泻怒火。')
-        : pause('沉睡', 'block', '沉睡中：获得20护盾，不攻击；第三回合觉醒爆发。', 20);
+        ? attack('觉醒咆哮', 7 + ch, 3, '沉睡两回合后觉醒，三段咆哮倾泻怒火。')
+        : pause('沉睡', 'block', '沉睡中：获得16护盾，不攻击；第三回合觉醒爆发。', 16);
     case 'barbamon':
       return phase === 0
-        ? { ...pause('贪婪魔咒', 'buff', '攻击伤害＋1，可叠加；随后挥舞死亡诱惑。'), strength: 1 }
+        ? {
+            ...pause('贪婪魔咒', 'buff', '自身每段攻击伤害＋1，可叠加；随后挥舞死亡诱惑。'),
+            strength: 1,
+            strengthTarget: 'self',
+          }
         : phase === 1
           ? attack('死亡诱惑', 11 + ch)
           : attack('暗狱殿业火', 7 + ch, 2, '魔咒会持续推高魔王的所有攻击。');
@@ -303,13 +316,13 @@ export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
             '连续斩击',
             6 + ch + bonus,
             2,
-            `反击蓄能：本回合你的攻击牌每命中生命一次，斩击伤害＋3（当前＋${bonus}，至多＋9）。`,
+            `反击蓄能：本回合每张攻击牌命中生命，斩击每段伤害＋3（当前每段＋${bonus}，至多＋9）；多段命中只计一张。`,
           );
     }
     case 'core': {
-      const cycle = (turn - 1) % 4;
+      const cycle = enemyPhase(turn, enemy, 4);
       if (cycle === 0)
-        return { ...pause('数据删除', 'debuff', '加入2张故障牌，核心获得8护盾。'), jam: 2 };
+        return { ...pause('数据删除', 'debuff', '加入2张故障牌，核心获得8护盾。', 8), jam: 2 };
       if (cycle === 1) return attack('侵蚀光束', 9, 2);
       if (cycle === 2)
         return canSummon

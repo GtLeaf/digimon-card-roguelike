@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useReducer, useState } from 'react';
 import { Coins, Heart, Layers, X } from 'lucide-react';
 import { CHAPTERS } from './game/data';
 import { reduceGame } from './game/engine';
@@ -32,6 +32,10 @@ import { ResultScreen } from './screens/ResultScreen';
 import { activateUpdate, dismissUpdate, ensureSingleWindow, useOffline } from './pwa/offline';
 import { offlineLabel } from './components/OfflineSettings';
 import { commitImport } from './game/saveTransfer';
+
+const SupportCutIn = lazy(() =>
+  import('./components/SupportCutIn').then((module) => ({ default: module.SupportCutIn })),
+);
 
 export default function App() {
   const [generation, setGeneration] = useState(0);
@@ -91,7 +95,8 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
     },
     [state.settings.sound, audio, updating],
   );
-  const { motion, floatingNumber, battleBusy, queueAction } = useBattleQueue(state, dispatch, send);
+  const { motion, floatingNumber, battleBusy, queueAction, supportCutIn, finishSupportCutIn } =
+    useBattleQueue(state, dispatch, send);
   const transferLocked = r?.screen === 'battle' || battleBusy;
   async function updateGame() {
     if (transferLocked || updating) return;
@@ -138,6 +143,11 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
 
   return (
     <div className="app-shell">
+      {supportCutIn && (
+        <Suspense fallback={null}>
+          <SupportCutIn cutIn={supportCutIn} onComplete={finishSupportCutIn} />
+        </Suspense>
+      )}
       <TopBar
         showDeck={screen === 'home' && !!r}
         partnerCount={state.meta.partners.length}

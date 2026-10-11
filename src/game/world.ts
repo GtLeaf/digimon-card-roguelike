@@ -1,49 +1,77 @@
 import { ENEMIES } from './data';
 import { ENCOUNTERS } from './encounters';
 import { EVENTS } from './events';
-import { connectMap, validateExploration } from './map';
+import { connectChapter, validateExploration } from './map';
 import type { EnemyModifier, MapNode, NodeKind } from './types';
 
-// 五章各10层：首章第5层进化，后续为事件；额外营地紧接精英，首领前保留营地。
-// 每条路径4～6战、最多1商店，连续非战斗至多3层；模板仅旋转/镜像路线位置。
-const layouts: NodeKind[][][] = [
-  [
+// 先选稀疏拓扑，再填充遭遇：前三条路线保持方向，仅在显式分叉处变线。
+// 每章10层，第5层成长／研究采用等价入口，第8层继续分路，第9层营地统一汇合。
+type ChapterLayout = { kinds: NodeKind[][]; exits: number[][][] };
+const leftChallenge: ChapterLayout = {
+  kinds: [
     ['battle', 'battle', 'battle'],
     ['battle', 'battle', 'event'],
     ['elite', 'battle', 'shop'],
     ['camp', 'treasure', 'battle'],
-    ['evolution'],
+    ['evolution', 'evolution', 'evolution'],
     ['battle', 'event', 'event'],
     ['elite', 'battle', 'battle'],
-    ['event'],
+    ['event', 'event', 'event'],
     ['camp'],
     ['boss'],
   ],
-  [
-    ['battle', 'battle', 'battle'],
-    ['event', 'battle', 'battle'],
-    ['shop', 'battle', 'elite'],
-    ['battle', 'treasure', 'camp'],
-    ['evolution'],
-    ['event', 'event', 'battle'],
-    ['battle', 'battle', 'elite'],
-    ['event'],
-    ['camp'],
-    ['boss'],
+  exits: [
+    [[0], [1], [2]],
+    [[0, 1], [1, 2], [2]],
+    [[0], [1], [2]],
+    [[0], [1], [1, 2]],
+    [[0], [1], [2]],
+    [[0, 1], [1], [2]],
+    [[0], [1], [2]],
+    [[0], [0], [0]],
+    [[0]],
   ],
-  [
+};
+const middleShop: ChapterLayout = {
+  kinds: [
     ['battle', 'battle', 'battle'],
     ['battle', 'event', 'battle'],
     ['battle', 'shop', 'elite'],
     ['treasure', 'battle', 'camp'],
-    ['evolution'],
+    ['evolution', 'evolution', 'evolution'],
     ['event', 'event', 'battle'],
     ['battle', 'battle', 'elite'],
-    ['event'],
+    ['event', 'event', 'event'],
     ['camp'],
     ['boss'],
   ],
-];
+  exits: [
+    [[0], [1], [2]],
+    [[0], [1], [1, 2]],
+    [[0], [1], [2]],
+    [[0, 1], [1, 2], [2]],
+    [[0], [1], [2]],
+    [[0], [1], [1, 2]],
+    [[0], [1], [2]],
+    [[0], [0], [0]],
+    [[0]],
+  ],
+};
+function mirrorLayout(layout: ChapterLayout): ChapterLayout {
+  return {
+    kinds: layout.kinds.map((row) => [...row].reverse()),
+    exits: layout.exits.map((row, local) =>
+      [...row]
+        .reverse()
+        .map((targets) =>
+          targets
+            .map((target) => layout.kinds[local + 1].length - 1 - target)
+            .sort((a, b) => a - b),
+        ),
+    ),
+  };
+}
+const layouts = [leftChallenge, mirrorLayout(leftChallenge), middleShop, mirrorLayout(middleShop)];
 const BOSSES = ['sinduramon', 'beelzebumon', 'machinedramon', 'diaboromon', 'core'];
 const ELITES = [
   [['devidramon'], ['dokugumon'], ['devimon']],
@@ -71,17 +99,18 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
   for (let chapter = 0; chapter < 5; chapter++) {
     const layout = pick(layouts),
       usedEncounters = new Set<string>(),
-      usedEvents = new Set<string>();
+      usedEvents = new Set<string>(),
+      sharedEvents = new Map<number, string>();
     const boss = BOSSES[chapter];
     let recoveryPlaced = false;
     for (let local = 0; local < 10; local++) {
       const row = chapter * 10 + local;
       const kinds =
         local === 4
-          ? ([chapter === 0 ? 'evolution' : 'event'] as NodeKind[])
+          ? layout.kinds[local].map((): NodeKind => (chapter === 0 ? 'evolution' : 'event'))
           : tutorial && row < 2
             ? (['battle', 'battle', 'battle'] as NodeKind[])
-            : layout[local];
+            : layout.kinds[local];
       nodes.push(
         kinds.map((kind, lane) => {
           let enemies: string[] = [],
@@ -123,7 +152,10 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
           }
           if (kind === 'boss') enemies = [boss];
           if (kind === 'event') {
-            if (chapter === 1 && local === 4) eventId = 'research';
+            // 原第5／8层的单事件使用等价入口，既不合并路线，也不额外消耗事件池。
+            const shared = sharedEvents.get(local);
+            if (shared) eventId = shared;
+            else if (chapter === 1 && local === 4) eventId = 'research';
             else {
               const pool = Object.keys(EVENTS).filter(
                 (id) =>
@@ -138,6 +170,7 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
             usedEvents.add(eventId);
             lastEventChapter.set(eventId, chapter);
             recoveryPlaced ||= freeRecovery(eventId);
+            if (local === 4 || local === 7) sharedEvents.set(local, eventId);
           }
           const labels: Record<NodeKind, string> = {
             battle: '数码遭遇',
@@ -164,8 +197,11 @@ export function generateWorld(random: () => number, tutorial: boolean): MapNode[
         }),
       );
     }
+    connectChapter(nodes.slice(chapter * 10, chapter * 10 + 10), layout.exits);
   }
-  connectMap(nodes, { chapterRows: 10 });
+  // 击败首领后可重新选择下一章起点；章内没有自动跨线连接。
+  for (let chapter = 0; chapter < 4; chapter++)
+    nodes[chapter * 10 + 9][0].next = nodes[chapter * 10 + 10].map((node) => node.id);
   const problems = validateExploration(nodes);
   if (problems.length) throw new Error(`地图生成未通过校验：${problems.join('；')}`);
   return nodes;

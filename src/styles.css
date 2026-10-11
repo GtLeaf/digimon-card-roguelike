@@ -2673,6 +2673,32 @@ progress::-moz-progress-bar {
   stroke-width: 2.5;
   stroke-dasharray: 5 5;
 }
+.route-connectors path.blocked {
+  opacity: 0.22;
+}
+.route-connectors path.preview {
+  stroke: var(--mint);
+  stroke-width: 2.5;
+  stroke-dasharray: 5 5;
+}
+.map-route-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 18px 10px;
+  padding: 6px 10px;
+  min-height: 68px;
+  border-left: 2px solid var(--mint);
+  color: var(--mint);
+  font-size: 11px;
+  background: var(--panel);
+}
+.map-route-preview button {
+  flex-shrink: 0;
+  min-height: 44px;
+  color: var(--paper);
+}
 .route-node {
   position: absolute;
   transform: translateX(-50%);
@@ -2693,6 +2719,10 @@ progress::-moz-progress-bar {
 .route-node:focus-visible {
   background: #34514a80;
   outline: 1px solid var(--mint);
+}
+.route-node:disabled {
+  opacity: 1;
+  cursor: default;
 }
 .route-node .node-orb {
   width: 40px;
@@ -2732,6 +2762,11 @@ progress::-moz-progress-bar {
 .route-node.visited .node-orb {
   border-color: var(--mint);
   background: #285045;
+}
+.route-node.current .node-orb,
+.route-node.on-preview .node-orb {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
 }
 .route-node.missed {
   opacity: 0.42;

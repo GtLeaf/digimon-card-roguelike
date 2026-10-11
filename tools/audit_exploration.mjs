@@ -180,9 +180,12 @@ function auditMaps(model, version, tutorial) {
       const reachable = new Set(paths.flat().map((node) => node.id));
       if (rows.flat().some((node) => !reachable.has(node.id))) budgetProblems.add(`chapter${chapterIndex + 1}:unreachable-node`);
       const events = rows.flat().filter((node) => node.kind === 'event');
-      const ids = events.map((node) => node.eventId).filter(Boolean);
-      if (new Set(ids).size !== ids.length) chapter.eventRepeatRuns++;
-      const healing = events.filter((node) => isFreeRecovery(model.EVENTS[node.eventId])).length;
+      // 同层等价入口仅算一个事件机会；检查玩家实际路径上是否重复经历。
+      if (paths.some((path) => {
+        const ids = path.filter((node) => node.kind === 'event').map((node) => node.eventId).filter(Boolean);
+        return new Set(ids).size !== ids.length;
+      })) chapter.eventRepeatRuns++;
+      const healing = new Set(events.filter((node) => isFreeRecovery(model.EVENTS[node.eventId])).map((node) => node.eventId)).size;
       chapter.freeHealingMax = Math.max(chapter.freeHealingMax, healing);
       result.chapterFreeHealingMax = Math.max(result.chapterFreeHealingMax, healing);
       if (chapterIndex === 1) researchForced = paths.length > 0 && paths.every((path) => path.some((node) => node.eventId === 'research'));

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import {
   ArrowUp,
   Check,
@@ -15,7 +15,7 @@ import {
 import { formName, stageName } from '../game/evolution';
 import { EVENTS } from '../game/events';
 import { ENEMIES, asset } from '../game/data';
-import { availableNodes } from '../game/map';
+import { availableNodes, reachableNodeIds } from '../game/map';
 import type { MapNode, Run } from '../game/types';
 const icons = {
   battle: Swords,
@@ -37,10 +37,19 @@ export function ExplorationMap({
   onTree: () => void;
 }) {
   const viewport = useRef<HTMLDivElement>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressClick = useRef(false);
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const per = run.chapterRows,
     start = Math.floor(run.row / per) * per,
     rows = run.nodes.slice(start, start + per),
-    available = availableNodes(run).map((n) => n.id);
+    available = availableNodes(run).map((n) => n.id),
+    reachable = reachableNodeIds(rows, available),
+    currentId = run.path[run.path.length - 1],
+    previewNode = rows.flat().find((n) => n.id === (hoverId ?? previewId) && reachable.has(n.id)),
+    preview = reachableNodeIds(rows, previewNode ? [previewNode.id] : []);
   const span = (per - 1) * 132 + 190;
   const y = (n: MapNode) => (per - 1 - (n.row - start)) * 132 + 45;
   const x = (n: MapNode) => {
@@ -64,13 +73,36 @@ export function ExplorationMap({
   useEffect(() => {
     const v = viewport.current;
     if (v) v.scrollTop = Math.max(0, (per - 1 - (run.row % per)) * 132 + 45 - v.clientHeight + 155);
+    setPreviewId(null);
+    setHoverId(null);
   }, [run.row, per]);
+  useEffect(
+    () => () => {
+      if (holdTimer.current) clearTimeout(holdTimer.current);
+    },
+    [],
+  );
+  function cancelHold() {
+    if (holdTimer.current) clearTimeout(holdTimer.current);
+    holdTimer.current = null;
+    pointerStart.current = null;
+  }
+  function beginHold(event: PointerEvent<HTMLButtonElement>, id: string) {
+    cancelHold();
+    suppressClick.current = false;
+    if (event.pointerType === 'mouse') return;
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+    holdTimer.current = setTimeout(() => {
+      setPreviewId(id);
+      suppressClick.current = true;
+    }, 450);
+  }
   return (
     <div className="exploration-view">
       <div className="screen-heading">
         <span className="eyebrow">FOLLOW THE SIGNAL / UPWARD</span>
         <h1>向着信号，继续向上。</h1>
-        <p>沿连线选择下一站，点击亮起的节点直接出发。</p>
+        <p>沿连线向上前进。点击橙色节点出发，长按或聚焦节点查看后续路线。</p>
         <button className="map-partner" onClick={onTree}>
           <img src={asset(run.form)} alt="" />
           <span>
@@ -93,6 +125,22 @@ export function ExplorationMap({
           进化树
         </button>
       </div>
+      <div className="map-route-preview" role="status">
+        <span>
+          {previewNode
+            ? `后续路线：${previewNode.label} · 绿色虚线标记可达节点`
+            : '点击未来节点或长按下一站，查看后续路线'}
+        </span>
+        <button
+          disabled={!previewNode}
+          onClick={() => {
+            setPreviewId(null);
+            setHoverId(null);
+          }}
+        >
+          清除预览
+        </button>
+      </div>
       <div className="route-viewport" ref={viewport} aria-label="向上探索地图">
         <div className="route-canvas" style={{ height: span }}>
           <svg
@@ -106,12 +154,16 @@ export function ExplorationMap({
                 const next = rows.flat().find((x) => x.id === id);
                 if (!next) return null;
                 const walked = run.path.includes(n.id) && run.path.includes(next.id);
-                const reachable = run.path.includes(n.id) && available.includes(next.id);
+                const active = n.id === currentId && available.includes(next.id);
+                const possible = reachable.has(n.id) && reachable.has(next.id);
+                const highlighted =
+                  (preview.has(n.id) && preview.has(next.id)) ||
+                  (n.id === currentId && next.id === previewNode?.id);
                 return (
                   <path
                     key={`${n.id}-${id}`}
                     d={`M ${x(n)} ${y(n)} C ${x(n)} ${y(n) - 66}, ${x(next)} ${y(next) + 66}, ${x(next)} ${y(next)}`}
-                    className={walked ? 'walked' : reachable ? 'reachable' : ''}
+                    className={`${walked ? 'walked' : ''} ${active ? 'reachable' : ''} ${!walked && !active && !possible ? 'blocked' : ''} ${highlighted ? 'preview' : ''}`}
                   />
                 );
               }),
@@ -127,7 +179,9 @@ export function ExplorationMap({
                   label = legacyRest ? '休整营地' : n.label,
                   Icon = legacyRest ? Tent : icons[n.kind],
                   visited = run.path.includes(n.id),
-                  active = available.includes(n.id);
+                  active = available.includes(n.id),
+                  possible = reachable.has(n.id),
+                  current = n.id === currentId;
                 const subtitle = n.enemies.length
                   ? n.enemies.map((id) => ENEMIES[id].name).join(' · ')
                   : legacyRest
@@ -144,17 +198,49 @@ export function ExplorationMap({
                 return (
                   <button
                     key={n.id}
-                    className={`route-node ${visited ? 'visited' : ''} ${active ? 'available' : ''} ${n.kind === 'boss' ? 'boss' : ''} ${n.row < run.row && !visited ? 'missed' : ''}`}
+                    className={`route-node ${visited ? 'visited' : ''} ${active ? 'available' : ''} ${current ? 'current' : ''} ${preview.has(n.id) ? 'on-preview' : ''} ${n.kind === 'boss' ? 'boss' : ''} ${!visited && !possible ? 'missed' : ''}`}
                     style={{ left: `${x(n) / 4}%`, top: y(n) - 20 }}
-                    onClick={() => onEnter(n.id)}
-                    disabled={!active}
-                    aria-label={`${n.row - start + 1}层 ${label} ${visited ? '已完成' : active ? '点击出发' : '当前路线不可进入'}`}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === 'mouse') setHoverId(n.id);
+                    }}
+                    onPointerLeave={() => {
+                      setHoverId(null);
+                      cancelHold();
+                    }}
+                    onFocus={() => setHoverId(n.id)}
+                    onBlur={() => setHoverId(null)}
+                    onPointerDown={(event) => beginHold(event, n.id)}
+                    onPointerMove={(event) => {
+                      const start = pointerStart.current;
+                      if (
+                        start &&
+                        Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10
+                      )
+                        cancelHold();
+                    }}
+                    onPointerUp={cancelHold}
+                    onPointerCancel={() => {
+                      cancelHold();
+                      suppressClick.current = false;
+                    }}
+                    onContextMenu={(event) => event.preventDefault()}
+                    onClick={() => {
+                      if (suppressClick.current) {
+                        suppressClick.current = false;
+                        return;
+                      }
+                      if (active) onEnter(n.id);
+                      else setPreviewId((id) => (id === n.id ? null : n.id));
+                    }}
+                    disabled={visited || !possible}
+                    aria-label={`${n.row - start + 1}层 ${label} ${current ? '当前位置' : visited ? '已完成' : active ? '点击出发，长按查看后续路线' : possible ? '点击查看后续路线' : '当前路线不可到达'}`}
                   >
                     <span className="node-orb">
                       {visited ? <Check size={22} /> : <Icon size={22} />}
                     </span>
                     <strong>{label}</strong>
                     {subtitle && <small>{subtitle}</small>}
+                    {current && <em>当前位置</em>}
                   </button>
                 );
               })}
@@ -167,9 +253,9 @@ export function ExplorationMap({
         </div>
       </div>
       <div className="map-legend">
-        <span>亮起：可前往</span>
+        <span>橙色：下一站</span>
         <span>绿色：已走过</span>
-        <span>灰色：未经过</span>
+        <span>淡色：已无法到达</span>
       </div>
     </div>
   );

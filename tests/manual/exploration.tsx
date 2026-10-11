@@ -17,7 +17,14 @@ function scenario(id: string) {
   const run = save.run;
   run.screen = 'map';
   run.blessing = 'guard';
-  if (id === 'chapter2' || id === 'chapter5' || id === 'legacy') {
+  if (id === 'fork') {
+    const fork = run.nodes
+      .slice(0, 8)
+      .flat()
+      .find((node) => node.next.length === 2)!;
+    run.row = fork.row + 1;
+    run.path = [fork.id];
+  } else if (id === 'chapter2' || id === 'chapter5' || id === 'legacy') {
     run.row = id === 'chapter2' ? 14 : 44;
     run.path = [run.nodes[run.row - 1][0].id];
     Object.assign(
@@ -68,7 +75,8 @@ function Preview() {
     <main className="main-content">
       <div className="journey-filters">
         {Object.entries({
-          map: '首战后选路',
+          map: '首战后直行',
+          fork: '明确分叉与路线预览',
           chapter2: '第二章研究',
           chapter5: '第五章事件',
           legacy: '旧地图休整',

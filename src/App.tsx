@@ -7,7 +7,6 @@ import type { Action, Partner } from './game/types';
 import type { Pile } from './components/DeckViewer';
 import { DeckViewer } from './components/DeckViewer';
 import { EvolutionTree, EvolutionTracker } from './components/EvolutionTree';
-import { ExplorationMap } from './components/ExplorationMap';
 import { ItemCodex } from './components/ItemCodex';
 import { Modal } from './components/Modal';
 import { TopBar } from './components/TopBar';
@@ -33,6 +32,9 @@ import { commitImport } from './game/saveTransfer';
 
 const SupportCutIn = lazy(() =>
   import('./components/SupportCutIn').then((module) => ({ default: module.SupportCutIn })),
+);
+const ExplorationMap = lazy(() =>
+  import('./components/ExplorationMap').then((module) => ({ default: module.ExplorationMap })),
 );
 
 const CollectionView = lazy(() =>
@@ -263,11 +265,19 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
               </div>
               <EvolutionTracker run={r} meta={state.meta} onOpen={() => setModal('tree')} />
               {r.screen === 'map' && (
-                <ExplorationMap
-                  run={r}
-                  onEnter={(id) => send({ type: 'node', id })}
-                  onTree={() => setModal('tree')}
-                />
+                <Suspense
+                  fallback={
+                    <p className="modal-note" role="status">
+                      正在加载探索地图…
+                    </p>
+                  }
+                >
+                  <ExplorationMap
+                    run={r}
+                    onEnter={(id) => send({ type: 'node', id })}
+                    onTree={() => setModal('tree')}
+                  />
+                </Suspense>
               )}
               {r.screen === 'battle' && b && (
                 <BattleScreen

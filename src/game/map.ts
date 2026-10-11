@@ -1,23 +1,82 @@
 import type { MapNode, Run } from './types';
-// 未传选路参数时保留旧版连接，供旧存档迁移使用。新图仅在预算允许的位置增加变线。
-export function connectMap(rows: MapNode[][], options: { chapterRows?: number } = {}): void {
+// 仅供旧存档迁移：沿用同路直行与单节点汇合，不把新地图规则应用到已有旅途。
+export function connectMap(rows: MapNode[][]): void {
   for (let i = 0; i < rows.length; i++)
     for (const n of rows[i]) {
       const next = rows[i + 1] ?? [];
-      const local = options.chapterRows ? n.row % options.chapterRows : -1;
       n.next = next
-        .filter(
-          (x) =>
-            rows[i].length === 1 ||
-            next.length === 1 ||
-            x.lane === n.lane ||
-            (Math.abs(x.lane - n.lane) === 1 &&
-              (local === 0 ||
-                (local === 2 && n.kind === 'elite' && x.kind === 'treasure') ||
-                (local === 5 && n.kind === 'battle' && x.kind === 'battle'))),
-        )
+        .filter((x) => rows[i].length === 1 || next.length === 1 || x.lane === n.lane)
         .map((x) => x.id);
     }
+}
+
+// 每层显式指定出口，不因节点相邻或类型相同而自动增加连线。
+export function connectChapter(rows: MapNode[][], exits: readonly number[][][]): void {
+  if (exits.length !== rows.length - 1) throw new Error('路线模板的连线层数不匹配');
+  for (let i = 0; i < rows.length; i++) {
+    if (i < exits.length && exits[i].length !== rows[i].length)
+      throw new Error('路线模板的节点出口数不匹配');
+    rows[i].forEach((node, index) => {
+      node.next = (exits[i]?.[index] ?? []).map((target) => {
+        const next = rows[i + 1]?.[target];
+        if (!next) throw new Error(`${node.id} 的路线模板出口不存在`);
+        return next.id;
+      });
+    });
+  }
+}
+
+// 显示层与路线预览共用真实 next 连线；传入一章即可阻止预览延伸到下一章。
+export function reachableNodeIds(rows: MapNode[][], starts: readonly string[]): Set<string> {
+  const byId = new Map(rows.flat().map((node) => [node.id, node]));
+  const reachable = new Set<string>();
+  const pending = [...starts];
+  while (pending.length) {
+    const id = pending.pop()!;
+    const node = byId.get(id);
+    if (!node || reachable.has(id)) continue;
+    reachable.add(id);
+    pending.push(...node.next);
+  }
+  return reachable;
+}
+
+export function validateRouteTopology(rows: MapNode[][], chapterRows = 10): string[] {
+  const problems: string[] = [];
+  for (let start = 0; start < rows.length; start += chapterRows) {
+    const chapter = rows.slice(start, start + chapterRows);
+    const prefix = `第${start / chapterRows + 1}章`;
+    for (let local = 0; local < chapter.length - 1; local++) {
+      const row = chapter[local],
+        next = chapter[local + 1];
+      if (local < chapterRows - 2 && row.length < 2)
+        problems.push(`${prefix}首领前营地之前存在全路线汇合`);
+      const edges = row.flatMap((node) =>
+        node.next.flatMap((id) => {
+          const target = next.find((n) => n.id === id);
+          return target ? [{ from: node.lane, to: target.lane }] : [];
+        }),
+      );
+      for (const node of row) {
+        if (node.next.length > 2) problems.push(`${prefix}普通节点出口超过2个`);
+        if (new Set(node.next).size !== node.next.length) problems.push(`${prefix}存在重复连线`);
+      }
+      for (const target of next) {
+        const incoming = row.filter((node) => node.next.includes(target.id)).length;
+        if (local + 1 < chapterRows - 2 && incoming > 2)
+          problems.push(`${prefix}局部汇合超过两条支线`);
+      }
+      if (
+        edges.some((a, i) => edges.slice(i + 1).some((b) => (a.from - b.from) * (a.to - b.to) < 0))
+      )
+        problems.push(`${prefix}存在交叉连线`);
+    }
+    for (const path of explorationPaths(chapter)) {
+      const forks = path.slice(0, -1).filter((node) => node.next.length > 1).length;
+      if (forks < 1 || forks > 3) problems.push(`${prefix}路径分叉次数超出1～3`);
+    }
+  }
+  return [...new Set(problems)];
 }
 
 // 仅枚举传入的一章，不把跨章分支相乘；供生成校验与审核工具共用。
@@ -36,7 +95,7 @@ export function explorationPaths(rows: MapNode[][]): MapNode[][] {
 }
 
 export function validateExploration(rows: MapNode[][], chapterRows = 10): string[] {
-  const problems = validateMap(rows);
+  const problems = [...validateMap(rows), ...validateRouteTopology(rows, chapterRows)];
   const isCombat = (n: MapNode) => ['battle', 'elite', 'boss'].includes(n.kind);
   for (let start = 0; start < rows.length; start += chapterRows) {
     const chapter = rows.slice(start, start + chapterRows),
@@ -59,6 +118,10 @@ export function validateExploration(rows: MapNode[][], chapterRows = 10): string
       if (combats < 4 || combats > 6) problems.push(`${prefix}路径战斗数${combats}超出4～6`);
       if (shops > 1) problems.push(`${prefix}路径商店超过1个`);
       if (camps < 1 || camps > 2) problems.push(`${prefix}路径营地数超出1～2`);
+      if (start === 0 && !path.some((n) => n.kind === 'evolution'))
+        problems.push(`${prefix}路径缺少成长入口`);
+      if (start === chapterRows && !path.some((n) => n.eventId === 'research'))
+        problems.push(`${prefix}路径缺少研究入口`);
       let peaceful = 0;
       for (let i = 0; i < path.length; i++) {
         peaceful = isCombat(path[i]) ? 0 : peaceful + 1;
@@ -76,7 +139,7 @@ export function availableNodes(r: Run): MapNode[] {
   const rows = r.nodes[r.row] ?? [];
   if (r.row === 0 || !r.path.length) return rows;
   const previous = r.nodes.flat().find((n) => n.id === r.path[r.path.length - 1]);
-  return previous ? rows.filter((n) => previous.next.includes(n.id)) : rows;
+  return previous ? rows.filter((n) => previous.next.includes(n.id)) : [];
 }
 // 生成后强制校验：全图连通、首领可达、营地／商店互不相邻（含同行并列）。
 export function validateMap(rows: MapNode[][]): string[] {

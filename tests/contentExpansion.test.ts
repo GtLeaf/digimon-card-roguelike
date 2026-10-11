@@ -5,6 +5,7 @@ import { ENCOUNTERS } from '../src/game/encounters';
 import { EVENTS, eventChoiceBlock, eventFor } from '../src/game/events';
 import { emptySave, makeRun, reduceGame, intent, previewAction } from '../src/game/engine';
 import { parseSave } from '../src/game/storage';
+import { explorationPaths } from '../src/game/map';
 import type { Save } from '../src/game/types';
 
 function start() {
@@ -126,16 +127,21 @@ describe('curated world generation', () => {
       expect(events).toContain('research');
       for (let ch = 0; ch < 5; ch++) {
         const rows = r.nodes.slice(ch * 10, ch * 10 + 10),
-          encounters = rows.flat().flatMap((n) => (n.encounterId ? [n.encounterId] : [])),
-          chapterEvents = rows.flat().flatMap((n) => (n.eventId ? [n.eventId] : []));
-        expect(new Set(chapterEvents).size).toBe(chapterEvents.length);
+          encounters = rows.flat().flatMap((n) => (n.encounterId ? [n.encounterId] : []));
+        for (const path of explorationPaths(rows)) {
+          const chapterEvents = path.flatMap((n) => (n.eventId ? [n.eventId] : []));
+          expect(new Set(chapterEvents).size).toBe(chapterEvents.length);
+        }
         encounters.forEach((id) => seen.add(id));
         expect(new Set(encounters).size).toBe(encounters.length);
         expect(rows[8]).toHaveLength(1);
         expect(rows[8][0].kind).toBe('camp');
-        expect(rows[4]).toHaveLength(1);
-        expect(rows[4][0].kind).toBe(ch === 0 ? 'evolution' : 'event');
-        if (ch === 1) expect(rows[4][0].eventId).toBe('research');
+        expect(rows[4]).toHaveLength(3);
+        expect(rows[7]).toHaveLength(3);
+        for (const node of rows[4]) {
+          expect(node.kind).toBe(ch === 0 ? 'evolution' : 'event');
+          if (ch === 1) expect(node.eventId).toBe('research');
+        }
         expect(rows.some((row) => row.some((n) => n.kind === 'shop'))).toBe(true);
         expect(rows[9][0].kind).toBe('boss');
         expect(rows[0]).toHaveLength(3);

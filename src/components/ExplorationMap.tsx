@@ -125,22 +125,6 @@ export function ExplorationMap({
           进化树
         </button>
       </div>
-      <div className="map-route-preview" role="status">
-        <span>
-          {previewNode
-            ? `后续路线：${previewNode.label} · 绿色虚线标记可达节点`
-            : '点击未来节点或长按下一站，查看后续路线'}
-        </span>
-        <button
-          disabled={!previewNode}
-          onClick={() => {
-            setPreviewId(null);
-            setHoverId(null);
-          }}
-        >
-          清除预览
-        </button>
-      </div>
       <div className="route-viewport" ref={viewport} aria-label="向上探索地图">
         <div className="route-canvas" style={{ height: span }}>
           <svg
@@ -199,7 +183,7 @@ export function ExplorationMap({
                   <button
                     key={n.id}
                     className={`route-node ${visited ? 'visited' : ''} ${active ? 'available' : ''} ${current ? 'current' : ''} ${preview.has(n.id) ? 'on-preview' : ''} ${n.kind === 'boss' ? 'boss' : ''} ${!visited && !possible ? 'missed' : ''}`}
-                    style={{ left: `${x(n) / 4}%`, top: y(n) - 20 }}
+                    style={{ left: `${x(n) / 4}%`, top: y(n) - 22 }}
                     onPointerEnter={(event) => {
                       if (event.pointerType === 'mouse') setHoverId(n.id);
                     }}
@@ -233,14 +217,11 @@ export function ExplorationMap({
                       else setPreviewId((id) => (id === n.id ? null : n.id));
                     }}
                     disabled={visited || !possible}
-                    aria-label={`${n.row - start + 1}层 ${label} ${current ? '当前位置' : visited ? '已完成' : active ? '点击出发，长按查看后续路线' : possible ? '点击查看后续路线' : '当前路线不可到达'}`}
+                    aria-label={`${n.row - start + 1}层 ${label} ${subtitle ? `${subtitle} · ` : ''}${current ? '当前位置' : visited ? '已完成' : active ? '点击出发，长按查看后续路线' : possible ? '点击查看后续路线' : '当前路线不可到达'}`}
                   >
-                    <span className="node-orb">
+                    <span className="node-orb" aria-hidden="true">
                       {visited ? <Check size={22} /> : <Icon size={22} />}
                     </span>
-                    <strong>{label}</strong>
-                    {subtitle && <small>{subtitle}</small>}
-                    {current && <em>当前位置</em>}
                   </button>
                 );
               })}

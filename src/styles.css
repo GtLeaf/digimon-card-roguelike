@@ -2681,38 +2681,19 @@ progress::-moz-progress-bar {
   stroke-width: 2.5;
   stroke-dasharray: 5 5;
 }
-.map-route-preview {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 0 18px 10px;
-  padding: 6px 10px;
-  min-height: 68px;
-  border-left: 2px solid var(--mint);
-  color: var(--mint);
-  font-size: 11px;
-  background: var(--panel);
-}
-.map-route-preview button {
-  flex-shrink: 0;
-  min-height: 44px;
-  color: var(--paper);
-}
 .route-node {
   position: absolute;
   transform: translateX(-50%);
-  width: 142px;
-  max-width: 43%;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
-  flex-direction: column;
-  padding: 0 3px 7px;
-  gap: 6px;
+  justify-content: center;
+  padding: 2px;
   z-index: 1;
   color: #a9beba;
   border-radius: 6px;
-  min-height: 92px;
+  min-height: 44px;
   text-align: center;
 }
 .route-node:hover,
@@ -2729,26 +2710,6 @@ progress::-moz-progress-bar {
   height: 40px;
   background: #193439;
   border-color: #698780;
-}
-.route-node strong {
-  font-size: 12px;
-  font-weight: 500;
-  background: #183033e8;
-  padding: 2px 5px;
-  border-radius: 4px;
-}
-.route-node small {
-  font-size: 10px;
-  background: #163033e8;
-  padding: 2px 3px;
-  line-height: 1.5;
-}
-.route-node em {
-  font-style: normal;
-  font-size: 10px;
-  color: var(--orange);
-  background: #172b2e;
-  padding: 2px 6px;
 }
 .route-node.available .node-orb {
   background: #493f2d;
@@ -3402,15 +3363,6 @@ progress::-moz-progress-bar {
   }
   .node-preview {
     margin: 0 10px 15px;
-  }
-  .route-node {
-    width: 126px;
-  }
-  .route-node strong {
-    font-size: 11px;
-  }
-  .route-node small {
-    font-size: 9px;
   }
   .evolution-tracker {
     margin: 8px 10px;

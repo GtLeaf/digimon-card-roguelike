@@ -111,7 +111,7 @@ describe('real connected routes', () => {
 describe('behavior counters', () => {
   it('upgraded text displays the actual damage and shield values', () => {
     expect(cardText({ id: 'guard', upgraded: true })).toContain('10 护盾');
-    expect(cardText({ id: 'doublecut', upgraded: true })).toContain('7×2');
+    expect(cardText({ id: 'doublecut', upgraded: true })).toContain('6×2');
     expect(cardText({ id: 'bloodedge', upgraded: true })).toContain('失去 3 生命，造成 19');
   });
   it('multihit and area attacks count once per card rather than per hit or enemy', () => {

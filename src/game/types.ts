@@ -104,6 +104,8 @@ export interface CardDef {
   windupHits?: number;
   // 目标生命低于一半时每段额外伤害
   executeBonus?: number;
+  // 目标已有灼烧时每段额外伤害，不消耗灼烧
+  burningBonus?: number;
   // 盾击类：当前护盾每 N 点追加 1 伤害（默认 2）
   shieldDiv?: number;
   // 末日审判：灼烧每层追加伤害但不消耗灼烧

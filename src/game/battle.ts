@@ -846,6 +846,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
           followup(t) +
           (h === 0 ? tacticalBonus : 0) +
           sum(r, (hx, cx) => hx.hitBonusVsWeakened?.(cx, t, d)) +
+          (t.burn > 0 ? (d.burningBonus ?? 0) : 0) +
           (d.executeBonus && t.hp * 2 < t.maxHp ? d.executeBonus : 0),
         true,
         h,
@@ -889,6 +890,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
             extra +
             tacticalBonus +
             pursuit +
+            (e.burn > 0 ? (d.burningBonus ?? 0) : 0) +
             (d.executeBonus && e.hp * 2 < e.maxHp ? d.executeBonus : 0),
           true,
           h,

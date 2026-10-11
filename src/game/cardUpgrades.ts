@@ -59,8 +59,8 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
     text: '造成 9 伤害，施加 2 灼烧。',
   },
   rock: {
-    damage: 13,
-    text: '造成 13 点伤害。',
+    damage: 12,
+    text: '造成 12 点伤害。',
   },
   ignite: {
     damage: 6,
@@ -71,17 +71,17 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
     text: '对所有敌人造成 18 伤害。耗竭。',
   },
   doublecut: {
-    damage: 7,
-    text: '造成 7×2 段伤害。',
+    damage: 6,
+    text: '造成 6×2 段伤害；目标有灼烧时，每段额外＋1伤害。',
   },
   roar: {
-    cost: 0,
+    cost: 1,
     strength: 2,
     text: '本场攻击每段伤害＋2。耗竭。',
   },
   heatwave: {
     damage: 6,
-    text: '对所有敌人造成 6 伤害，施加 1 灼烧。',
+    text: '对所有敌人造成 6 伤害，施加 2 灼烧。',
   },
   sacrifice: {
     cost: 0,

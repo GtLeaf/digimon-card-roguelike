@@ -126,7 +126,7 @@ describe('火焰追击与首次实际灼烧边界', () => {
   it('群攻追击最多奖励一个目标，不按敌人数放大', () => {
     const s = balanceScenario([card('heatwave')], 'growlmon', ['core', 'core']);
     s.run!.battle!.enemies.forEach((e) => (e.burn = 3));
-    expect(play(s, 'heatwave').run!.battle!.enemies.map((e) => e.hp)).toEqual([95, 97]);
+    expect(play(s, 'heatwave').run!.battle!.enemies.map((e) => e.hp)).toEqual([94, 96]);
   });
   it.each([
     ['blackgrowmon', 4],
@@ -153,7 +153,7 @@ describe('火焰追击与首次实际灼烧边界', () => {
     s.run!.battle!.enemies[0].hp = 2;
     s = play(s, 'a');
     expect(s.run!.battle!.enemies[0].burn).toBe(0);
-    expect(s.run!.battle!.enemies[1].burn).toBe(1);
+    expect(s.run!.battle!.enemies[1].burn).toBe(2);
     expect(s.run!.battle!.block).toBe(5);
     expect(s.run!.activity.counts.defenses ?? 0).toBe(0);
     s = play(s, 'b');

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { CARDS } from '../src/game/data';
+import { CARDS, cardDefinition } from '../src/game/data';
 import {
   cardPool,
   skillLabel,
   skillDescription,
   skillUnlocked,
+  offerWeight,
   weightedOffers,
 } from '../src/game/cardSkills';
 import { EVOLUTIONS } from '../src/game/evolution';
@@ -212,6 +213,25 @@ describe('starter attacks', () => {
 });
 
 describe('weighted offer sampling', () => {
+  it('勇气咆哮当前形态权重为3，继承后回到继承权重2', () => {
+    const r = makeRun('guilmon', 42);
+    expect(offerWeight(r, CARDS.roar)).toBe(3);
+    expect(offerWeight(r, CARDS.fireball)).toBe(4);
+    r.form = 'growlmon';
+    r.formHistory = ['guilmon', 'growlmon'];
+    expect(offerWeight(r, CARDS.roar)).toBe(2);
+  });
+
+  it('勇气咆哮强化版保留耗竭并改为1费力量2', () => {
+    const roar = CARDS.roar.upgrade;
+    expect(roar).toMatchObject({ cost: 1, strength: 2, text: '本场攻击每段伤害＋2。耗竭。' });
+    expect(cardDefinition({ id: 'roar', upgraded: true })).toMatchObject({
+      cost: 1,
+      strength: 2,
+      exhaust: true,
+    });
+  });
+
   it('current-form exclusive cards appear far more often than uniform sampling', () => {
     let hit = 0,
       total = 0;

@@ -12,11 +12,11 @@ describe('battle feedback numbers', () => {
     let save = battle();
     const encounter = save.run!.battle!;
     encounter.hand = [{ uid: 'multi', id: 'doublecut', upgraded: false }];
-    encounter.enemies[0].hp = 6;
-    encounter.enemies[0].block = 3;
+    encounter.enemies[0].hp = 5;
+    encounter.enemies[0].block = 2;
     expect(previewAction(save, { type: 'play', uid: 'multi' })).toEqual([
       { target: encounter.enemies[0].uid, kind: 'damage', amount: 2 },
-      { target: encounter.enemies[0].uid, kind: 'damage', amount: 4 },
+      { target: encounter.enemies[0].uid, kind: 'damage', amount: 3 },
     ]);
     save = reduceGame(save, { type: 'play', uid: 'multi' });
     expect(save.run!.screen).toBe('reward');

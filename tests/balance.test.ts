@@ -60,7 +60,7 @@ describe('独立强化实际结算', () => {
     expect(s.run!.battle!.exhaust[0].id).toBe('mend');
   });
   it.each([
-    ['doublecut', 14],
+    ['doublecut', 12],
     ['leaf', 10],
   ] as const)('%s 强化的双段伤害保留力量协同', (id, damage) => {
     const s = balanceScenario([card(id)]);

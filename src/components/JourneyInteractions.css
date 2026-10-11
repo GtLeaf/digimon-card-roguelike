@@ -83,6 +83,35 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
+.reward-card-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 4px 2px 12px;
+  overflow-x: auto;
+  justify-content: flex-start;
+  scroll-snap-type: x proximity;
+  scrollbar-color: #54756b transparent;
+  scrollbar-width: thin;
+}
+.reward-card-row > div {
+  flex: 0 0 150px;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.reward-card-row .game-card {
+  width: 100%;
+  min-height: 225px;
+}
+.reward-card-row .game-card > strong {
+  white-space: normal;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.reward-card-row .card-description {
+  font-size: 10px;
+  line-height: 1.6;
+}
 .journey-device-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -555,6 +584,22 @@
   .journey-stock-cards {
     grid-template-columns: 1fr;
     gap: 14px;
+  }
+  .reward-card-row {
+    gap: 9px;
+    padding: 2px 1px 10px;
+  }
+  .reward-card-row > div {
+    flex-basis: 136px;
+  }
+  .reward-card-row .game-card {
+    min-height: 220px;
+  }
+  .reward-card-row .game-card > strong {
+    font-size: 12px;
+  }
+  .reward-card-row .card-description {
+    font-size: 10px;
   }
   .journey-stock-cards > div {
     position: relative;

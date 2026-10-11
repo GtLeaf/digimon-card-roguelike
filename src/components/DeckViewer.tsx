@@ -1,7 +1,6 @@
-import { skillDescription } from '../game/cardSkills';
 import { useState } from 'react';
-import { ArrowLeft, Layers } from 'lucide-react';
-import { BLESSINGS, CARDS, RELICS, cardText } from '../game/data';
+import { Layers } from 'lucide-react';
+import { BLESSINGS, CARDS, RELICS } from '../game/data';
 import { cardCost } from '../game/engine';
 import type { Card, CardKind, Run } from '../game/types';
 import { GameCard } from './GameCard';
@@ -16,8 +15,7 @@ const names: Record<Pile, string> = {
 export function DeckViewer({ run, initialPile = 'deck' }: { run: Run; initialPile?: Pile }) {
   const [pile, setPile] = useState<Pile>(initialPile),
     [kind, setKind] = useState<CardKind | 'all'>('all'),
-    [sort, setSort] = useState('cost'),
-    [detail, setDetail] = useState<Card | null>(null);
+    [sort, setSort] = useState('cost');
   const activePile = run.screen === 'battle' ? pile : 'deck',
     cards = activePile === 'deck' ? run.deck : (run.battle?.[activePile] ?? []);
   const groups = new Map<string, { card: Card; count: number }>();
@@ -47,7 +45,6 @@ export function DeckViewer({ run, initialPile = 'deck' }: { run: Run; initialPil
             aria-selected={activePile === id}
             onClick={() => {
               setPile(id as Pile);
-              setDetail(null);
             }}
           >
             {names[id as Pile]}{' '}
@@ -62,7 +59,7 @@ export function DeckViewer({ run, initialPile = 'deck' }: { run: Run; initialPil
       <p className="modal-note">
         {activePile === 'draw'
           ? '按费用／名称展示，不透露真实抽取顺序。'
-          : '点击卡片查看完整效果。同名、同强化、同临时状态的卡牌合并展示。'}
+          : '同名、同强化、同临时状态的卡牌合并展示。'}
       </p>
       <div className="deck-summary">
         <span>
@@ -99,7 +96,7 @@ export function DeckViewer({ run, initialPile = 'deck' }: { run: Run; initialPil
             className="deck-entry"
             key={`${card.id}-${card.upgraded}-${card.temporary}-${card.copied}`}
           >
-            <GameCard run={run} card={card} compact onClick={() => setDetail(card)} />
+            <GameCard run={run} card={card} compact />
             <span className="card-quantity">
               ×{count}
               {card.temporary ? ' · 临时' : ''}
@@ -120,31 +117,6 @@ export function DeckViewer({ run, initialPile = 'deck' }: { run: Run; initialPil
           </p>
         ))}
       </div>
-      {detail && (
-        <section className="deck-detail" aria-label="卡牌详情">
-          <button className="text-btn" onClick={() => setDetail(null)}>
-            <ArrowLeft size={16} />
-            返回卡组列表
-          </button>
-          <div className="deck-detail-body">
-            <GameCard run={run} card={detail} />
-            <div>
-              <h3>
-                {CARDS[detail.id].name}
-                {detail.upgraded ? '＋' : ''}
-              </h3>
-              <p className="skill-description">{skillDescription(CARDS[detail.id], run)}</p>
-              <p>当前费用：{cardCost(detail)}</p>
-              <h4>基础效果</h4>
-              <p>{CARDS[detail.id].text}</p>
-              <h4>{detail.upgraded ? '当前强化效果' : '强化后效果'}</h4>
-              <p>{cardText({ ...detail, upgraded: true })}</p>
-              <p>强化后费用：{cardCost({ ...detail, upgraded: true })}</p>
-              {detail.copied && <p>复制牌：本场耗竭，不计入指定卡牌专精次数。</p>}
-            </div>
-          </div>
-        </section>
-      )}
     </div>
   );
 }

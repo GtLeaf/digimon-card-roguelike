@@ -1,6 +1,6 @@
 # 审核报告与原始数据
 
-本目录同时保存文字报告、JSON 样本和验收截图。`round1`、`round2`、`guilmon` 及其配对样本是合并前的历史结果；三章、60张卡的模拟不能代表当前五章104张卡的胜率。移动目录没有重算或改写 JSON 与图片。
+本目录同时保存文字报告、JSON 样本和验收截图。`round1`、`round2`、`guilmon` 及其配对样本是合并前的历史结果；三章、60张卡的模拟不能代表当前五章106张卡的胜率。移动目录没有重算或改写 JSON 与图片。
 
 ## 阅读顺序
 
@@ -27,7 +27,7 @@
 
 离线功能：[实施与浏览器验收](offline/README.md)、[验证数据](offline/verification.json)、[320px设置](offline/settings-320.png)。检查完整缓存、断网冷启动、安全更新与存档导入；尚未做手机真机安装验收。
 
-圣枪格拉墨与深渊龙枪调整后的[单牌报告](card-balance-lance-buffs-20261009.md)与[逐项数据](card-balance-lance-buffs-20261009.json)。下方 `v3-20261009` 为调整前快照。
+圣枪格拉墨与深渊龙枪调整后的[单牌报告](card-balance-lance-buffs-20261009.md)与[逐项数据](card-balance-lance-buffs-20261009.json)。勇气咆哮权重与强化费用调整后的[单牌报告](card-balance-roar-weight3-20261011.md)与[逐项数据](card-balance-roar-weight3-20261011.json)。下方 `v3-20261009` 为更早快照。
 
 唯一现行评分来自 `src/game/balance.ts`。本轮[单牌报告](card-balance-v3-20261009.md)、[逐项数据](card-balance-v3-20261009.json)、[组合与循环](combinations-v3-20261009.json)；解释见[公式](../balance/卡牌平衡校准公式.md)。旧报告保留追溯，不与v3混排。
 

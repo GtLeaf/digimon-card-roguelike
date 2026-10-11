@@ -20,13 +20,19 @@ export function cardPool(run: Run): string[] {
     .filter((card) => offerEligible(run, card))
     .map((card) => card.id);
 }
-// 奖励/商店抽样：当前形态专属 ×4、本局继承 ×2、通用 ×1，无放回。
+
+// 当前形态专属牌通常权重为4；勇气咆哮单独降为3，避免强化后仍过早重复出现。
+export function offerWeight(run: Run, card: CardDef): number {
+  if (skillForms(card).includes(run.form)) return card.id === 'roar' ? 3 : 4;
+  return card.unlockForm ? 2 : 1;
+}
+// 奖励/商店抽样：普通当前形态专属 ×4、勇气咆哮当前形态 ×3、本局继承 ×2、通用 ×1，无放回。
 export function weightedOffers(run: Run, n: number): string[] {
   const pool = Object.values(CARDS)
     .filter((card) => offerEligible(run, card))
     .map((card) => ({
       id: card.id,
-      weight: skillForms(card).includes(run.form) ? 4 : card.unlockForm ? 2 : 1,
+      weight: offerWeight(run, card),
     }));
   const out: string[] = [];
   while (out.length < n && pool.length) {

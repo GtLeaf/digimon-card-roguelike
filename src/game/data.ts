@@ -86,7 +86,7 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       damage: 6,
       burn: 2,
     }),
-    card('rock', '岩石粉碎', 1, 'attack', 'guilmon', '造成 10 点伤害。', 'guilmon', { damage: 10 }),
+    card('rock', '岩石粉碎', 1, 'attack', 'guilmon', '造成 9 点伤害。', 'guilmon', { damage: 9 }),
     card(
       'ignite',
       '烈焰引爆',
@@ -127,10 +127,16 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       'blackwargrowlmon',
       { damage: 6, drain: 2 },
     ),
-    card('doublecut', '双刃斩', 1, 'attack', 'guilmon', '造成 5×2 段伤害。', 'growlmon', {
-      damage: 5,
-      hits: 2,
-    }),
+    card(
+      'doublecut',
+      '双刃斩',
+      1,
+      'attack',
+      'guilmon',
+      '造成 4×2 段伤害；目标有灼烧时，每段额外＋1伤害。',
+      'growlmon',
+      { damage: 4, hits: 2, burningBonus: 1 },
+    ),
     card('roar', '勇气咆哮', 1, 'power', 'guilmon', '本场攻击每段伤害＋1。耗竭。', 'guilmon', {
       strength: 1,
       exhaust: true,
@@ -142,9 +148,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'guilmon',
-      '对所有敌人造成 3 伤害，施加 1 灼烧。',
+      '对所有敌人造成 4 伤害，施加 2 灼烧。',
       'growlmon',
-      { damage: 3, burn: 1, all: true },
+      { damage: 4, burn: 2, all: true },
     ),
     card(
       'sacrifice',

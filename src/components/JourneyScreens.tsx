@@ -12,18 +12,12 @@ import {
   Tent,
   Zap,
 } from 'lucide-react';
-import { CARDS, ENEMIES, RELICS, asset } from '../game/data';
+import { ENEMIES, RELICS, asset } from '../game/data';
 import { hasEvolutionOpportunity } from '../game/evolution';
 import type { Action, Card, Meta, Run } from '../game/types';
 import { GameCard } from './GameCard';
 import { Sprite } from './Sprite';
-import {
-  CardChoicePanel,
-  CardEffectPreview,
-  JourneyHeader,
-  JourneyPanel,
-  JourneyResources,
-} from './JourneyPanel';
+import { CardChoicePanel, JourneyHeader, JourneyPanel, JourneyResources } from './JourneyPanel';
 import { ROUTE_DATA } from '../game/evolution';
 import { relicIdFromPurchase, relicPurchaseId, shopPrice } from '../game/shop';
 import { relicIcons } from './relicIcons';
@@ -32,9 +26,7 @@ type NodeProps = { run: Run; onAction: (action: Action) => void };
 const sample = (id: string): Card => ({ uid: id, id, upgraded: false });
 
 export function ShopView({ run, onAction }: NodeProps) {
-  const [item, setItem] = useState<string | null>(null),
-    [removing, setRemoving] = useState(false);
-  const price = shopPrice(item ?? '');
+  const [removing, setRemoving] = useState(false);
   function block(id: string) {
     if (run.shopBought.includes(id)) return '已售出';
     const relicId = relicIdFromPurchase(id);
@@ -47,18 +39,10 @@ export function ShopView({ run, onAction }: NodeProps) {
     const cost = shopPrice(id);
     return run.gold < cost ? `还差 ${cost - run.gold} 金币` : '';
   }
-  const relicId = item ? relicIdFromPurchase(item) : null,
-    relic = relicId ? RELICS[relicId] : null,
-    DetailIcon = relicId ? (relicIcons[relicId] ?? Box) : item === 'potion' ? Heart : Package,
-    card = item && run.shopStock.includes(item) ? sample(item) : null,
-    blocked = item ? block(item) : '';
-  const title = card
-    ? `购买 ${CARDS[card.id].name}`
-    : item === 'potion'
-      ? '购买恢复磁盘'
-      : relic
-        ? `购买 ${relic.name}`
-        : '购买装置盲盒';
+  function purchase(id: string) {
+    if (block(id)) return;
+    onAction({ type: 'buy', id });
+  }
   const devices = [
     ...run.shopRelicStock
       .filter((id) => RELICS[id])
@@ -74,7 +58,7 @@ export function ShopView({ run, onAction }: NodeProps) {
   return (
     <div className="journey-screen shop-screen">
       <JourneyHeader icon={<ShoppingBag />} title="旅途中的补给。" eyebrow="THE WANDERING TRADER">
-        点商品查看效果，可多次购买，准备好后离开。
+        点击商品直接购买，准备好后离开。
       </JourneyHeader>
       <JourneyResources run={run} />
       {run.message && (
@@ -86,7 +70,7 @@ export function ShopView({ run, onAction }: NodeProps) {
       <section className="journey-device-stock" aria-label="装置货架">
         <div className="journey-section-title">
           <h2>装置货架</h2>
-          <span>点选查看效果</span>
+          <span>点击直接购买</span>
         </div>
         <div className="journey-device-grid">
           {devices.map(({ id, name, Icon, random, owned }) => {
@@ -102,9 +86,8 @@ export function ShopView({ run, onAction }: NodeProps) {
               <button
                 key={id}
                 className={`journey-device-product ${sold || owned ? 'journey-device-owned' : ''}`}
-                aria-haspopup="dialog"
-                aria-pressed={item === id}
-                onClick={() => setItem(id)}
+                disabled={!!block(id)}
+                onClick={() => purchase(id)}
               >
                 <Icon size={34} aria-hidden="true" />
                 <strong>{name}</strong>
@@ -124,8 +107,13 @@ export function ShopView({ run, onAction }: NodeProps) {
         <div className="journey-stock-cards">
           {run.shopStock.map((id) => (
             <div key={id} className={run.shopBought.includes(id) ? 'journey-purchased' : ''}>
-              <GameCard run={run} card={sample(id)} onClick={() => setItem(id)} />
-              <span className="journey-price">{block(id) || '45 金币 · 点选预览'}</span>
+              <GameCard
+                run={run}
+                card={sample(id)}
+                disabled={!!block(id)}
+                onClick={() => purchase(id)}
+              />
+              <span className="journey-price">{block(id) || '45 金币 · 点击购买'}</span>
             </div>
           ))}
         </div>
@@ -133,7 +121,11 @@ export function ShopView({ run, onAction }: NodeProps) {
       <section className="journey-services">
         <h2>旅途服务</h2>
         <div className="shop-tools">
-          <button className="option" disabled={!!block('potion')} onClick={() => setItem('potion')}>
+          <button
+            className="option"
+            disabled={!!block('potion')}
+            onClick={() => purchase('potion')}
+          >
             <Heart />
             <span>
               <strong>
@@ -166,66 +158,6 @@ export function ShopView({ run, onAction }: NodeProps) {
           <ArrowRight size={16} />
         </button>
       </footer>
-      {item && (
-        <JourneyPanel
-          title={title}
-          onClose={() => setItem(null)}
-          footer={
-            <>
-              {(blocked || item === 'potion' || card) && (
-                <p className="journey-action-note">
-                  {blocked ||
-                    (item === 'potion'
-                      ? `磁盘 ${run.potions} → ${run.potions + 1}/2`
-                      : `卡组 ${run.deck.length} → ${run.deck.length + 1} 张`)}
-                </p>
-              )}
-              <div>
-                <button className="secondary" onClick={() => setItem(null)}>
-                  取消
-                </button>
-                <button
-                  className="primary"
-                  disabled={!!blocked}
-                  onClick={() => {
-                    onAction({ type: 'buy', id: item });
-                    setItem(null);
-                  }}
-                >
-                  {blocked ? '无法购买' : item === 'relic' ? '购买并开启' : '购买'} · {price} 金币
-                </button>
-              </div>
-            </>
-          }
-        >
-          <JourneyResources run={run} />
-          {card ? (
-            <CardEffectPreview card={card} />
-          ) : (
-            <div className="journey-item-detail">
-              <DetailIcon size={34} />
-              <h3>{item === 'potion' ? '恢复磁盘' : (relic?.name ?? '装置盲盒')}</h3>
-              <p>
-                {item === 'potion'
-                  ? '放入行囊，战斗中使用时回复最多 18 生命。购买不会立即回血，最多携带 2 个。'
-                  : (relic?.text ??
-                    '随机获得 1 件未拥有的装置，优先抽取当前牌组可用的装置。购买后立即揭晓，本次到访限购 1 次。')}
-              </p>
-              {relic && (
-                <small className="journey-hint">
-                  {relicId && run.relics.includes(relicId) ? '本局已拥有' : '本局尚未持有'} ·
-                  获得后自动生效
-                </small>
-              )}
-            </div>
-          )}
-          {card && (
-            <p className="journey-hint">
-              牌组中已有 {run.deck.filter((value) => value.id === card.id).length} 张同名牌。
-            </p>
-          )}
-        </JourneyPanel>
-      )}
       {removing && (
         <CardChoicePanel
           run={run}
@@ -356,7 +288,7 @@ export function RewardView({ run, meta, onAction }: NodeProps & { meta: Meta }) 
       </JourneyHeader>
       <div className="reward-badges">
         <span>
-          <Coins size={16} />＋{reward.gold} 金币 · 已收好
+          <Coins size={16} />＋{reward.gold} 金币
         </span>
         {reward.relic && (
           <span>
@@ -374,7 +306,7 @@ export function RewardView({ run, meta, onAction }: NodeProps & { meta: Meta }) 
           <strong key={id}>永久解锁：{ROUTE_DATA[id].name}</strong>
         ))}
       </div>
-      <div className="journey-stock-cards">
+      <div className="reward-card-row" aria-label="战斗奖励卡牌">
         {reward.cards.map((id) => (
           <div key={id}>
             <GameCard

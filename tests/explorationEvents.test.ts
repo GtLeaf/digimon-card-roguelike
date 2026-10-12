@@ -14,7 +14,7 @@ function event(id?: string) {
 }
 
 describe('distinct exploration event choices', () => {
-  it('safe choices reserve direct recovery for three rest events', () => {
+  it('safe choices reserve direct recovery for the reader and spring', () => {
     const healed: string[] = [];
     for (const id of Object.keys(EVENTS)) {
       const save = event(id);
@@ -25,7 +25,7 @@ describe('distinct exploration event choices', () => {
       expect(next.run!.hp).toBeGreaterThanOrEqual(save.run!.hp);
       if (next.run!.hp > save.run!.hp) healed.push(id);
     }
-    expect(healed.sort()).toEqual(['reader', 'shelter', 'spring']);
+    expect(healed.sort()).toEqual(['reader', 'spring']);
   });
 
   it('safe training and research retain their purpose without free healing', () => {

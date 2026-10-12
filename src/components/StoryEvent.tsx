@@ -22,7 +22,7 @@ export function StoryEventView({
 }) {
   const [pending, setPending] = useState<'risk' | 'safe' | null>(null);
   const event = storyEventFor(run);
-  const direct = ['training', 'supply', 'echo'].includes(event.id),
+  const direct = ['training', 'supply', 'echo', 'shelter'].includes(event.id),
     echo = event.id === 'echo';
   const autoCard = run.deck.find((card) => !card.upgraded && card.id !== 'guard');
   const choice = event.choices.find((c) => c.id === pending),

@@ -80,6 +80,10 @@ export interface CardDef {
   series?: string;
   weak?: number;
   drain?: number;
+  // 只有本回合此前已主动自损，才能触发此牌的吸血
+  drainRequiresSelfCost?: boolean;
+  // 本回合下一张攻击牌一次性追加的总伤害，不按段数或目标数放大
+  nextAttackBonus?: number;
   copyChoice?: boolean;
   upgrade: CardUpgrade;
   // 比例吸血：每造成 N 点生命伤害回复 1 生命（与 drain 二选一）
@@ -110,6 +114,8 @@ export interface CardDef {
   shieldDiv?: number;
   // 消耗目标全部灼烧，每层获得的额外护盾
   burnShield?: number;
+  // 使目标已有灼烧翻倍，不叠加首次灼烧的额外层数
+  burnDouble?: boolean;
   // 消耗全部护盾，每点追加的伤害
   shieldSpend?: number;
   // 末日审判：灼烧每层追加伤害但不消耗灼烧
@@ -191,6 +197,8 @@ export interface Intent {
   shield: number;
   detail: string;
   heal?: number;
+  // 未指定时治疗缺血最多的存活同伴；self 仅治疗行动者
+  healTarget?: 'self';
   drain?: number;
   jam?: number;
   strength?: number;

@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { Shield } from 'lucide-react';
 import { ENEMIES, asset } from '../game/data';
 import type { SupportCutInState } from '../hooks/useBattleQueue';
-import { AttributeLabel } from './AttributeLabel';
 import './SupportCutIn.css';
 
 const QUOTES: Record<string, string> = {
@@ -132,9 +131,7 @@ export function SupportCutIn({
             )}
           </div>
           <div className="support-cut-in__dialogue" ref={dialogue} role="status">
-            <strong>
-              {name} {hasPortrait && <AttributeLabel id={cutIn.partner} />}
-            </strong>
+            <strong>{name}</strong>
             <p>“{quote}”</p>
           </div>
         </div>

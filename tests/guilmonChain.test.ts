@@ -74,16 +74,16 @@ describe('六条基尔兽进化路径的赠牌与获取衔接', () => {
     expect(skillLabel(CARDS.ignite, r)).toBe('继承技能');
     expect(skillDescription(CARDS.ignite, r)).toContain('黑古拉兽');
   });
-  it.each([false, true])('黑大古拉兽新专属卡强化=%s时实际自损、返能和吸血正确', (upgraded) => {
+  it.each([false, true])('黑大古拉兽新专属卡强化=%s时自损增伤与条件吸血正确', (upgraded) => {
     const s = balanceScenario(
       [card('darkOverload', 'darkOverload', upgraded), card('darkDrain', 'darkDrain', upgraded)],
       'blackwargrowlmon',
     );
     expect(EVOLUTIONS.blackwargrowlmon.cards).toEqual(['darkOverload', 'darkDrain']);
     const after = play(play(s, 'darkOverload'), 'darkDrain').run!;
-    expect(after.hp).toBe(59);
-    expect(after.battle!.energy).toBe(upgraded ? 5 : 4);
-    expect(after.battle!.enemies[0].hp).toBe(upgraded ? 91 : 94);
+    expect(after.hp).toBe(61);
+    expect(after.battle!.energy).toBe(3); // 首次自损被动＋1，汲取支付1；过载本身不返能
+    expect(after.battle!.enemies[0].hp).toBe(upgraded ? 77 : 84);
     expect(after.activity.counts.selfCosts).toBe(1);
     expect(after.activity.counts.heals).toBe(1);
   });

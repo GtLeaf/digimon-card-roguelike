@@ -46,7 +46,7 @@ function Preview() {
           : scenario === 'war-burn'
             ? ['fireball', 'fireball', 'flare']
             : scenario === 'dark-heal'
-              ? ['bloodedge', 'drain', 'sacrifice', 'ignite']
+              ? ['darkOverload', 'darkDrain', 'sacrifice', 'bloodedge', 'rock']
               : [
                   'darkflame',
                   'bloodedge',

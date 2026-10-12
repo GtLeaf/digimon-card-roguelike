@@ -75,9 +75,9 @@ describe('journey interaction outcomes', () => {
     });
   });
   it('event previews match capped recovery and HP cost floor, and record actual changes', () => {
-    const heal = node('event', 'shelter');
+    const heal = node('event', 'reader');
     heal.run!.hp = 88;
-    expect(eventChoicePreview(heal.run!, EVENTS.shelter.choices[1])).toContain('生命 88 → 90');
+    expect(eventChoicePreview(heal.run!, EVENTS.reader.choices[1])).toContain('生命 88 → 90');
     expect(reduceGame(heal, { type: 'event', choice: 'safe' }).run!.message).toContain(
       '生命 88 → 90',
     );

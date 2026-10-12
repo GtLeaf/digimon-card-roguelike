@@ -305,21 +305,25 @@ describe('ten events and persistence', () => {
     }
   });
   it('validates costs and exact card target atomically and blocks repeat rewards', () => {
-    let s = event('shelter');
+    let s = event('spring');
     const before = structuredClone(s);
     expect(reduceGame(s, { type: 'event', choice: 'risk' })).toEqual(before);
     expect(reduceGame(s, { type: 'event', choice: 'risk', uid: 'missing' })).toEqual(before);
-    s.run!.gold = 14;
-    expect(reduceGame(s, { type: 'event', choice: 'risk', uid: s.run!.deck[0].uid })).toEqual(s);
+    const lab = event('laboratory');
+    lab.run!.gold = 24;
+    expect(reduceGame(lab, { type: 'event', choice: 'risk', uid: lab.run!.deck[0].uid })).toEqual(
+      lab,
+    );
     s = before;
     const uid = s.run!.deck[0].uid;
     s = reduceGame(s, { type: 'event', choice: 'risk', uid });
-    expect(s.run!.gold).toBe(50);
+    expect(s.run!.gold).toBe(65);
+    expect(s.run!.hp).toBe(30);
     expect(s.run!.deck.some((c) => c.uid === uid)).toBe(false);
     expect(reduceGame(s, { type: 'event', choice: 'risk', uid })).toEqual(s);
   });
   it('does not remove below five cards or upgrade an already upgraded card', () => {
-    const s = event('shelter');
+    const s = event('spring');
     s.run!.deck = s.run!.deck.slice(0, 5);
     expect(reduceGame(s, { type: 'event', choice: 'risk', uid: s.run!.deck[0].uid })).toEqual(s);
     const lab = event('laboratory');

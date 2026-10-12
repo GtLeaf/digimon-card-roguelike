@@ -91,13 +91,12 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
   },
   darkOverload: {
     cost: 0,
-    energy: 2,
-    draw: 2,
-    text: '失去 3 生命，获得 2 行动力，抽 2 张牌。耗竭。',
+    nextAttackBonus: 14,
+    text: '失去 3 生命；本回合下一张攻击牌总伤害＋14，只加一次。耗竭。',
   },
   darkDrain: {
     damage: 9,
-    text: '造成 9 伤害；若造成生命伤害，回复 2 生命。',
+    text: '造成 9 伤害；若本回合已主动自损且造成生命伤害，回复 4 生命。',
   },
   flare: {
     shield: 11,
@@ -106,6 +105,10 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
   emberCannon: {
     damage: 15,
     text: '造成 15 伤害，施加 4 灼烧。',
+  },
+  burnAmplify: {
+    cost: 0,
+    text: '使目标已有的灼烧层数翻倍。耗竭。',
   },
   leaf: {
     damage: 5,
@@ -118,7 +121,7 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
   },
   talisman: {
     shield: 7,
-    text: '施加 3 符印，获得 7 护盾。',
+    text: '施加 2 符印，获得 7 护盾。',
   },
   seal: {
     damage: 8,

@@ -1,5 +1,6 @@
 import { CARDS } from './data';
 import { ROUTE_DATA } from './evolution';
+import { rand } from './random';
 import type { Meta, Run } from './types';
 
 interface EventEffect {
@@ -13,6 +14,7 @@ interface EventEffect {
   training?: Run['training'];
   routes?: string[];
   partner?: string;
+  shelterRest?: boolean;
 }
 export interface EventChoice {
   id: 'risk' | 'safe';
@@ -46,16 +48,16 @@ export const EVENTS: Record<string, StoryEvent> = {
   shelter: {
     id: 'shelter',
     title: '临时避难所',
-    story: '避难所里留着一张整理卡片的工作台。远处的警报暂时无法打扰你们。',
-    hint: '恢复 / 付费删牌',
+    story: '废墟间藏着一处临时避难所，足够让搭档歇一会儿。屋顶偶尔落下碎屑，门外还有可疑的脚步声。',
+    hint: '短暂恢复 / 意外风险',
     choices: [
       {
         id: 'risk',
-        title: '整理冗余数据',
-        text: '支付15金币，选择移除一张牌；至少保留5张。',
-        effect: { goldCost: 15, card: 'remove' },
+        title: '休息',
+        text: '回复18生命；休息期间可能受伤或丢失1枚恢复磁盘。',
+        effect: { heal: 18, shelterRest: true },
       },
-      { id: 'safe', title: '让搭档睡一会儿', text: '回复18生命。', effect: { heal: 18 } },
+      { id: 'safe', title: '离开', text: '继续旅程。', effect: {} },
     ],
   },
   laboratory: {
@@ -233,7 +235,10 @@ export function eventChoicePreview(run: Run, choice: EventChoice): string[] {
   if (eventChoiceBlock(run, choice)) return [];
   const e = choice.effect,
     lines: string[] = [];
-  if (e.hpCost || e.heal) {
+  if (e.shelterRest) {
+    lines.push(`最多回复 ${Math.min(e.heal ?? 0, run.maxHp - run.hp)} 生命`);
+    lines.push('可能受伤或丢失恢复磁盘');
+  } else if (e.hpCost || e.heal) {
     const hp = Math.min(run.maxHp, Math.max(1, run.hp - (e.hpCost ?? 0)) + (e.heal ?? 0));
     lines.push(`生命 ${run.hp} → ${hp}${hp === run.hp ? ' · 无变化' : ''}`);
   }
@@ -259,12 +264,29 @@ export function applyEvent(run: Run, meta: Meta, choiceId: 'risk' | 'safe', uid?
   const e = choice.effect,
     card = e.card ? eligibleEventCards(run, choice).find((c) => c.uid === uid) : undefined;
   if (e.card && !card) return false;
-  const changes = eventChoicePreview(run, choice).filter(
+  const changes = (e.shelterRest ? [] : eventChoicePreview(run, choice)).filter(
     (text) => !text.startsWith('自动强化') && !text.startsWith('选择一张牌'),
   );
   const newRoutes = e.routes?.filter((route) => !meta.unlockedRoutes.includes(route)) ?? [];
+  const hpBefore = run.hp;
   run.gold = run.gold - (e.goldCost ?? 0) + (e.gold ?? 0);
   run.hp = Math.min(run.maxHp, Math.max(1, run.hp - (e.hpCost ?? 0)) + (e.heal ?? 0));
+  if (e.shelterRest) {
+    changes.push(`实际回复 ${run.hp - hpBefore} 生命`);
+    // 只在选择结算时抽取结果，预览与读档不会重新抽取。
+    const outcome = rand(run);
+    if (outcome < 0.7) changes.push('平安休息，没有发生意外');
+    else if (outcome < 0.9) {
+      const restedHp = run.hp;
+      run.hp = Math.max(1, run.hp - 8);
+      changes.push(`坠落的碎屑造成受伤，失去 ${restedHp - run.hp} 生命`);
+    } else if (run.potions > 0) {
+      const potionsBefore = run.potions;
+      run.potions--;
+      changes.push(`行囊被翻动，丢失1枚恢复磁盘 · 磁盘 ${potionsBefore} → ${run.potions}/2`);
+    } else changes.push('行囊被翻动，但没有恢复磁盘可丢失');
+    changes.push(`生命 ${hpBefore} → ${run.hp}`);
+  }
   if (e.card === 'upgrade' && card) card.upgraded = true;
   if (e.card === 'remove' && card) run.deck = run.deck.filter((c) => c.uid !== card.uid);
   if (e.autoUpgrade) {
@@ -282,6 +304,6 @@ export function applyEvent(run: Run, meta: Meta, choiceId: 'risk' | 'safe', uid?
   if (card) changes.push(`已${e.card === 'remove' ? '移除' : '强化'}：${CARDS[card.id].name}`);
   if (newRoutes.length)
     changes.push(`永久解锁：${newRoutes.map((route) => ROUTE_DATA[route].name).join('、')}`);
-  run.message = `${event.title} · ${choice.title}：${changes.join('；')}`;
+  run.message = `${event.title} · ${choice.title}${changes.length ? `：${changes.join('；')}` : '，继续旅程。'}`;
   return true;
 }

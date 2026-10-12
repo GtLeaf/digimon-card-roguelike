@@ -58,6 +58,8 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
   );
   const [homePartner, setHomePartner] = useState<Partner>(initial.save.run?.partner ?? 'guilmon');
   const [modal, setModal] = useState<ModalKind | null>(null);
+  // 从图鉴跳转进化树时定位到该形态；关闭弹窗后清除。
+  const [treeForm, setTreeForm] = useState<string | null>(null);
   const [deckPile, setDeckPile] = useState<Pile>('deck');
   const [audio] = useState<{ current: AudioContext | null }>(() => ({ current: null }));
   const r = state.run,
@@ -142,7 +144,10 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
     send({ type: 'start', partner });
   }
   const chapter = r ? CHAPTERS[Math.floor(r.row / r.chapterRows)] : CHAPTERS[0];
-  const closeModal = useCallback(() => setModal(null), []);
+  const closeModal = useCallback(() => {
+    setModal(null);
+    setTreeForm(null);
+  }, []);
   function openDeck(pile: Pile = 'deck') {
     setDeckPile(pile);
     setModal('deck');
@@ -354,15 +359,24 @@ function GameApp({ onRestored }: { onRestored: () => void }) {
               </p>
             }
           >
-            <Codex meta={state.meta} />
+            <Codex
+              meta={state.meta}
+              run={isActive ? r : null}
+              onOpenTree={(form) => {
+                setTreeForm(form);
+                setModal('tree');
+              }}
+            />
           </Suspense>
         </Modal>
       )}
       {modal === 'tree' && (
         <Modal title="进化路线与条件" onClose={closeModal} wide>
           <EvolutionTree
+            key={treeForm ?? 'tree'}
             run={isActive ? r : null}
             initialPartner={homePartner}
+            initialForm={treeForm ?? undefined}
             meta={state.meta}
             onAction={send}
           />

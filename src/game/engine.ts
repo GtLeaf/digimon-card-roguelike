@@ -34,6 +34,7 @@ export {
   enemyIntents,
   enemyEnrage,
   enemyCountdown,
+  withoutTraits,
 } from './battle';
 
 export const emptySave = (): Save => ({
@@ -224,7 +225,9 @@ function runAction(state: Save, action: Action): Save {
   if (
     action.type === 'continue' &&
     (['treasure', 'shop', 'camp'].includes(r.screen) ||
-      (r.screen === 'event' && r.currentNode?.eventId === 'echo' && r.eventResolved))
+      (r.screen === 'event' &&
+        ['echo', 'shelter'].includes(r.currentNode?.eventId ?? '') &&
+        r.eventResolved))
   )
     finishNode(r);
   if (action.type === 'camp' && r.screen === 'camp') campAction(s, action);

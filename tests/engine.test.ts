@@ -1685,7 +1685,7 @@ describe('resource relics', () => {
     const e = s.run!.battle!.enemies[0];
     s = reduceGame(s, { type: 'play', uid: 'test0', target: e.uid });
     s = reduceGame(s, { type: 'play', uid: 'test1', target: e.uid });
-    expect(s.run!.battle!.enemies[0].mark).toBe(7); // 符咒 3＋罗盘 1，第二次无加成
+    expect(s.run!.battle!.enemies[0].mark).toBe(5); // 符咒 2＋罗盘 1，第二次无加成
   });
   it('fang adds 1 to drain healing', () => {
     let s = fightWith('fang');

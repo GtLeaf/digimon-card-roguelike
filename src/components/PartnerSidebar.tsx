@@ -29,7 +29,7 @@ export function PartnerSidebar({
       <Sprite id={r.form} size={170} />
       <h2>
         {FORM_NAMES[r.form]}
-        <AttributeLabel id={r.form} />
+        {r.screen === 'battle' && <AttributeLabel id={r.form} />}
       </h2>
       <p>{r.branch ? BRANCHES[r.branch].tag : ['成长期', '成熟期', '完全体'][r.stage]}</p>
       <Health hp={r.hp} max={r.maxHp} />
@@ -70,7 +70,7 @@ export function PartnerSidebar({
         <ScanLine size={16} />
         <span>
           {ENEMIES[r.support]?.name ?? '应急防御程序'}
-          {ENEMIES[r.support] && <AttributeLabel id={r.support} />}
+          {r.screen === 'battle' && ENEMIES[r.support] && <AttributeLabel id={r.support} />}
         </span>
         <ChevronDown size={15} />
       </button>

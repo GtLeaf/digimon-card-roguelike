@@ -113,9 +113,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       0,
       'skill',
       'guilmon',
-      '失去 3 生命，获得 1 行动力，抽 1 张牌。耗竭。',
+      '失去 3 生命；本回合下一张攻击牌总伤害＋10，只加一次。耗竭。',
       'blackwargrowlmon',
-      { special: 'sacrifice', energy: 1, draw: 1, exhaust: true },
+      { special: 'sacrifice', nextAttackBonus: 10, exhaust: true },
     ),
     card(
       'darkDrain',
@@ -123,9 +123,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       1,
       'attack',
       'guilmon',
-      '造成 6 伤害；若造成生命伤害，回复 2 生命。',
+      '造成 6 伤害；若本回合已主动自损且造成生命伤害，回复 4 生命。',
       'blackwargrowlmon',
-      { damage: 6, drain: 2 },
+      { damage: 6, drain: 4, drainRequiresSelfCost: true },
     ),
     card(
       'doublecut',
@@ -188,6 +188,16 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       'wargrowlmon',
       { damage: 12, burn: 4 },
     ),
+    card(
+      'burnAmplify',
+      '熔火增幅',
+      1,
+      'skill',
+      'guilmon',
+      '使目标已有的灼烧层数翻倍。耗竭。',
+      'wargrowlmon',
+      { burnDouble: true, exhaust: true },
+    ),
     card('leaf', '狐叶楔', 1, 'attack', 'renamon', '造成 3×2 段伤害，施加 1 符印。', 'renamon', {
       damage: 3,
       hits: 2,
@@ -203,8 +213,8 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       'renamon',
       { special: 'copy' },
     ),
-    card('talisman', '符咒', 1, 'skill', 'renamon', '施加 3 符印，获得 4 护盾。', 'renamon', {
-      mark: 3,
+    card('talisman', '符咒', 1, 'skill', 'renamon', '施加 2 符印，获得 4 护盾。', 'renamon', {
+      mark: 2,
       shield: 4,
     }),
     card(
@@ -1431,6 +1441,7 @@ export const needsTarget = (d: CardDef) =>
     d.weak ||
     d.devourVuln ||
     d.burnShield ||
+    d.burnDouble ||
     d.special === 'markburst' ||
     d.special === 'detonate'
   );

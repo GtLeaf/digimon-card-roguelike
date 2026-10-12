@@ -280,6 +280,18 @@ export function BattleScreen({
             力量 {b.strength}
           </span>
         )}
+        {b.nextAttackBonus > 0 && (
+          <span title="本回合下一张攻击牌一次性增加总伤害，回合结束后消失。">
+            <Swords size={14} />
+            下次攻击＋{b.nextAttackBonus}
+          </span>
+        )}
+        {b.selfCostThisTurn && (
+          <span title="本回合已主动自损，可触发暗黑汲取的回血。">
+            <Heart size={14} />
+            已自损
+          </span>
+        )}
         {b.charge > 0 && (
           <span>
             <Zap size={14} />

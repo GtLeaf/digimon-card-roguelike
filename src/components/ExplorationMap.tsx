@@ -17,7 +17,6 @@ import { EVENTS } from '../game/events';
 import { ENEMIES, asset } from '../game/data';
 import { availableNodes, reachableNodeIds } from '../game/map';
 import type { MapNode, Run } from '../game/types';
-import { AttributeLabel } from './AttributeLabel';
 const icons = {
   battle: Swords,
   elite: Skull,
@@ -107,7 +106,6 @@ export function ExplorationMap({
           <img src={asset(run.form)} alt="" />
           <span>
             {formName(run.form)}
-            <AttributeLabel id={run.form} />
             <small>{stageName(run.stage)} · 查看成长</small>
           </span>
           <GitBranch size={16} />

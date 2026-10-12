@@ -52,23 +52,31 @@ export function EvolutionTree({
   choose = false,
   onDeck,
   initialPartner = 'guilmon',
+  initialForm,
 }: {
   run: Run | null;
   initialPartner?: Partner;
+  /** 打开时选中并定位的形态（如从卡片图鉴跳转）。 */
+  initialForm?: string;
   meta: Meta;
   onAction: (a: Action) => void;
   choose?: boolean;
   onDeck?: () => void;
 }) {
-  const [partner, setPartner] = useState<Partner>(run?.partner ?? initialPartner);
-  const [selected, setSelected] = useState(() =>
-    choose && run
-      ? (nextEvolutions(run).find((d) => evolutionStatus(run, meta, d.id).ready)?.id ??
-        nextEvolutions(run)[0]?.id ??
-        run.form)
-      : (run?.form ?? initialPartner),
+  const focusForm = !choose && initialForm && EVOLUTIONS[initialForm] ? initialForm : null;
+  const [partner, setPartner] = useState<Partner>(
+    focusForm ? EVOLUTIONS[focusForm].partner : (run?.partner ?? initialPartner),
   );
-  const [expanded, setExpanded] = useState(false);
+  const [selected, setSelected] = useState(() =>
+    focusForm
+      ? focusForm
+      : choose && run
+        ? (nextEvolutions(run).find((d) => evolutionStatus(run, meta, d.id).ready)?.id ??
+          nextEvolutions(run)[0]?.id ??
+          run.form)
+        : (run?.form ?? initialPartner),
+  );
+  const [expanded, setExpanded] = useState(!!focusForm);
   const [treeOpen, setTreeOpen] = useState(false);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [inherit, setInherit] = useState<Run['inherit']>(run?.inherit ?? 'ward');
@@ -247,7 +255,6 @@ export function EvolutionTree({
                 }}
               >
                 {PARTNERS[id].name}
-                <AttributeLabel id={id} />
               </button>
             ))}
           </div>
@@ -313,10 +320,7 @@ export function EvolutionTree({
                 aria-label={`${formName(node.id)} ${activeRun?.form === node.id ? '当前形态' : s.ready ? '可进化' : '查看条件'}`}
               >
                 <img src={asset(node.id)} alt="" />
-                <strong>
-                  {formName(node.id)}
-                  <AttributeLabel id={node.id} />
-                </strong>
+                <strong>{formName(node.id)}</strong>
                 <small>
                   {activeRun?.form === node.id
                     ? '当前形态'
@@ -352,8 +356,7 @@ export function EvolutionTree({
       {choose && run && (
         <>
           <p className="evolution-current">
-            {formName(run.form)}
-            <AttributeLabel id={run.form} /> · {stageName(run.stage)}
+            {formName(run.form)} · {stageName(run.stage)}
           </p>
           <div className="evolution-candidates" aria-label="下一阶段形态">
             {candidates.map((node) => {
@@ -368,10 +371,7 @@ export function EvolutionTree({
                   onClick={() => select(node.id)}
                 >
                   <img src={asset(node.id)} alt="" />
-                  <strong>
-                    {formName(node.id)}
-                    <AttributeLabel id={node.id} />
-                  </strong>
+                  <strong>{formName(node.id)}</strong>
                   <small>{candidateReady ? '可进化' : '条件未达成'}</small>
                 </button>
               );
@@ -528,10 +528,7 @@ export function EvolutionTree({
       {choose && run && (
         <footer className="evolution-action-bar">
           <p role="status">
-            <strong>
-              {formName(d.id)}
-              <AttributeLabel id={d.id} />
-            </strong>
+            <strong>{formName(d.id)}</strong>
             <span>{blocker}</span>
           </p>
           <div>
@@ -564,10 +561,7 @@ export function EvolutionTracker({
     <button className="evolution-tracker" onClick={onOpen}>
       <Target size={15} />
       <span>
-        <strong>
-          目标：{formName(id)}
-          <AttributeLabel id={id} />
-        </strong>
+        <strong>目标：{formName(id)}</strong>
         <small>
           {s.ready
             ? '新进化路线已开放'

@@ -141,9 +141,7 @@ describe('guard and scatter rules', () => {
     expect(cardTarget(s.run!, CARDS[id], e.uid)?.uid).toBe(e.uid);
     s = reduceGame(s, { type: 'play', uid: 'card0', target: e.uid });
     expect(s.run!.battle!.enemies[0]).toMatchObject({ mark: 0, weakened: 0 });
-    expect(s.run!.battle!.enemies[1][id === 'talisman' ? 'mark' : 'weakened']).toBe(
-      id === 'talisman' ? 3 : 2,
-    );
+    expect(s.run!.battle!.enemies[1][id === 'talisman' ? 'mark' : 'weakened']).toBe(2);
   });
 
   it('intercepts targeted attacks but respects choosing a guard and using area attacks', () => {
@@ -207,6 +205,63 @@ describe('guard and scatter rules', () => {
 });
 
 describe('enemy pacing and formation persistence', () => {
+  it.each([
+    [1, 10, 6],
+    [2, 3, 3],
+    [3, 10, 0],
+  ])(
+    'keeps belphemon sleep healing capped and its awakening cycle unchanged on turn %s',
+    (turn, missing, healed) => {
+      let s = fight(['belphemon'], 4, 'boss');
+      const r = s.run!,
+        b = r.battle!,
+        e = b.enemies[0];
+      b.turn = turn;
+      e.hp = e.maxHp - missing;
+      const before = structuredClone(s),
+        plan = intent(r, e);
+      expect(s).toEqual(before);
+      expect(plan).toMatchObject(
+        turn < 3
+          ? {
+              name: '沉睡',
+              type: 'block',
+              shield: 16,
+              heal: 6,
+              healTarget: 'self',
+              damage: 0,
+              hits: 0,
+            }
+          : { name: '觉醒咆哮', type: 'attack', shield: 0, damage: 12, hits: 3 },
+      );
+      expect(enemyCountdown(r, e)).toBe(turn === 3 ? '本回合觉醒' : `觉醒还有${3 - turn}回合`);
+      s = parseSave(JSON.stringify(s));
+      beginEnemyTurn(s.run!);
+      enemyStep(s.run!, s.meta);
+      expect(s.run!.battle!.enemies[0].hp).toBe(e.hp + healed);
+      expect(s.run!.battle!.enemies[0].block).toBe(plan.shield);
+      expect(s.run!.battle!.feedback.filter((f) => f.kind === 'heal')).toEqual(
+        healed ? [{ target: e.uid, kind: 'heal', amount: healed }] : [],
+      );
+      expect(r.hp - s.run!.hp).toBe(plan.damage * plan.hits);
+    },
+  );
+
+  it('makes belphemon heal itself instead of a more wounded teammate while sleeping', () => {
+    let s = fight(['belphemon', 'phantomon']);
+    const [belphemon, ally] = s.run!.battle!.enemies;
+    belphemon.hp -= 3;
+    ally.hp = ally.maxHp / 2;
+    const before = structuredClone(s);
+    expect(intent(s.run!, ally).name).toBe('幻影暴走');
+    expect(s).toEqual(before);
+    s = reduceGame(s, { type: 'beginEnemyTurn' });
+    s = reduceGame(s, { type: 'enemyStep' });
+    expect(s.run!.battle!.enemies[0].hp).toBe(belphemon.maxHp);
+    expect(s.run!.battle!.enemies[1].hp).toBe(ally.hp);
+    expect(intent(s.run!, s.run!.battle!.enemies[1]).name).toBe('幻影暴走');
+  });
+
   it('gives beelzebumon a real reload window in each four-turn cycle', () => {
     let s = fight(['beelzebumon'], 1, 'boss');
     const names: string[] = [],

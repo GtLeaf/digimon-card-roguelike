@@ -22,7 +22,6 @@ import {
   PORTRAIT_FORMS,
 } from '../game/data';
 import { stageName } from '../game/evolution';
-import { AttributeLabel } from './AttributeLabel';
 import type { Meta, Partner, Run } from '../game/types';
 import { APP_VERSION } from '../version';
 import './HomeScreen.css';
@@ -127,10 +126,7 @@ export function HomeScreen({
                 definition.tag
               )}
             </span>
-            <h3 className={name.length >= 6 ? 'long-form-name' : undefined}>
-              {name}
-              <AttributeLabel id={form} />
-            </h3>
+            <h3 className={name.length >= 6 ? 'long-form-name' : undefined}>{name}</h3>
             <p>
               {activeRun
                 ? `${CHAPTERS[chapter].name}\n第 ${(activeRun.row % activeRun.chapterRows) + 1} / ${activeRun.chapterRows} 层`
@@ -183,7 +179,6 @@ export function HomeScreen({
                 <img src={asset(id)} alt="" />
                 <span>
                   {PARTNERS[id].name}
-                  <AttributeLabel id={id} />
                   {id === 'impmon' && (meta.scans.beelzebumon ?? 0) < 100 ? ' · 未解锁' : ''}
                 </span>
                 {id === partner && (

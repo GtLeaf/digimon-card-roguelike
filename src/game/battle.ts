@@ -34,8 +34,22 @@ import type {
 } from './types';
 
 // —— 被动钩子发射 ——
+// 平衡审核专用：临时关闭搭档／形态特性、继承与训练加成，用来计算卡牌本体分。
+// 只在同步调用期间生效，不写入存档，正常游戏永远为 false。
+let traitsDisabled = false;
+export function withoutTraits<T>(fn: () => T): T {
+  const previous = traitsDisabled;
+  traitsDisabled = true;
+  try {
+    return fn();
+  } finally {
+    traitsDisabled = previous;
+  }
+}
+// 继承与训练加成只在成长期后生效；审核关闭特性时一并关闭。
+const grown = (r: Run) => r.stage > 0 && !traitsDisabled;
 const passiveList = (r: Run) =>
-  [...new Set([r.partner, r.form, r.branch])]
+  (traitsDisabled ? [] : [...new Set([r.partner, r.form, r.branch])])
     .map((k) => PASSIVES[k!])
     .filter((h): h is PassiveHooks => !!h);
 const hasHook = (r: Run, key: keyof PassiveHooks) => passiveList(r).some((h) => h[key]);
@@ -71,7 +85,13 @@ export function cardCost(c: Card): number {
 // 斗牛士兽 · 觉醒被动：每回合第二张攻击牌不消耗行动力。
 export function playCost(r: Run | null | undefined, c: Card): number {
   const b = r?.battle;
-  if (b && r!.form === 'matadormonAwakened' && CARDS[c.id].kind === 'attack' && b.attackPlays === 1)
+  if (
+    b &&
+    !traitsDisabled &&
+    r!.form === 'matadormonAwakened' &&
+    CARDS[c.id].kind === 'attack' &&
+    b.attackPlays === 1
+  )
     return 0;
   return cardCost(c);
 }
@@ -453,7 +473,7 @@ export function beginBattle(r: Run, node: MapNode) {
     b.charge++;
     log(b, '过载弹匣 · 蓄能 ＋1');
   }
-  if (r.training === 'defense' && r.stage > 0) b.block += 3;
+  if (r.training === 'defense' && grown(r)) b.block += 3;
   if (r.bonuses.includes('holyward')) b.block += 2;
   draw(r, 5 + (r.relics.includes('reader') ? 1 : 0) + (r.bonuses.includes('ritual') ? 1 : 0));
   r.screen = 'battle';
@@ -507,7 +527,7 @@ function hit(r: Run, e: Enemy, amount: number, attack = true, hitIndex?: number)
     damage += b.strength + (b.burst > 0 ? 2 : 0);
     damage += sum(r, (h, c) => h.attackHitBonus?.(c, hitIndex));
     if (e.vulnerable) damage += e.vulnerable;
-    if (r.training === 'attack' && r.stage > 0) damage += 1;
+    if (r.training === 'attack' && grown(r)) damage += 1;
     if (r.relics.includes('cooler') && b.attacks < 3) damage++;
     b.attacks++;
     if (ENEMIES[e.id].style === 'evade' && e.opening) {
@@ -644,7 +664,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
     b.attackPlays++;
   }
   if (d.kind === 'skill' || d.kind === 'power') count(r, 'skills');
-  if (d.burn || d.special === 'detonate' || d.burnShield) count(r, 'fire');
+  if (d.burn || d.special === 'detonate' || d.burnShield || d.burnDouble) count(r, 'fire');
   if (c.copied) count(r, 'copies');
   if (!c.copied) {
     const series = d.series ?? d.id;
@@ -695,7 +715,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
     if (!b.defended) {
       if (r.blessing === 'guard') shield += 3;
       shield += sum(r, (h, cx) => h.firstDefenseShield?.(cx));
-      if (r.inherit === 'ward' && r.stage > 0) shield += 2;
+      if (r.inherit === 'ward' && grown(r)) shield += 2;
       fire(r, (h, cx) => h.onFirstDefense?.(cx));
       b.defended = true;
     }
@@ -748,6 +768,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
     const n = d.windupHits;
     b.nextAttackHits += n;
     log(b, `${d.name} · 本回合下一张攻击牌段数＋${n}`);
+  }
+  if (d.nextAttackBonus) {
+    b.nextAttackBonus += d.nextAttackBonus;
+    log(b, `${d.name} · 本回合下一张攻击牌总伤害＋${d.nextAttackBonus}（只加一次）`);
   }
   // 式神·饭纲：本回合式神已苏醒（第二张技能牌起）则再抽 1 张。
   if (d.special === 'izuna' && b.skillsPlayed >= 2) {
@@ -817,11 +841,12 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
   const burnBonus =
     !b.burned && d.burn
       ? sum(r, (h, cx) => h.firstBurnBonus?.(cx)) +
-        (r.inherit === 'ember' && r.stage > 0 ? 1 : 0) +
+        (r.inherit === 'ember' && grown(r) ? 1 : 0) +
         (r.relics.includes('firebrand') ? 1 : 0)
       : 0;
   const followup = (e: Enemy) => {
     if (
+      traitsDisabled ||
       r.form !== 'growlmon' ||
       d.kind !== 'attack' ||
       !d.damage ||
@@ -912,6 +937,12 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
       }
     if (d.kind === 'attack' && e.hp < hpBefore) e.effectiveAttacks = (e.effectiveAttacks ?? 0) + 1;
     if (e.hp > 0) {
+      if (d.burnDouble && e.burn > 0) {
+        const before = e.burn;
+        e.burn *= 2;
+        appliedBurn = true;
+        log(b, `${d.name} · 灼烧 ${before} → ${e.burn}`);
+      }
       if (d.burn) {
         e.burn += d.burn + burnBonus;
         appliedBurn = true;
@@ -922,7 +953,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
           d.mark +
           // 神乐铃：本回合已消耗过符印则加量施加。
           (d.burstMarkBonus && b.markBurstThisTurn ? d.burstMarkBonus : 0) +
-          (r.inherit === 'seal' && r.stage > 0 && b.played === 1 ? 1 : 0) +
+          (r.inherit === 'seal' && grown(r) && b.played === 1 ? 1 : 0) +
           (!b.markedThisTurn && r.relics.includes('compass') ? 1 : 0) +
           sum(r, (h, cx) => h.markBonus?.(cx));
       }
@@ -974,7 +1005,12 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
       log(b, `噬能 ＋${gain}（转化 · 当前 ${b.devour}）`);
     }
   }
-  if ((d.drain || d.drainRatio) && r.damageDealt > beforeDamage && r.hp < r.maxHp) {
+  if (
+    (d.drain || d.drainRatio) &&
+    (!d.drainRequiresSelfCost || priorSelfCost) &&
+    r.damageDealt > beforeDamage &&
+    r.hp < r.maxHp
+  ) {
     const before = r.hp;
     // 比例吸血：按本牌实际生命伤害折算；固定吸血维持原值。
     const drainAmount = d.drainRatio
@@ -999,7 +1035,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
   }
   if (d.kind === 'attack') fire(r, (h, cx) => h.onAttackPlayed?.(cx, b.attackPlays));
   if (d.draw) draw(r, d.draw);
-  if (r.inherit === 'flow' && r.stage > 0 && b.played === 1 && d.kind === 'skill') b.block += 2;
+  if (r.inherit === 'flow' && grown(r) && b.played === 1 && d.kind === 'skill') b.block += 2;
   if (d.exhaust || c.copied || c.temporary) b.exhaust.push(c);
   else b.discard.push(c);
   resolve(r, meta);
@@ -1068,9 +1104,10 @@ function applyEnemyEffects(b: Battle, e: Enemy, i: Intent, lifeDamage: number) {
     if (healed) feedback.push({ target: e.uid, kind: 'heal', amount: healed });
   }
   if (i.heal) {
-    const patient = b.enemies
-      .filter((x) => x.hp > 0)
-      .sort((a, c) => c.maxHp - c.hp - (a.maxHp - a.hp))[0];
+    const patient =
+      i.healTarget === 'self'
+        ? e
+        : b.enemies.filter((x) => x.hp > 0).sort((a, c) => c.maxHp - c.hp - (a.maxHp - a.hp))[0];
     if (patient) {
       const healed = Math.min(i.heal, patient.maxHp - patient.hp);
       patient.hp += healed;
@@ -1143,7 +1180,7 @@ export function finishEnemyTurn(r: Run, meta: Meta) {
   b.energy = 3;
   b.block =
     (r.relics.includes('armor') ? 3 : 0) +
-    (r.training === 'defense' && r.stage > 0 ? 3 : 0) +
+    (r.training === 'defense' && grown(r) ? 3 : 0) +
     (r.bonuses.includes('holyward') ? 2 : 0);
   b.selfCostThisTurn = false;
   b.syncThisTurn = 0;

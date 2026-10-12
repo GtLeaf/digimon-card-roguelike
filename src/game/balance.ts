@@ -1,5 +1,5 @@
 import { CARDS, cardDefinition } from './data';
-import { playCost, previewAction, reduceGame } from './engine';
+import { playCost, previewAction, reduceGame, withoutTraits } from './engine';
 import type { Action, BattleNumber, Card, CardDef, Save } from './types';
 
 // 唯一评分模型。权重是筛查假设，尚未经玩家数据拟合。
@@ -280,12 +280,41 @@ function unpricedEffects(state: Save, next: Save, cards: Card[]) {
   return [...flags];
 }
 
-/** 序列严格依次验证，任意非法步骤返回诊断；不提交部分状态。 */
+/**
+ * 序列严格依次验证，任意非法步骤返回诊断；不提交部分状态。
+ * score 为含特性的实战分；baseScore 为关闭搭档／形态特性、继承与训练加成后的卡牌本体分，
+ * traitScore = score − baseScore 为特性贡献分。关闭特性后序列不合法（如依赖觉醒减费）时，
+ * baseScore 与 traitScore 为 null，baseReason 说明原因。
+ */
 export function calibrateSequence(
   state: Save,
   actions: PlayAction[],
   options: BalanceOptions = {},
 ) {
+  const full = scoreSequence(state, actions, options);
+  if (!full.legal) return full;
+  const base = withoutTraits(() => scoreSequence(state, actions, options));
+  const baseScore = base.legal ? base.score : null;
+  return {
+    ...full,
+    baseScore,
+    traitScore: baseScore === null ? null : full.score - baseScore,
+    baseReason: base.legal ? null : base.reason,
+    baseBreakdown: base.legal
+      ? {
+          damage: base.damage,
+          prevented: base.prevented,
+          healing: base.healing,
+          cards: base.cards,
+          energy: base.energy,
+          lifeCost: base.lifeCost,
+          future: base.future,
+        }
+      : null,
+  };
+}
+
+function scoreSequence(state: Save, actions: PlayAction[], options: BalanceOptions = {}) {
   if (!state.run?.battle || state.run.screen !== 'battle') throw Error('校准需要战斗状态。');
   if (!actions.length) return { legal: false as const, score: 0, reason: 'empty-sequence' };
   const config = { ...BALANCE_DEFAULTS, ...options },

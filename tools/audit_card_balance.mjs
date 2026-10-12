@@ -61,18 +61,21 @@ try {
  }
  for(const id of ['gramLance','royal'])for(const upgraded of [false,true])for(const block of [0,10,20,30])measure(id,upgraded,1,'attack',{block});
  for(const id of ['abyssLance','chaoslance'])for(const upgraded of [false,true])for(const selfCost of [false,true])measure(id,upgraded,1,'attack',{selfCost});
- const limitations=['唯一公式v3，权重仍为待验证的筛查假设；分数不是通关率或官方公式。','常规场景：HP60/100，3行动力，无装置，守护训练，灵巧继承，来源形态首张出牌；敌方HP100、无护盾；通用牌另测8个搭档/阶段场景。','引爆/末日审判预置5灼烧；解印预置3符印；炮击预置3蓄能；噬能消费者预置3噬能；额外场景以JSON字段为准；复制来源固定为能量装填＋。','不将破盾、耗竭减薄、清故障、进化进度与复制选择灵活性压成分数。','资源出口来自合法进化历史；噬能/蓄能用引擎反事实试算，最多三次同出口。试算补能/取牌属于估值假设，不是合法连招。未计价收益单列。','有限场景不证明不存在其他循环；完整回合与通关测试独立执行。'];
+ const limitations=['唯一公式v3，权重仍为待验证的筛查假设；分数不是通关率或官方公式。','常规场景：HP60/100，3行动力，无装置，守护训练，灵巧继承，来源形态首张出牌；敌方HP100、无护盾；通用牌另测8个搭档/阶段场景。','引爆/末日审判预置5灼烧；解印预置3符印；炮击预置3蓄能；噬能消费者预置3噬能；额外场景以JSON字段为准；复制来源固定为能量装填＋。','本体分关闭搭档／形态特性、继承与训练加成；特性贡献＝实战分−本体分，含“每回合首次”类被动在单牌首张场景中的全额触发。','不将破盾、耗竭减薄、清故障、进化进度与复制选择灵活性压成分数。','资源出口来自合法进化历史；噬能/蓄能用引擎反事实试算，最多三次同出口。试算补能/取牌属于估值假设，不是合法连招。未计价收益单列。','有限场景不证明不存在其他循环；完整回合与通关测试独立执行。'];
  const report={version:BALANCE_VERSION,label,sourceHashes,defaults:BALANCE_DEFAULTS,cardCount:normal.length,standardCount,scenarioCount:rows.length,limitations,rows};
  const out=join(root,'docs','reports');await mkdir(out,{recursive:true});
  // 每场景一行，便于查看与追踪参数变化。
  await writeFile(join(out,`card-balance-${label}.json`),JSON.stringify({...report,rows:undefined},null,2).replace(/\n\}$/,'')+',\n  "rows": [\n'+rows.map(row=>'    '+JSON.stringify(row)).join(',\n')+'\n  ]\n}\n');
+ // 本体分：关闭搭档／形态特性、继承与训练后的同一公式；特性贡献＝实战分−本体分。
  const table=normal.map(d=>{
-  const values=upgraded=>rows.slice(0,standardCount).filter(r=>r.id===d.id&&r.upgraded===upgraded).map(r=>r.score);
-  const range=vs=>`${Math.min(...vs).toFixed(2)} ～ ${Math.max(...vs).toFixed(2)}`;
-  return `| ${d.name} | ${cardDefinition({id:d.id,upgraded:false}).cost} / ${cardDefinition({id:d.id,upgraded:true}).cost} | ${range(values(false))} | ${range(values(true))} |`;
+  const values=(upgraded,key)=>rows.slice(0,standardCount).filter(r=>r.id===d.id&&r.upgraded===upgraded).map(r=>r[key]).filter(v=>Number.isFinite(v));
+  const range=vs=>vs.length?`${Math.min(...vs).toFixed(2)} ～ ${Math.max(...vs).toFixed(2)}`:'—';
+  return `| ${d.name} | ${cardDefinition({id:d.id,upgraded:false}).cost} / ${cardDefinition({id:d.id,upgraded:true}).cost} | ${range(values(false,'baseScore'))} | ${range(values(true,'baseScore'))} | ${range(values(false,'traitScore'))} | ${range(values(true,'traitScore'))} | ${range(values(false,'score'))} | ${range(values(true,'score'))} |`;
  });
- const markdown=`# 卡牌校准报告：${label}\n\n由 \`npm run audit:balance -- --label ${label}\` 生成。${normal.length}张非故障牌，${standardCount}项常规场景，含额外场景共${rows.length}项。\n\n${limitations.map(s=>'- '+s).join('\n')}\n\n公式与参数见 [卡牌平衡校准公式](../balance/卡牌平衡校准公式.md)，逐项指标见 [JSON报告](./card-balance-${label}.json)。下表范围来自单敌／双敌／三敌、普通攻击／多段攻击；请比较相同来源阶段与获取成本。\n\n| 卡牌 | 基础/强化费用 | 基础U范围 | 强化U范围 |\n| --- | --- | --- | --- |\n${table.join('\n')}\n`;
+ const markdown=`# 卡牌校准报告：${label}\n\n由 \`npm run audit:balance -- --label ${label}\` 生成。${normal.length}张非故障牌，${standardCount}项常规场景，含额外场景共${rows.length}项。\n\n${limitations.map(s=>'- '+s).join('\n')}\n\n公式与参数见 [卡牌平衡校准公式](../balance/卡牌平衡校准公式.md)，逐项指标见 [JSON报告](./card-balance-${label}.json)。下表范围来自单敌／双敌／三敌、普通攻击／多段攻击；请比较相同来源阶段与获取成本。\n\n「本体分」关闭搭档／形态特性、继承与训练加成，只反映卡牌自身，可跨形态比较；「特性贡献」为实战分减本体分；「实战分」即原U值。本体分为“—”表示关闭特性后无法打出（如依赖觉醒减费）。\n\n| 卡牌 | 基础/强化费用 | 本体分（基础） | 本体分（强化） | 特性贡献（基础） | 特性贡献（强化） | 实战分（基础） | 实战分（强化） |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n${table.join('\n')}\n`;
  await writeFile(join(out,`card-balance-${label}.md`),markdown);
  if(rows.some(r=>!r.legal||!Number.isFinite(r.score)))throw Error('发现非法或非有限校准结果。');
+ const baseMissing=rows.filter(r=>r.baseScore===null);
+ if(baseMissing.length)console.log(`关闭特性后无法打出：${[...new Set(baseMissing.map(r=>`${r.id}(${r.baseReason})`))].join('、')}`);
  console.log(`已生成 ${normal.length} 张卡、${rows.length} 项场景：docs/reports/card-balance-${label}.md / .json`);
 } finally {await rm(temp,{recursive:true,force:true});}

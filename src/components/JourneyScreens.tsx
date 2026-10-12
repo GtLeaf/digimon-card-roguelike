@@ -21,7 +21,6 @@ import { CardChoicePanel, JourneyHeader, JourneyPanel, JourneyResources } from '
 import { ROUTE_DATA } from '../game/evolution';
 import { relicIdFromPurchase, relicPurchaseId, shopPrice } from '../game/shop';
 import { relicIcons } from './relicIcons';
-import { AttributeLabel } from './AttributeLabel';
 
 type NodeProps = { run: Run; onAction: (action: Action) => void };
 const sample = (id: string): Card => ({ uid: id, id, upgraded: false });
@@ -375,10 +374,7 @@ export function RewardView({ run, meta, onAction }: NodeProps & { meta: Meta }) 
               <div key={scan.id}>
                 <img src={asset(scan.id)} alt="" />
                 <div>
-                  <b>
-                    {ENEMIES[scan.id].name}
-                    <AttributeLabel id={scan.id} />
-                  </b>
+                  <b>{ENEMIES[scan.id].name}</b>
                   <span>
                     扫描 {scan.before}% → {scan.after}%
                   </span>

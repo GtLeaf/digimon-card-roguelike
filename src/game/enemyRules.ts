@@ -297,7 +297,16 @@ export function expandedIntent(run: Run, enemy: Enemy): Intent | undefined {
     case 'belphemon':
       return phase === 2
         ? attack('觉醒咆哮', 7 + ch, 3, '沉睡两回合后觉醒，三段咆哮倾泻怒火。')
-        : pause('沉睡', 'block', '沉睡中：获得16护盾，不攻击；第三回合觉醒爆发。', 16);
+        : {
+            ...pause(
+              '沉睡',
+              'block',
+              '沉睡中：获得16护盾，自身回复6生命，不攻击；第三回合觉醒爆发。',
+              16,
+            ),
+            heal: 6,
+            healTarget: 'self',
+          };
     case 'barbamon':
       return phase === 0
         ? {

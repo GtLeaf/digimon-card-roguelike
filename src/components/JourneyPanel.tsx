@@ -77,7 +77,11 @@ export function JourneyPanel({
     if (root) root.inert = true;
     ref.current?.focus();
     const handle = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeRef.current();
+      if (event.key === 'Escape') {
+        // 叠放在图鉴等弹窗上时只关闭本面板：捕获阶段先处理，并通知外层弹窗跳过。
+        event.preventDefault();
+        closeRef.current();
+      }
       if (event.key !== 'Tab') return;
       const items = ref.current?.querySelectorAll<HTMLElement>(
         'button:not(:disabled),select,input,a[href]',
@@ -99,11 +103,11 @@ export function JourneyPanel({
         first.focus();
       }
     };
-    document.addEventListener('keydown', handle);
+    document.addEventListener('keydown', handle, true);
     return () => {
       document.body.style.overflow = overflow;
       if (root) root.inert = wasInert ?? false;
-      document.removeEventListener('keydown', handle);
+      document.removeEventListener('keydown', handle, true);
       if (before instanceof HTMLElement && before.isConnected)
         before.focus({ preventScroll: true });
     };

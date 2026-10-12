@@ -148,7 +148,11 @@ export function eventAction(s: Save, action: Extract<Action, { type: 'event' }>)
   const meta = s.meta;
   if (r.eventResolved) return false;
   if (!applyEvent(r, meta, action.choice, action.uid)) return false;
-  if (r.currentNode?.eventId === 'echo') r.eventResolved = true;
+  if (
+    r.currentNode?.eventId === 'echo' ||
+    (r.currentNode?.eventId === 'shelter' && action.choice === 'risk')
+  )
+    r.eventResolved = true;
   else finishNode(r);
   return true;
 }

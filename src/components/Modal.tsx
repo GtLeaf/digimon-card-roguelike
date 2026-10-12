@@ -18,7 +18,8 @@ export function Modal({
     const before = document.activeElement;
     ref.current?.focus();
     const handle = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      // 内层面板或搜索框已处理 Escape 时不关闭弹窗。
+      if (e.key === 'Escape' && !e.defaultPrevented) onClose();
       if (e.key === 'Tab') {
         const items = ref.current?.querySelectorAll<HTMLElement>(
           'button:not(:disabled),a[href],input:not([hidden]),select',

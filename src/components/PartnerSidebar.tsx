@@ -27,11 +27,11 @@ export function PartnerSidebar({
     <aside className="partner-sidebar">
       <div className="eyebrow">PARTNER LINK</div>
       <Sprite id={r.form} size={170} />
-      <h2>{FORM_NAMES[r.form]}</h2>
-      <p>
-        <AttributeLabel id={r.form} compact /> ·{' '}
-        {r.branch ? BRANCHES[r.branch].tag : ['成长期', '成熟期', '完全体'][r.stage]}
-      </p>
+      <h2>
+        {FORM_NAMES[r.form]}
+        <AttributeLabel id={r.form} />
+      </h2>
+      <p>{r.branch ? BRANCHES[r.branch].tag : ['成长期', '成熟期', '完全体'][r.stage]}</p>
       <Health hp={r.hp} max={r.maxHp} />
       {r.stage > 0 && (
         <div className="passive-note">
@@ -68,7 +68,10 @@ export function PartnerSidebar({
       </div>
       <button className="secondary" onClick={onCollection}>
         <ScanLine size={16} />
-        {ENEMIES[r.support]?.name ?? '应急防御程序'}
+        <span>
+          {ENEMIES[r.support]?.name ?? '应急防御程序'}
+          {ENEMIES[r.support] && <AttributeLabel id={r.support} />}
+        </span>
         <ChevronDown size={15} />
       </button>
       <small className="saved-indicator">

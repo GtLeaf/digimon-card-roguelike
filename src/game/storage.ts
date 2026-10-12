@@ -218,6 +218,7 @@ const run = z
     shopRelicStock: z.array(z.string()).optional(),
     shopBought: z.array(z.string()),
     shopRemoved: z.boolean(),
+    eventResolved: z.boolean().optional(),
     spotlight: z.array(z.string()).optional(),
     supportSpent: z.boolean().default(false),
     evolved: z.number(),

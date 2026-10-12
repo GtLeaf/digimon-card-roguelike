@@ -116,7 +116,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         stage: 2,
         parents: ['growlmon', 'blackgrowmon'],
         tag: '余烬与守护',
-        passive: '每场开始获得 1 蓄能；每回合首次实际施加灼烧，获得 2 护盾。',
+        passive: '每回合首次实际施加灼烧，获得 2 护盾。',
         cards: ['flare', 'emberCannon'],
         groups: [],
         slot: 0,
@@ -143,7 +143,7 @@ export const EVOLUTIONS: Record<string, EvolutionDef> = Object.fromEntries(
         partner: 'guilmon',
         stage: 3,
         parents: ['wargrowlmon'],
-        tag: '圣盾攻防',
+        tag: '圣炎化盾',
         passive:
           BRANCHES.duke.passive + ' 主动防御满12次，进化时额外获得圣盾继承：每回合开始＋2护盾。',
         cards: BRANCHES.duke.cards,
@@ -676,15 +676,15 @@ export function evolutionTransition(from: string, to: string): string | null {
       '强化一张火球并获得双刃斩；火球无法强化时改赠新形态招式。先叠灼烧再追击，每回合首次攻击带灼烧目标额外＋2总伤害。',
     'guilmon/blackgrowmon': '火焰转为暗炎，自损换取更高伤害；解锁共享的烈焰引爆，可主动消费灼烧。',
     'growlmon/wargrowlmon':
-      '烈焰追击的＋2总伤害改为首次实际灼烧获得2护盾；余烬护甲兼顾叠火与守护，炎核重炮消耗初始蓄能并施加灼烧。',
+      '烈焰追击的＋2总伤害改为首次实际灼烧获得2护盾；余烬护甲兼顾叠火与守护，炎核重炮一次施加4层灼烧，为引爆或化盾做准备。',
     'blackgrowmon/wargrowlmon':
-      '暗炎额外＋1改为首次实际灼烧获得2护盾；保留已学暗炎与引爆，获得余烬护甲与炎核重炮，转向灼烧守护和炮击。',
+      '暗炎额外＋1改为首次实际灼烧获得2护盾；保留已学暗炎与引爆，获得余烬护甲与炎核重炮，转向灼烧守护。',
     'blackgrowmon/blackwargrowlmon':
       '暗炎额外＋1改为首次自损返1行动力；保留暗炎与引爆，获得黑暗过载和暗黑汲取，开始自损后恢复。',
     'wargrowlmon/dukemon':
-      '首次灼烧护盾与初始蓄能改为首次提供护盾的牌额外＋3护盾；余烬护甲仍能触发，皇家枪击将攻防合为一张牌。',
+      '首次灼烧护盾改为首次提供护盾的牌额外＋3护盾；圣炎之盾消耗目标灼烧换取护盾，圣枪格拉墨与终极神圣光束再把护盾转为伤害。',
     'wargrowlmon/megidramon':
-      '首次灼烧护盾与初始蓄能改为首次实际灼烧额外＋2；旧火焰和引爆转为群体爆发的准备。',
+      '首次灼烧护盾改为首次实际灼烧额外＋2；旧火焰和引爆转为群体爆发的准备。',
     'blackwargrowlmon/megidramon':
       '首次自损返能改为首次实际灼烧额外＋2；黑暗过载仍返能抽牌，但少了形态额外返能，暗黑汲取可补偿灭世烈焰的自损。',
     'blackwargrowlmon/chaosdukemon':

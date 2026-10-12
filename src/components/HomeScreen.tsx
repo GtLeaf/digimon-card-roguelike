@@ -118,7 +118,6 @@ export function HomeScreen({
           <img className="start-character" key={form} src={asset(form)} alt={name} />
           <div className="start-profile" aria-live="polite" aria-atomic="true">
             <span className="start-form-tag">
-              <AttributeLabel id={form} compact /> ·{' '}
               {activeRun ? (
                 <>
                   {stageName(activeRun.stage)}
@@ -128,7 +127,10 @@ export function HomeScreen({
                 definition.tag
               )}
             </span>
-            <h3 className={name.length >= 6 ? 'long-form-name' : undefined}>{name}</h3>
+            <h3 className={name.length >= 6 ? 'long-form-name' : undefined}>
+              {name}
+              <AttributeLabel id={form} />
+            </h3>
             <p>
               {activeRun
                 ? `${CHAPTERS[chapter].name}\n第 ${(activeRun.row % activeRun.chapterRows) + 1} / ${activeRun.chapterRows} 层`
@@ -181,6 +183,7 @@ export function HomeScreen({
                 <img src={asset(id)} alt="" />
                 <span>
                   {PARTNERS[id].name}
+                  <AttributeLabel id={id} />
                   {id === 'impmon' && (meta.scans.beelzebumon ?? 0) < 100 ? ' · 未解锁' : ''}
                 </span>
                 {id === partner && (

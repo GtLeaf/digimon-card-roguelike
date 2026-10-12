@@ -21,12 +21,14 @@ import { CardChoicePanel, JourneyHeader, JourneyPanel, JourneyResources } from '
 import { ROUTE_DATA } from '../game/evolution';
 import { relicIdFromPurchase, relicPurchaseId, shopPrice } from '../game/shop';
 import { relicIcons } from './relicIcons';
+import { AttributeLabel } from './AttributeLabel';
 
 type NodeProps = { run: Run; onAction: (action: Action) => void };
 const sample = (id: string): Card => ({ uid: id, id, upgraded: false });
 
 export function ShopView({ run, onAction }: NodeProps) {
-  const [removing, setRemoving] = useState(false);
+  const [removing, setRemoving] = useState(false),
+    [deviceId, setDeviceId] = useState<string | null>(null);
   function block(id: string) {
     if (run.shopBought.includes(id)) return '已售出';
     const relicId = relicIdFromPurchase(id);
@@ -55,10 +57,13 @@ export function ShopView({ run, onAction }: NodeProps) {
       })),
     { id: 'relic', name: '装置盲盒', Icon: Package, random: true, owned: false },
   ];
+  const device = devices.find(({ id }) => id === deviceId),
+    selectedRelicId = deviceId ? relicIdFromPurchase(deviceId) : null,
+    selectedRelic = selectedRelicId ? RELICS[selectedRelicId] : null;
   return (
     <div className="journey-screen shop-screen">
       <JourneyHeader icon={<ShoppingBag />} title="旅途中的补给。" eyebrow="THE WANDERING TRADER">
-        点击商品直接购买，准备好后离开。
+        点击装置查看效果，卡牌与恢复磁盘点击购买，准备好后离开。
       </JourneyHeader>
       <JourneyResources run={run} />
       {run.message && (
@@ -70,7 +75,7 @@ export function ShopView({ run, onAction }: NodeProps) {
       <section className="journey-device-stock" aria-label="装置货架">
         <div className="journey-section-title">
           <h2>装置货架</h2>
-          <span>点击直接购买</span>
+          <span>点击查看效果</span>
         </div>
         <div className="journey-device-grid">
           {devices.map(({ id, name, Icon, random, owned }) => {
@@ -86,8 +91,8 @@ export function ShopView({ run, onAction }: NodeProps) {
               <button
                 key={id}
                 className={`journey-device-product ${sold || owned ? 'journey-device-owned' : ''}`}
-                disabled={!!block(id)}
-                onClick={() => purchase(id)}
+                aria-haspopup="dialog"
+                onClick={() => setDeviceId(id)}
               >
                 <Icon size={34} aria-hidden="true" />
                 <strong>{name}</strong>
@@ -158,6 +163,43 @@ export function ShopView({ run, onAction }: NodeProps) {
           <ArrowRight size={16} />
         </button>
       </footer>
+      {device && (
+        <JourneyPanel
+          title={device.name}
+          onClose={() => setDeviceId(null)}
+          footer={
+            <>
+              {block(device.id) && <p className="journey-action-note">{block(device.id)}</p>}
+              <div>
+                <button className="secondary" onClick={() => setDeviceId(null)}>
+                  返回商店
+                </button>
+                <button
+                  className="primary"
+                  disabled={!!block(device.id)}
+                  onClick={() => {
+                    purchase(device.id);
+                    setDeviceId(null);
+                  }}
+                >
+                  {device.random ? '购买并开启' : '购买装置'} · {shopPrice(device.id)} 金币
+                </button>
+              </div>
+            </>
+          }
+        >
+          <JourneyResources run={run} />
+          <div className="journey-item-detail">
+            <device.Icon size={34} />
+            <h3>{device.name}</h3>
+            <p>
+              {selectedRelic?.text ??
+                '随机获得1件未拥有的装置，优先抽取当前牌组可用的装置。购买后立即揭晓，本次到访限购1次。'}
+            </p>
+            {selectedRelic && <small className="journey-hint">获得后自动生效</small>}
+          </div>
+        </JourneyPanel>
+      )}
       {removing && (
         <CardChoicePanel
           run={run}
@@ -333,7 +375,10 @@ export function RewardView({ run, meta, onAction }: NodeProps & { meta: Meta }) 
               <div key={scan.id}>
                 <img src={asset(scan.id)} alt="" />
                 <div>
-                  <b>{ENEMIES[scan.id].name}</b>
+                  <b>
+                    {ENEMIES[scan.id].name}
+                    <AttributeLabel id={scan.id} />
+                  </b>
                   <span>
                     扫描 {scan.before}% → {scan.after}%
                   </span>

@@ -298,7 +298,8 @@ describe('ten events and persistence', () => {
       s.run!.gold = 0;
       const safe = EVENTS[id].choices.find((c) => c.id === 'safe')!;
       expect(eventChoiceBlock(s.run!, safe)).toBe('');
-      const next = reduceGame(s, { type: 'event', choice: 'safe' });
+      const settled = reduceGame(s, { type: 'event', choice: 'safe' });
+      const next = settled.run!.eventResolved ? reduceGame(settled, { type: 'continue' }) : settled;
       expect(next.run!.screen).toBe('map');
       expect(next.run!.row).toBe(6);
     }

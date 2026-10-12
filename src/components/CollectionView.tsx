@@ -28,10 +28,11 @@ export function CollectionView({
           {Object.values(EVOLUTIONS).map((form) => (
             <div className="collection-item" key={form.id}>
               <img src={asset(form.id)} alt={FORM_NAMES[form.id]} />
-              <h3>{FORM_NAMES[form.id]}</h3>
-              <span>
-                {stageName(form.stage)} · <AttributeLabel id={form.id} compact />
-              </span>
+              <h3>
+                {FORM_NAMES[form.id]}
+                <AttributeLabel id={form.id} />
+              </h3>
+              <span>{stageName(form.stage)}</span>
               <p>
                 {form.stage === 0
                   ? '初始搭档 · 可直接选择'
@@ -74,8 +75,10 @@ export function CollectionView({
             return (
               <div className={`collection-item ${progress === 0 ? 'undiscovered' : ''}`} key={e.id}>
                 <img src={asset(e.id)} alt={e.name} />
-                <h3>{e.name}</h3>
-                {progress > 0 && <AttributeLabel id={e.id} />}
+                <h3>
+                  {e.name}
+                  {progress > 0 && <AttributeLabel id={e.id} />}
+                </h3>
                 <span>
                   {progress}% <small>{e.support ? '支援伙伴' : '资料图鉴'}</small>
                 </span>
@@ -115,8 +118,10 @@ export function CollectionView({
           })}
         <div className="collection-item">
           <img src={asset('lopmon')} alt="黑大耳兽" />
-          <h3>黑大耳兽</h3>
-          <AttributeLabel id="lopmon" />
+          <h3>
+            黑大耳兽
+            <AttributeLabel id="lopmon" />
+          </h3>
           <span>
             <small>救援事件伙伴</small>
           </span>

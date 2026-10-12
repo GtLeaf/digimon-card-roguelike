@@ -7,36 +7,32 @@ import { balanceScenario } from './helpers/balanceScenario';
 
 describe('大古拉兽炎核重炮', () => {
   it.each([
-    [false, 0, 12],
-    [false, 1, 16],
-    [false, 3, 24],
-    [true, 0, 15],
-    [true, 1, 19],
-    [true, 3, 27],
-  ] as const)('强化=%s、蓄能=%s：结算%s伤害与实际灼烧护盾', (upgraded, charge, damage) => {
+    [false, 12],
+    [true, 15],
+  ] as const)('强化=%s：结算%s伤害、4层灼烧与实际灼烧护盾，不读取蓄能', (upgraded, damage) => {
     const s = balanceScenario([{ id: 'emberCannon', uid: 'shot', upgraded }], 'wargrowlmon');
-    s.run!.battle!.charge = charge;
+    s.run!.battle!.charge = 2;
     const after = reduceGame(s, { type: 'play', uid: 'shot' }).run!;
     expect(after.battle!.enemies[0].hp).toBe(100 - damage);
-    expect(after.battle!.enemies[0].burn).toBe(2);
-    expect(after.battle!.charge).toBe(0);
+    expect(after.battle!.enemies[0].burn).toBe(4);
+    expect(after.battle!.charge).toBe(2);
     expect(after.battle!.energy).toBe(1);
     expect(after.battle!.block).toBe(2);
     expect(after.activity.counts.fire).toBe(1);
-    expect(after.activity.counts.cannonShots ?? 0).toBe(charge ? 1 : 0);
+    expect(after.activity.counts.cannonShots ?? 0).toBe(0);
     expect(after.activity.counts.defenses ?? 0).toBe(0);
     expect(after.battle!.discard.map((c) => c.id)).toEqual(['emberCannon']);
     expect(cardText({ id: 'emberCannon', upgraded })).toContain(`造成 ${upgraded ? 15 : 12} 伤害`);
+    expect(cardText({ id: 'emberCannon', upgraded })).not.toContain('蓄能');
     expect(parseSave(JSON.stringify({ ...s, run: after })).run).toEqual(after);
   });
 
-  it('直接击杀不施加灼烧或领取护盾，蓄能仍正常消耗', () => {
+  it('直接击杀不施加灼烧或领取护盾', () => {
     const s = balanceScenario(
       [{ id: 'emberCannon', uid: 'shot', upgraded: false }],
       'wargrowlmon',
       ['core', 'core'],
     );
-    s.run!.battle!.charge = 1;
     s.run!.battle!.enemies[0].hp = 5;
     const after = reduceGame(s, { type: 'play', uid: 'shot' }).run!;
     expect(after.battle!.enemies[0].hp).toBe(0);
@@ -44,7 +40,6 @@ describe('大古拉兽炎核重炮', () => {
     expect(after.battle!.enemies[1].hp).toBe(100);
     expect(after.battle!.burned).toBe(false);
     expect(after.battle!.block).toBe(0);
-    expect(after.battle!.charge).toBe(0);
   });
 
   it('重炮点燃后可引爆，护盾每回合只触发一次', () => {
@@ -55,10 +50,9 @@ describe('大古拉兽炎核重炮', () => {
       ],
       'wargrowlmon',
     );
-    s.run!.battle!.charge = 1;
     const fired = reduceGame(s, { type: 'play', uid: 'shot' });
     const after = reduceGame(fired, { type: 'play', uid: 'ignite' }).run!;
-    expect(after.battle!.enemies[0].hp).toBe(75); // 重炮16＋引爆(3＋2×3)
+    expect(after.battle!.enemies[0].hp).toBe(73); // 重炮12＋引爆(3＋4×3)
     expect(after.battle!.enemies[0].burn).toBe(0);
     expect(after.battle!.block).toBe(2);
     expect(after.activity.counts.detonations).toBe(1);
@@ -87,7 +81,7 @@ describe('大古拉兽炎核重炮', () => {
     expect(makeRun('terriermon', 42).deck.map((c) => c.id)).toContain('cannon');
   });
 
-  it('进化赠送新重炮，保留已有通用炮，并可使用开战蓄能', () => {
+  it('进化赠送新重炮，保留已有通用炮，开战不再获得蓄能', () => {
     let s = reduceGame(emptySave(), { type: 'start', partner: 'guilmon', seed: 42 });
     Object.assign(s.run!, { screen: 'evolution', form: 'growlmon', stage: 1, bosses: 2, row: 19 });
     s.run!.formHistory.push('growlmon');
@@ -107,12 +101,12 @@ describe('大古拉兽炎核重炮', () => {
     const shot = s.run!.deck.find((c) => c.id === 'emberCannon')!;
     Object.assign(s.run!, { screen: 'map', row: 0, path: [], currentNode: null, blessing: '' });
     s = reduceGame(s, { type: 'node', id: s.run!.nodes[0][0].id });
-    expect(s.run!.battle!.charge).toBe(1);
+    expect(s.run!.battle!.charge).toBe(0);
     s.run!.battle!.hand = [shot];
     const hp = s.run!.battle!.enemies[0].hp;
     s = reduceGame(s, { type: 'play', uid: shot.uid });
-    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 16);
-    expect(s.run!.battle!.enemies[0].burn).toBe(2);
+    expect(s.run!.battle!.enemies[0].hp).toBe(hp - 12);
+    expect(s.run!.battle!.enemies[0].burn).toBe(4);
     expect(s.run!.battle!.block).toBe(5); // 守护训练3＋首次实际灼烧2
   });
 

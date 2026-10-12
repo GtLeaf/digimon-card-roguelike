@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+	<title>Data Attribute</title>
+	<!--
+		Source: Digimon Story: Cyber Sleuth
+	-->
+	<defs>
+		<path id="path" fill-rule="evenodd"
+			d="M53 6 14 25l-3 43 35 25 40-19 3-43zM15.5 46l-.5 8 8.5 5 .5-8zm22 13-.5 8 8.5 5 .5-8zM26 66l-.4 6 5 3 .4-6zm25-15-2 34 31-15 2-35z" />
+		<linearGradient id="color">
+			<stop stop-color="Goldenrod" />
+		</linearGradient>
+	</defs>
+	<use id="render" href="#path" fill="url(#color)" />
+</svg>

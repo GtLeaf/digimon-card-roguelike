@@ -17,6 +17,7 @@ import { EVENTS } from '../game/events';
 import { ENEMIES, asset } from '../game/data';
 import { availableNodes, reachableNodeIds } from '../game/map';
 import type { MapNode, Run } from '../game/types';
+import { AttributeLabel } from './AttributeLabel';
 const icons = {
   battle: Swords,
   elite: Skull,
@@ -102,11 +103,11 @@ export function ExplorationMap({
       <div className="screen-heading">
         <span className="eyebrow">FOLLOW THE SIGNAL / UPWARD</span>
         <h1>向着信号，继续向上。</h1>
-        <p>沿连线向上前进。点击橙色节点出发，长按或聚焦节点查看后续路线。</p>
         <button className="map-partner" onClick={onTree}>
           <img src={asset(run.form)} alt="" />
           <span>
             {formName(run.form)}
+            <AttributeLabel id={run.form} />
             <small>{stageName(run.stage)} · 查看成长</small>
           </span>
           <GitBranch size={16} />

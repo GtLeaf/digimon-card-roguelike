@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Shield } from 'lucide-react';
 import { ENEMIES, asset } from '../game/data';
 import type { SupportCutInState } from '../hooks/useBattleQueue';
+import { AttributeLabel } from './AttributeLabel';
 import './SupportCutIn.css';
 
 const QUOTES: Record<string, string> = {
@@ -30,17 +31,23 @@ export function SupportCutIn({
   const ribbon = useRef<HTMLDivElement>(null);
   const portrait = useRef<HTMLDivElement>(null);
   const dialogue = useRef<HTMLDivElement>(null);
-  const skip = useRef<HTMLButtonElement>(null);
+  const overlay = useRef<HTMLDivElement>(null);
+  const completed = useRef<number | null>(null);
   const name = ENEMIES[cutIn.partner]?.name ?? '应急防御程序';
   const quote = QUOTES[cutIn.partner] ?? '防御程序已启动。';
   const hasPortrait = !!ENEMIES[cutIn.partner];
+  const finish = useCallback(() => {
+    if (completed.current === cutIn.key) return;
+    completed.current = cutIn.key;
+    onComplete(cutIn.key);
+  }, [cutIn.key, onComplete]);
 
   useEffect(() => {
     let active = true;
     let timer: number | undefined;
     const animations: Animation[] = [];
     const hold = () => {
-      if (active) timer = window.setTimeout(() => onComplete(cutIn.key), HOLD_MS);
+      if (active) timer = window.setTimeout(finish, HOLD_MS);
     };
     if (cutIn.reducedMotion) hold();
     else {
@@ -75,16 +82,20 @@ export function SupportCutIn({
       window.clearTimeout(timer);
       animations.forEach((animation) => animation.cancel());
     };
-  }, [cutIn, onComplete]);
+  }, [cutIn, finish]);
 
   useEffect(() => {
     const before = document.activeElement;
-    skip.current?.focus({ preventScroll: true });
+    overlay.current?.focus({ preventScroll: true });
     const handle = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onComplete(cutIn.key);
+      if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        event.stopPropagation();
+        finish();
+      }
       if (event.key === 'Tab') {
         event.preventDefault();
-        skip.current?.focus({ preventScroll: true });
+        overlay.current?.focus({ preventScroll: true });
       }
     };
     document.addEventListener('keydown', handle);
@@ -93,14 +104,23 @@ export function SupportCutIn({
       if (before instanceof HTMLElement && before.isConnected)
         before.focus({ preventScroll: true });
     };
-  }, [cutIn.key, onComplete]);
+  }, [finish]);
 
   return createPortal(
     <div
       className={`support-cut-in${cutIn.reducedMotion ? ' support-cut-in--reduced' : ''}`}
+      ref={overlay}
       role="dialog"
       aria-modal="true"
       aria-label={`${name}登场`}
+      aria-description="点击任意位置，或按回车、空格、Escape 跳过演出。"
+      tabIndex={0}
+      onClick={(event) => {
+        // 点击完成后才关闭遮罩，消费当前事件，避免误触下层战斗操作。
+        event.preventDefault();
+        event.stopPropagation();
+        finish();
+      }}
     >
       <div className="support-cut-in__band">
         <div className="support-cut-in__ribbon" ref={ribbon}>
@@ -112,18 +132,12 @@ export function SupportCutIn({
             )}
           </div>
           <div className="support-cut-in__dialogue" ref={dialogue} role="status">
-            <strong>{name}</strong>
+            <strong>
+              {name} {hasPortrait && <AttributeLabel id={cutIn.partner} />}
+            </strong>
             <p>“{quote}”</p>
           </div>
         </div>
-        <button
-          type="button"
-          className="support-cut-in__skip"
-          ref={skip}
-          onClick={() => onComplete(cutIn.key)}
-        >
-          跳过演出
-        </button>
       </div>
     </div>,
     document.body,

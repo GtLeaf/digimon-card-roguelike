@@ -597,6 +597,7 @@ export function finishNode(r: Run) {
   r.battle = null;
   r.reward = null;
   r.currentNode = null;
+  delete r.eventResolved;
 }
 export function afterReward(r: Run, meta: Meta) {
   if (r.currentNode?.kind === 'boss') {
@@ -643,7 +644,7 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
     b.attackPlays++;
   }
   if (d.kind === 'skill' || d.kind === 'power') count(r, 'skills');
-  if (d.burn || d.special === 'detonate') count(r, 'fire');
+  if (d.burn || d.special === 'detonate' || d.burnShield) count(r, 'fire');
   if (c.copied) count(r, 'copies');
   if (!c.copied) {
     const series = d.series ?? d.id;
@@ -755,6 +756,10 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
   }
   let bonus = b.charge > 0 ? (d.chargedDamage ?? 0) : 0;
   if (d.special === 'shieldhit') bonus += Math.floor(b.block / (d.shieldDiv ?? 2));
+  if (d.shieldSpend) {
+    bonus += b.block * d.shieldSpend;
+    b.block = 0;
+  }
   // 深渊龙枪：本回合此前已自损过则追加伤害。
   if (d.selfCostBonus && priorSelfCost) bonus += d.selfCostBonus;
   // 致命穿刺：本回合第二张及以后的攻击牌伤害翻倍。
@@ -869,6 +874,13 @@ export function playCard(r: Run, meta: Meta, uid: string, target?: string, copyU
     }
     // 末日审判：灼烧追加伤害但不消耗灼烧层数。
     if (d.special === 'pyre') extra += e.burn * (d.burnPower ?? 3);
+    if (d.burnShield && e.burn > 0) {
+      const gain = e.burn * d.burnShield;
+      b.block += gain;
+      log(b, `${d.name} · 消耗 ${e.burn} 灼烧，护盾 ＋${gain}`);
+      detonated = true;
+      e.burn = 0;
+    }
     if (d.special === 'lure' && e.weakened > 0) extra += 4;
     if (d.special === 'markburst') {
       extra += e.mark * (d.markPower ?? 5);

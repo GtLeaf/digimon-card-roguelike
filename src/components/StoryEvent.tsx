@@ -22,50 +22,78 @@ export function StoryEventView({
 }) {
   const [pending, setPending] = useState<'risk' | 'safe' | null>(null);
   const event = storyEventFor(run);
+  const direct = ['training', 'supply', 'echo'].includes(event.id),
+    echo = event.id === 'echo';
   const autoCard = run.deck.find((card) => !card.upgraded && card.id !== 'guard');
   const choice = event.choices.find((c) => c.id === pending),
     cards = choice ? eligibleEventCards(run, choice) : [];
   return (
     <div className="journey-screen event-screen">
       <JourneyHeader icon={<Radio />} title={event.title} eyebrow="AN UNEXPECTED SIGNAL">
-        {event.hint}
+        {echo ? null : event.hint}
       </JourneyHeader>
       <JourneyResources run={run} />
-      <p className="journey-story">{event.story}</p>
-      <p className="journey-hint">只能选择一项，确认后继续旅程。</p>
-      <div className="option-list">
-        {event.choices.map((option) => {
-          const blocked = eventChoiceBlock(run, option);
-          return (
-            <button
-              className="option"
-              key={option.id}
-              disabled={!!blocked}
-              onClick={() => setPending(option.id)}
-            >
-              <Radio size={20} />
-              <span>
-                <strong>{option.title}</strong>
-                <small>{option.text}</small>
-                <span className="journey-effect-tags">
-                  {eventChoicePreview(run, option).map((text) => (
-                    <span key={text}>{text}</span>
-                  ))}
-                </span>
-                {blocked && <small className="journey-blocked">{blocked}</small>}
-                {option.effect.routes?.map((id) => (
-                  <small key={id}>
-                    {meta.unlockedRoutes.includes(id) ? <Check size={12} /> : null}
-                    {ROUTE_DATA[id].name} ·{' '}
-                    {meta.unlockedRoutes.includes(id) ? '已永久解锁' : '本次可永久解锁'}
-                  </small>
-                ))}
-              </span>
-              <ArrowRight size={18} />
+      {run.eventResolved ? (
+        <>
+          <p className="journey-receipt" role="status">
+            <Check size={17} />
+            {run.message}
+          </p>
+          <footer className="journey-bottom-bar">
+            <span>事件已完成</span>
+            <button className="secondary" onClick={() => onAction({ type: 'continue' })}>
+              离开
+              <ArrowRight size={16} />
             </button>
-          );
-        })}
-      </div>
+          </footer>
+        </>
+      ) : (
+        <>
+          <p className="journey-story">{event.story}</p>
+          {!echo && (
+            <p className="journey-hint">
+              {direct ? '只能选择一项，点击后直接执行。' : '只能选择一项，确认后继续旅程。'}
+            </p>
+          )}
+          <div className="option-list">
+            {event.choices.map((option) => {
+              const blocked = eventChoiceBlock(run, option);
+              return (
+                <button
+                  className="option"
+                  key={option.id}
+                  disabled={!!blocked}
+                  onClick={() =>
+                    direct ? onAction({ type: 'event', choice: option.id }) : setPending(option.id)
+                  }
+                >
+                  <Radio size={20} />
+                  <span>
+                    <strong>{option.title}</strong>
+                    {!echo && <small>{option.text}</small>}
+                    {!echo && (
+                      <span className="journey-effect-tags">
+                        {eventChoicePreview(run, option).map((text) => (
+                          <span key={text}>{text}</span>
+                        ))}
+                      </span>
+                    )}
+                    {blocked && <small className="journey-blocked">{blocked}</small>}
+                    {option.effect.routes?.map((id) => (
+                      <small key={id}>
+                        {meta.unlockedRoutes.includes(id) ? <Check size={12} /> : null}
+                        {ROUTE_DATA[id].name} ·{' '}
+                        {meta.unlockedRoutes.includes(id) ? '已永久解锁' : '本次可永久解锁'}
+                      </small>
+                    ))}
+                  </span>
+                  <ArrowRight size={18} />
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
       {choice?.effect.card && (
         <CardChoicePanel
           run={run}

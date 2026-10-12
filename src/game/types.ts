@@ -108,6 +108,10 @@ export interface CardDef {
   burningBonus?: number;
   // 盾击类：当前护盾每 N 点追加 1 伤害（默认 2）
   shieldDiv?: number;
+  // 消耗目标全部灼烧，每层获得的额外护盾
+  burnShield?: number;
+  // 消耗全部护盾，每点追加的伤害
+  shieldSpend?: number;
   // 末日审判：灼烧每层追加伤害但不消耗灼烧
   burnPower?: number;
   // 若本回合已自损过，额外追加伤害
@@ -327,6 +331,8 @@ export interface Run {
   shopRelicStock: string[];
   shopBought: string[];
   shopRemoved: boolean;
+  /** 回响信号已结算，保留结果页面直到选择离开 */
+  eventResolved?: boolean;
   /** 进化后获得的新卡 uid，下一场战斗洗入抽牌堆前半段后清空 */
   spotlight?: string[];
   supportSpent: boolean;

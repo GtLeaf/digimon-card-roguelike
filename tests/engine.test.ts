@@ -680,10 +680,12 @@ export function autoplay(
           action = { type: 'camp', mode: 'heal' };
         break;
       case 'event':
-        action = {
-          type: 'event',
-          choice: branch === 'chaos' && r.currentNode?.eventId === 'research' ? 'risk' : 'safe',
-        };
+        action = r.eventResolved
+          ? { type: 'continue' }
+          : {
+              type: 'event',
+              choice: branch === 'chaos' && r.currentNode?.eventId === 'research' ? 'risk' : 'safe',
+            };
         break;
       case 'shop': {
         // 牌组臃肿时优先精简，模拟真实玩家的薄牌组策略。

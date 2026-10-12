@@ -105,7 +105,7 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
   },
   emberCannon: {
     damage: 15,
-    text: '造成 15 伤害，施加 2 灼烧；消耗全部蓄能，每层额外 4 伤害。',
+    text: '造成 15 伤害，施加 4 灼烧。',
   },
   leaf: {
     damage: 5,
@@ -151,8 +151,12 @@ export const CARD_UPGRADES: Record<string, CardUpgrade> = {
     text: '造成 25 伤害，获得 11 护盾。',
   },
   aegis: {
-    shield: 13,
-    text: '获得 13 护盾，抽 1 张牌。',
+    shield: 7,
+    text: '获得 7 护盾；消耗目标全部灼烧，每层额外 3 护盾。抽 1 张牌。',
+  },
+  finalElysion: {
+    damage: 10,
+    text: '造成 10 伤害；消耗全部护盾，每点额外 2 伤害。耗竭。',
   },
   gramLance: {
     damage: 15,

@@ -83,10 +83,12 @@ export function Codex({ meta }: { meta: Meta }) {
               return (
                 <article className={`codex-mon ${seen ? '' : 'undiscovered'}`} key={e.id}>
                   <img src={asset(e.art)} alt={seen ? e.name : '未知数码兽'} loading="lazy" />
-                  <h3>{seen ? e.name : '???'}</h3>
+                  <h3>
+                    {seen ? e.name : '???'}
+                    {seen && <AttributeLabel id={e.id} />}
+                  </h3>
                   {seen ? (
                     <>
-                      <AttributeLabel id={e.id} />
                       <span>
                         生命 {e.hp}
                         {e.scan ? (

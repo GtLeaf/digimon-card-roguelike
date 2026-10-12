@@ -184,9 +184,9 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       2,
       'attack',
       'guilmon',
-      '造成 12 伤害，施加 2 灼烧；消耗全部蓄能，每层额外 4 伤害。',
+      '造成 12 伤害，施加 4 灼烧。',
       'wargrowlmon',
-      { damage: 12, burn: 2, special: 'cannon' },
+      { damage: 12, burn: 4 },
     ),
     card('leaf', '狐叶楔', 1, 'attack', 'renamon', '造成 3×2 段伤害，施加 1 符印。', 'renamon', {
       damage: 3,
@@ -257,10 +257,26 @@ export const CARDS: Record<string, CardDef> = Object.fromEntries(
       damage: 22,
       shield: 8,
     }),
-    card('aegis', '圣盾守护', 1, 'skill', 'duke', '获得 10 护盾，抽 1 张牌。', 'dukemon', {
-      shield: 10,
-      draw: 1,
-    }),
+    card(
+      'aegis',
+      '圣炎之盾',
+      1,
+      'skill',
+      'duke',
+      '获得 4 护盾；消耗目标全部灼烧，每层额外 3 护盾。抽 1 张牌。',
+      'dukemon',
+      { shield: 4, burnShield: 3, draw: 1 },
+    ),
+    card(
+      'finalElysion',
+      '终极神圣光束',
+      2,
+      'attack',
+      'duke',
+      '造成 6 伤害；消耗全部护盾，每点额外 2 伤害。耗竭。',
+      'dukemon',
+      { damage: 6, shieldSpend: 2, exhaust: true },
+    ),
     card(
       'gramLance',
       '圣枪格拉墨',
@@ -1100,7 +1116,7 @@ export const BRANCHES: Record<
   duke: {
     name: '红莲骑士兽',
     art: 'dukemon',
-    tag: '圣盾攻防',
+    tag: '圣炎化盾',
     passive: '每回合首次打出提供护盾的牌，额外获得 3 护盾。',
     cards: ['royal', 'aegis'],
     partner: 'guilmon',
@@ -1414,6 +1430,7 @@ export const needsTarget = (d: CardDef) =>
     d.burn ||
     d.weak ||
     d.devourVuln ||
+    d.burnShield ||
     d.special === 'markburst' ||
     d.special === 'detonate'
   );

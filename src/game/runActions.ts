@@ -25,6 +25,7 @@ export function nodeAction(s: Save, action: Extract<Action, { type: 'node' }>): 
   const n = availableNodes(r).find((x) => x.id === action.id);
   if (!n) return false;
   r.currentNode = n;
+  delete r.eventResolved;
   r.message = '';
   if (['battle', 'elite', 'boss'].includes(n.kind)) beginBattle(r, n);
   else {
@@ -145,8 +146,10 @@ export function removeAction(s: Save, action: Extract<Action, { type: 'remove' }
 export function eventAction(s: Save, action: Extract<Action, { type: 'event' }>): boolean {
   const r = s.run!;
   const meta = s.meta;
+  if (r.eventResolved) return false;
   if (!applyEvent(r, meta, action.choice, action.uid)) return false;
-  finishNode(r);
+  if (r.currentNode?.eventId === 'echo') r.eventResolved = true;
+  else finishNode(r);
   return true;
 }
 

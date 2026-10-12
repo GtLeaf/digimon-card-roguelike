@@ -95,6 +95,52 @@ describe('journey interaction outcomes', () => {
     expect(eventChoicePreview(save.run!, EVENTS.supply.choices[0])).toEqual([]);
     expect(reduceGame(save, { type: 'event', choice: 'risk' })).toEqual(save);
   });
+  it.each([
+    ['safe', 42, 188],
+    ['risk', 30, 235],
+  ] as const)(
+    'echo %s shows its result until leaving and settles only once after reload',
+    (choice, hp, gold) => {
+      const save = node('event', 'echo');
+      save.run!.hp = 42;
+      const currentNode = save.run!.currentNode!;
+      const settled = reduceGame(save, { type: 'event', choice });
+      expect(settled.run).toMatchObject({
+        screen: 'event',
+        row: 5,
+        eventResolved: true,
+        hp,
+        gold,
+        currentNode,
+      });
+      expect(settled.run!.path).not.toContain(currentNode.id);
+      expect(settled.run!.message).toContain(
+        EVENTS.echo.choices.find((c) => c.id === choice)!.title,
+      );
+      expect(settled.run!.message).toContain(`金币 180 → ${gold}`);
+      const restored = parseSave(JSON.stringify(settled));
+      expect(restored.run!.eventResolved).toBe(true);
+      expect(restored.run!.message).toBe(settled.run!.message);
+      for (const repeat of ['risk', 'safe'] as const)
+        expect(reduceGame(restored, { type: 'event', choice: repeat })).toEqual(restored);
+      const left = reduceGame(restored, { type: 'continue' });
+      expect(left.run).toMatchObject({ screen: 'map', row: 6, currentNode: null, hp, gold });
+      expect(left.run!.eventResolved).toBeUndefined();
+      expect(left.run!.path.filter((id) => id === currentNode.id)).toHaveLength(1);
+      expect(reduceGame(left, { type: 'continue' })).toEqual(left);
+      expect(reduceGame(left, { type: 'event', choice: 'risk' })).toEqual(left);
+    },
+  );
+  it('pending legacy echo saves cannot leave before choosing and retain the minimum HP floor', () => {
+    const save = node('event', 'echo');
+    save.run!.hp = 3;
+    const restored = parseSave(JSON.stringify(save));
+    expect(restored.run!.eventResolved).toBeUndefined();
+    expect(reduceGame(restored, { type: 'continue' })).toEqual(restored);
+    const settled = reduceGame(restored, { type: 'event', choice: 'risk' });
+    expect(settled.run).toMatchObject({ screen: 'event', eventResolved: true, hp: 1, gold: 235 });
+    expect(settled.run!.message).toContain('生命 3 → 1');
+  });
   it('skipping reward keeps earned gold and scans and cannot grant a card afterward', () => {
     const save = node('reward');
     save.run!.reward = { cards: ['strike', 'guard', 'charge'], gold: 24, scans: [] };

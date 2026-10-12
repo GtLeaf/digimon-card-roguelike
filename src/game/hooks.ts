@@ -57,9 +57,6 @@ export const PASSIVES: Record<string, PassiveHooks> = {
     onFirstBurn({ b }) {
       b.block += 2;
     },
-    battleStart({ b }) {
-      b.charge++;
-    },
   },
   matadormon: {
     battleStart({ b }) {

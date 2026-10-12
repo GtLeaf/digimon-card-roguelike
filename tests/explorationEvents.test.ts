@@ -19,7 +19,8 @@ describe('distinct exploration event choices', () => {
     for (const id of Object.keys(EVENTS)) {
       const save = event(id);
       save.run!.gold = 0;
-      const next = reduceGame(save, { type: 'event', choice: 'safe' });
+      const settled = reduceGame(save, { type: 'event', choice: 'safe' });
+      const next = settled.run!.eventResolved ? reduceGame(settled, { type: 'continue' }) : settled;
       expect(next.run!.screen).toBe('map');
       expect(next.run!.hp).toBeGreaterThanOrEqual(save.run!.hp);
       if (next.run!.hp > save.run!.hp) healed.push(id);

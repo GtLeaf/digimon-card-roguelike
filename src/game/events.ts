@@ -187,7 +187,7 @@ export const EVENTS: Record<string, StoryEvent> = {
     title: '回响信号',
     story:
       '一段陌生的信号从旧接收器传来，仿佛在邀请搭档追踪它。深入追踪耗神，拆下接收器则能回收一些零件。',
-    hint: '生命换金币 / 小额回收',
+    hint: '',
     choices: [
       {
         id: 'risk',

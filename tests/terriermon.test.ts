@@ -547,7 +547,7 @@ function journey(branch: Branch) {
         break;
       }
       case 'event':
-        action = { type: 'event', choice: 'safe' };
+        action = r.eventResolved ? { type: 'continue' } : { type: 'event', choice: 'safe' };
         break;
       case 'shop':
         // 加权抽样后通用治疗牌变稀有，药水补给优先级上调，模拟真人的续航意识。

@@ -247,6 +247,7 @@ export function EvolutionTree({
                 }}
               >
                 {PARTNERS[id].name}
+                <AttributeLabel id={id} />
               </button>
             ))}
           </div>
@@ -312,7 +313,10 @@ export function EvolutionTree({
                 aria-label={`${formName(node.id)} ${activeRun?.form === node.id ? '当前形态' : s.ready ? '可进化' : '查看条件'}`}
               >
                 <img src={asset(node.id)} alt="" />
-                <strong>{formName(node.id)}</strong>
+                <strong>
+                  {formName(node.id)}
+                  <AttributeLabel id={node.id} />
+                </strong>
                 <small>
                   {activeRun?.form === node.id
                     ? '当前形态'
@@ -348,7 +352,8 @@ export function EvolutionTree({
       {choose && run && (
         <>
           <p className="evolution-current">
-            {formName(run.form)} · {stageName(run.stage)} · <AttributeLabel id={run.form} compact />
+            {formName(run.form)}
+            <AttributeLabel id={run.form} /> · {stageName(run.stage)}
           </p>
           <div className="evolution-candidates" aria-label="下一阶段形态">
             {candidates.map((node) => {
@@ -363,11 +368,11 @@ export function EvolutionTree({
                   onClick={() => select(node.id)}
                 >
                   <img src={asset(node.id)} alt="" />
-                  <strong>{formName(node.id)}</strong>
-                  <small>
-                    <AttributeLabel id={node.id} compact /> ·{' '}
-                    {candidateReady ? '可进化' : '条件未达成'}
-                  </small>
+                  <strong>
+                    {formName(node.id)}
+                    <AttributeLabel id={node.id} />
+                  </strong>
+                  <small>{candidateReady ? '可进化' : '条件未达成'}</small>
                 </button>
               );
             })}
@@ -399,8 +404,10 @@ export function EvolutionTree({
             <span className="eyebrow">
               {stageName(d.stage)} / {d.tag}
             </span>
-            <h3>{formName(d.id)}</h3>
-            <AttributeLabel id={d.id} />
+            <h3>
+              {formName(d.id)}
+              <AttributeLabel id={d.id} />
+            </h3>
           </div>
           {!choose && activeRun && d.stage > activeRun.stage && (
             <button
@@ -521,7 +528,10 @@ export function EvolutionTree({
       {choose && run && (
         <footer className="evolution-action-bar">
           <p role="status">
-            <strong>{formName(d.id)}</strong>
+            <strong>
+              {formName(d.id)}
+              <AttributeLabel id={d.id} />
+            </strong>
             <span>{blocker}</span>
           </p>
           <div>
@@ -554,7 +564,10 @@ export function EvolutionTracker({
     <button className="evolution-tracker" onClick={onOpen}>
       <Target size={15} />
       <span>
-        <strong>目标：{formName(id)}</strong>
+        <strong>
+          目标：{formName(id)}
+          <AttributeLabel id={id} />
+        </strong>
         <small>
           {s.ready
             ? '新进化路线已开放'

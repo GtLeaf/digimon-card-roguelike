@@ -15,7 +15,7 @@ try {
   const state = () => page.getByTestId('battle-state').evaluate((el) => JSON.parse(el.textContent));
   const count = () => page.getByTestId('applied').evaluate((el) => Number(el.textContent));
   const call = () => page.locator('.support-btn').click();
-  const skip = () => page.getByRole('button', { name: '跳过演出', exact: true }).click();
+  const skip = () => page.locator('.support-cut-in').click({ position: { x: 12, y: 12 } });
   const settled = () => expect.poll(async () => (await state()).busy).toBe(false);
   const reset = () => page.getByRole('button', { name: '重置战斗', exact: true }).click();
 
@@ -23,7 +23,9 @@ try {
   await call();
   const overlay = page.locator('.support-cut-in');
   await expect(overlay).toBeVisible();
-  await expect(overlay.locator('.support-cut-in__dialogue')).toHaveText('狮子兽“别害怕，我与你并肩！”');
+  await expect(overlay.locator('.support-cut-in__dialogue strong')).toContainText('狮子兽');
+  await expect(overlay.locator('.support-cut-in__dialogue p')).toHaveText('“别害怕，我与你并肩！”');
+  await expect(overlay.locator('button')).toHaveCount(0);
   await expect(overlay).not.toContainText('伙伴支援');
   await expect(overlay).not.toContainText('兽王咆哮');
   assert.equal((await state()).used, false);
@@ -89,6 +91,38 @@ try {
   passed('全部 10 位伙伴和应急程序可展示，跳过与连续调用均只结算一次');
 
   await page.getByRole('combobox', { name: '验收伙伴' }).selectOption('hagurumon');
+  for (const surface of ['background', 'ribbon']) {
+    await reset();
+    const calls = await count();
+    const handBefore = (await state()).hand;
+    await call();
+    await expect(overlay).toBeFocused();
+    await expect(overlay.locator('button')).toHaveCount(0);
+    if (surface === 'background') await skip();
+    else await overlay.locator('.support-cut-in__dialogue').click();
+    await settled();
+    assert.equal(await count(), calls + 1);
+    assert.equal((await state()).block, 10);
+    assert.equal((await state()).hand, handBefore);
+    assert.equal((await state()).turn, 1);
+  }
+  passed('点击背景或横幅均可跳过，无独立按钮，未触发下层出牌或结束回合');
+
+  for (const key of ['Enter', 'Space', 'Escape']) {
+    await reset();
+    const calls = await count();
+    await call();
+    await page.keyboard.press('Tab');
+    await expect(overlay).toBeFocused();
+    await page.keyboard.press(key);
+    await settled();
+    assert.equal(await count(), calls + 1);
+    assert.equal((await state()).block, 10);
+    await expect(overlay).toHaveCount(0);
+  }
+  passed('焦点保持在演出内，Enter / 空格 / Escape 均能跳过并只结算一次');
+
+  await reset();
   await page.getByRole('checkbox', { name: '减少动画', exact: true }).check();
   await call();
   await expect(page.locator('.support-cut-in--reduced')).toBeVisible();

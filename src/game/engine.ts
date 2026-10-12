@@ -221,7 +221,12 @@ function runAction(state: Save, action: Action): Save {
     if (!rewardAction(s, action)) return state;
     return s;
   }
-  if (action.type === 'continue' && ['treasure', 'shop', 'camp'].includes(r.screen)) finishNode(r);
+  if (
+    action.type === 'continue' &&
+    (['treasure', 'shop', 'camp'].includes(r.screen) ||
+      (r.screen === 'event' && r.currentNode?.eventId === 'echo' && r.eventResolved))
+  )
+    finishNode(r);
   if (action.type === 'camp' && r.screen === 'camp') campAction(s, action);
   if (action.type === 'rest' && r.screen === 'rest') restAction(s);
   if (action.type === 'buy' && r.screen === 'shop' && !r.shopBought.includes(action.id))

@@ -171,10 +171,12 @@ export function BattleScreen({
                   id={e.id}
                   size={b.enemies.length > 2 ? 120 : b.enemies.length > 1 ? 175 : 200}
                 />
-                <span className="enemy-name">{ENEMIES[e.id].name}</span>
+                <span className="enemy-name">
+                  {ENEMIES[e.id].name}
+                  <AttributeLabel id={e.id} />
+                </span>
                 <Health hp={e.hp} max={e.maxHp} block={e.block} />
                 <span className="status-tags">
-                  <AttributeLabel id={e.id} compact />
                   {e.hp > 0 && e.strength > 0 && <span>力量 {e.strength}</span>}
                   {e.hp > 0 && ENEMIES[e.id].guard && <span>护卫</span>}
                   {e.hp > 0 && e.id === 'beelzebumon' && <span>噬能 {e.devour ?? 0}/2</span>}
@@ -211,9 +213,11 @@ export function BattleScreen({
           >
             <Sprite id={r.form} size={210} />
             <div className="player-caption">
-              <strong>{FORM_NAMES[r.form]}</strong>
+              <strong>
+                {FORM_NAMES[r.form]}
+                <AttributeLabel id={r.form} />
+              </strong>
               <span>
-                <AttributeLabel id={r.form} compact /> ·{' '}
                 {r.branch
                   ? BRANCHES[r.branch].tag
                   : r.training === 'defense' && r.stage > 0
@@ -259,8 +263,8 @@ export function BattleScreen({
       {activeEnemy && (
         <p className="enemy-mechanic">
           <strong>
-            {ENEMIES[activeEnemy.id].name} · <AttributeLabel id={activeEnemy.id} compact /> ·{' '}
-            {plans.get(activeEnemy.uid)!.name}
+            {ENEMIES[activeEnemy.id].name}
+            <AttributeLabel id={activeEnemy.id} /> · {plans.get(activeEnemy.uid)!.name}
           </strong>
           <span>{plans.get(activeEnemy.uid)!.detail}</span>
         </p>
@@ -333,6 +337,7 @@ export function BattleScreen({
           <ScanLine size={17} />
           <span>
             {ENEMIES[r.support]?.name ?? '应急防御'}
+            {ENEMIES[r.support] && <AttributeLabel id={r.support} />}
             <small>
               {b.supportUsed
                 ? r.support === 'default'

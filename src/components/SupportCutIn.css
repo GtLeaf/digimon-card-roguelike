@@ -8,6 +8,8 @@
   background: rgb(16 29 35 / 42%);
   color: var(--paper);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  cursor: pointer;
+  outline: none;
 }
 
 .support-cut-in__band {
@@ -94,19 +96,6 @@
   font-size: clamp(17px, 2vw, 21px);
   line-height: 1.5;
   overflow-wrap: anywhere;
-}
-
-.support-cut-in__skip {
-  position: absolute;
-  right: max(18px, env(safe-area-inset-right));
-  top: calc(100% + 16px);
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--panel);
-  color: var(--paper);
-  font-size: 12px;
 }
 
 .support-cut-in--reduced {

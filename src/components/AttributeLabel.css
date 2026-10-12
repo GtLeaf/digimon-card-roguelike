@@ -1,0 +1,29 @@
+.attribute-icon {
+  display: inline-block;
+  width: clamp(12px, 0.85em, 18px);
+  height: clamp(12px, 0.85em, 18px);
+  margin-inline-start: 0.35em;
+  vertical-align: -0.12em;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.attribute-icon-Va {
+  color: var(--mint);
+}
+.attribute-icon-symbol {
+  width: clamp(16px, 1em, 20px);
+  height: clamp(16px, 1em, 20px);
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+.attribute-icon-Vi {
+  color: var(--danger);
+}
+.attribute-icon-Da {
+  color: var(--orange);
+}

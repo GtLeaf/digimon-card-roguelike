@@ -25,6 +25,7 @@ const scenarios = [
   'training',
   'research',
   'supply',
+  'echo',
   '磁盘已满',
   '低血量事件',
   '旧事件',

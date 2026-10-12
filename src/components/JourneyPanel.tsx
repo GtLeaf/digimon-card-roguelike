@@ -37,7 +37,7 @@ export function JourneyHeader({
   icon: ReactNode;
   title: string;
   eyebrow: string;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <header className="journey-heading">
@@ -46,7 +46,7 @@ export function JourneyHeader({
         <span className="eyebrow">{eyebrow}</span>
         <h1>{title}</h1>
       </div>
-      <p>{children}</p>
+      {children && <p>{children}</p>}
     </header>
   );
 }

@@ -510,6 +510,10 @@ export function simulateJourney(
         break;
       }
       case 'event': {
+        if (r.eventResolved) {
+          action = { type: 'continue' };
+          break;
+        }
         const e = eventFor(r),
           risk = e?.choices.find((c) => c.id === 'risk');
         if (e?.id === 'research') {
